@@ -1,0 +1,76 @@
+EESchema Schematic File Version 4
+EELAYER 30 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L Analog_DAC:MCP4822 U?
+U 1 1 61B7B705
+P 5300 4300
+F 0 "U?" H 5300 4881 50  0000 C CNN
+F 1 "MCP4822" H 5300 4790 50  0000 C CNN
+F 2 "" H 6100 4000 50  0001 C CNN
+F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/20002249B.pdf" H 6100 4000 50  0001 C CNN
+	1    5300 4300
+	1    0    0    -1  
+$EndComp
+Text GLabel 5800 4200 2    50   Input ~ 0
+galvoX
+Text GLabel 5800 4500 2    50   Input ~ 0
+galvoY
+Wire Wire Line
+	5300 2750 1850 2750
+Wire Wire Line
+	1850 2750 1850 3100
+Wire Wire Line
+	2900 4900 2750 4900
+Wire Wire Line
+	1850 5700 1850 6100
+$Comp
+L Connector:Raspberry_Pi_2_3 J?
+U 1 1 61B80C86
+P 1950 4400
+F 0 "J?" H 1950 5881 50  0000 C CNN
+F 1 "Raspberry_Pi_2_3" H 1950 5790 50  0000 C CNN
+F 2 "" H 1950 4400 50  0001 C CNN
+F 3 "https://www.raspberrypi.org/documentation/hardware/raspberrypi/schematics/rpi_SCH_3bplus_1p0_reduced.pdf" H 1950 4400 50  0001 C CNN
+	1    1950 4400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5300 6100 1850 6100
+Wire Wire Line
+	5200 6000 1750 6000
+Wire Wire Line
+	1750 6000 1750 5700
+Wire Wire Line
+	3000 4800 2750 4800
+Wire Wire Line
+	4800 4500 2750 4500
+Wire Wire Line
+	2900 4900 2900 4200
+Wire Wire Line
+	2900 4200 4800 4200
+Wire Wire Line
+	3000 4800 3000 4400
+Wire Wire Line
+	3000 4400 4800 4400
+Wire Wire Line
+	4800 4300 5200 4300
+Wire Wire Line
+	5200 4300 5200 6000
+Wire Wire Line
+	5300 6100 5300 4800
+Wire Wire Line
+	5300 2750 5300 3900
+$EndSCHEMATC

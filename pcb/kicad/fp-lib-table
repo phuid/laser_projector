@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name "laser_projector-(mcp4822+rpi)")(type KiCad)(uri "${KIPRJMOD}/laser_projector-(mcp4822+rpi).pretty")(options "")(descr ""))
+)
