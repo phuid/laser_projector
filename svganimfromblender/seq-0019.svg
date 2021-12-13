@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='ascii'?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="1080" height="1080">
+    <g id="ViewLayer_LineSet" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" inkscape:groupmode="lineset" inkscape:label="ViewLayer_LineSet">
+        <g xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" inkscape:groupmode="layer" id="strokes" inkscape:label="strokes">
+            <path fill="none" stroke-width="3.0" stroke-linecap="butt" stroke-opacity="1.0" stroke="rgb(0, 0, 0)" stroke-linejoin="round" d=" M -152.954, 355.396 -143.202, 353.180 -133.451, 350.964 -123.700, 348.748 -113.948, 346.532 -104.197, 344.316 -94.445, 342.100 -84.694, 339.884 -74.943, 337.668 -65.191, 335.452 -55.440, 333.236 -45.688, 331.020 -35.937, 328.804 -26.186, 326.589 -16.434, 324.373 -6.683, 322.157 3.069, 319.941 12.820, 317.725 22.571, 315.509 27.263, 314.443 25.701, 304.565 24.139, 294.688 22.577, 284.811 21.015, 274.934 19.452, 265.056 17.890, 255.179 16.328, 245.302 14.766, 235.425 13.204, 225.548 11.642, 215.670 10.079, 205.793 8.517, 195.916 6.955, 186.039 5.393, 176.161 3.831, 166.284 2.269, 156.407 0.706, 146.530 -0.856, 136.653 -1.372, 133.389 " />
+        </g>
+    </g>
+</svg>
