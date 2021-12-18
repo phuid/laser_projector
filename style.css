@@ -1,0 +1,42 @@
+#output {
+  font-family: Inconsolata, monospace;
+  border: 1px solid grey;
+  background-color: lightgrey;
+  overflow: scroll;
+}
+
+@media (orientation: portrait) {
+  /* form .button {
+    width: 100%;
+  } */
+
+  input {
+    font-size: 4rem;
+    width: 100%;
+    height: 50%;
+  }
+
+  #fileupload {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 92%;
+  }
+
+  #input {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 8%;
+    bottom: 80%;
+  }
+
+  #output {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 20%;
+  }
+}
