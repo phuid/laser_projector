@@ -5,6 +5,17 @@
   overflow: scroll;
 }
 
+form#projectform input[type="submit"] {
+  display: none;
+}
+
+#projectform svg {
+  background-color: greenyellow;
+  border: 1px solid grey;
+  border-radius: 20%;
+  padding-left: 3%;
+}
+
 @media (orientation: portrait) {
   /* form .button {
     width: 100%;
@@ -21,22 +32,45 @@
     left: 0;
     right: 0;
     top: 0;
-    bottom: 92%;
+    bottom: 85%;
   }
 
   #input {
     position: absolute;
     left: 0;
     right: 0;
-    top: 8%;
-    bottom: 80%;
+    height: 12rem;
+    bottom: 10rem;
   }
 
   #output {
+    font-size: 1.8rem;
     position: absolute;
     left: 0;
     right: 0;
+    bottom: 22rem;
+    top: 15%;
+  }
+
+  #lastpatharea {
+    background-color: white;
+    border: 1px solid black;
+    font-size: 5rem;
+    position: absolute;
+    left: 0;
+    width: 80%;
     bottom: 0;
-    top: 20%;
+    right: 20%;
+    height: 10rem;
+    overflow-x: scroll;
+    z-index: 1;
+  }
+
+  #projectform svg {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    height: 10rem;
+    width: 20%;
   }
 }
