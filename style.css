@@ -9,11 +9,10 @@ form#projectform input[type="submit"] {
   display: none;
 }
 
-#projectform svg {
+svg {
   background-color: greenyellow;
   border: 1px solid grey;
   border-radius: 20%;
-  padding-left: 3%;
 }
 
 @media (orientation: portrait) {
@@ -66,11 +65,12 @@ form#projectform input[type="submit"] {
     z-index: 1;
   }
 
-  #projectform svg {
+  svg {
     position: absolute;
     right: 0;
     bottom: 0;
     height: 10rem;
     width: 20%;
+    z-index: 2;
   }
 }

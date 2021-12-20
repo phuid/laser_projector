@@ -38,11 +38,11 @@ http.createServer(function (req, res) {
       form.parse(req, function (err, fields, files) {
         if (files.filetoupload.originalFilename != "" && !(files.filetoupload.originalFilename.substring(files.filetoupload.originalFilename.indexOf('.')) != ".svg" && files.filetoupload.originalFilename.substring(files.filetoupload.originalFilename.indexOf('.')) != ".ild")) {
           var oldpath = files.filetoupload.filepath;
-          
+
           if (files.filetoupload.originalFilename.substring(files.filetoupload.originalFilename.indexOf('.')) == ".svg")
-          var newpath = path.join(__dirname, 'svg/' + files.filetoupload.originalFilename);
+            var newpath = path.join(__dirname, 'svg/' + files.filetoupload.originalFilename);
           else if (files.filetoupload.originalFilename.substring(files.filetoupload.originalFilename.indexOf('.')) == ".ild")
-          var newpath = path.join(__dirname, 'ild/' + files.filetoupload.originalFilename);
+            var newpath = path.join(__dirname, 'ild/' + files.filetoupload.originalFilename);
 
           fs.rename(oldpath, newpath, function (err) {
             if (err) {
@@ -56,28 +56,27 @@ http.createServer(function (req, res) {
               if (files.filetoupload.originalFilename.substring(files.filetoupload.originalFilename.indexOf('.')) == ".svg") {
                 exec('python3 ' + path.join(__dirname, '/svg2ild.py') + ' ' + newpath + ' ' + path.join(__dirname, '/ild/' + files.filetoupload.originalFilename.substring(0, files.filetoupload.originalFilename.indexOf('.'))) + '.ild', (error, stdout, stderr) => {
                   if (error) {
-                    res.write(`error:\n${error.message}`);
-                    console.log(`error:\n${error.message}`);
+                    res.write(`error:<br>${error.message}<br>`);
+                    console.log(`error:\n${error.message}\n`);
                     return;
                   }
                   if (stderr) {
-                    res.write(`stderr:\n${stderr}`);
-                    console.log(`stderr:\n${stderr}`);
+                    res.write(`stderr:<br>${stderr}<br>`);
+                    console.log(`stderr:\n${stderr}\n`);
                     return;
                   }
-                  if (stdout.length > 0) {
-                    res.write(stdout[0]);
-                    for (var i = 1; i < stdout.length; i++) {
-                      if (stdout[i] == '\n') {
-                        res.write('<br>');
-                      }
-                      else if (stdout[i] == '<' || stdout[i] == '>') continue;
-                      else {
-                        res.write(stdout[i]);
-                      }
+                  res.write('stdout:');
+                  for (var i = 0; i < stdout.length; i++) {
+                    if (stdout[i] == '\n') {
+                      res.write('<br>');
                     }
-                    console.log(`${stdout}`);
+                    else if (stdout[i] == '<' || stdout[i] == '>') continue;
+                    else {
+                      res.write(stdout[i]);
+                    }
                   }
+                  console.log(`${stdout}`);
+
                 }).on('close', () => {
                   res.write('new path: "' + path.join(__dirname, '/ild/' + files.filetoupload.originalFilename.substring(0, files.filetoupload.originalFilename.indexOf('.'))) + '.ild' + '"');
                   lastuploadedpath = path.join(__dirname, '/ild/' + files.filetoupload.originalFilename.substring(0, files.filetoupload.originalFilename.indexOf('.'))) + '.ild';
@@ -117,31 +116,31 @@ http.createServer(function (req, res) {
         console.log('asdfasdf' + fields.filename);
         console.log(fields.filename);
         if (fields.filename.length > 0) {
-          console.log('./lasershow 0 ' +  path.join(__dirname, '/ild' + fields.filename));
-          exec('./lasershow 0 ' +  path.join(__dirname, '/ild' + fields.filename), (error, stdout, stderr) => {
+          console.log('./lasershow 0 ' + path.join(__dirname, '/ild' + fields.filename));
+          exec('./lasershow 0 ' + path.join(__dirname, '/ild' + fields.filename), (error, stdout, stderr) => {
             if (error) {
-              res.write(`error:\n${error.message}`);
-              console.log(`error:\n${error.message}`);
+              res.write(`error:<br>${error.message}<br>`);
+              console.log(`error:\n${error.message}\n`);
               return;
             }
             if (stderr) {
-              res.write(`stderr:\n${stderr}`);
-              console.log(`stderr:\n${stderr}`);
+              res.write(`stderr:<br>${stderr}<br>`);
+              console.log(`stderr:\n${stderr}\n`);
               return;
             }
-            if (stdout.length > 0) {
-              res.write(stdout[0]);
-              for (var i = 1; i < stdout.length; i++) {
-                if (stdout[i] == '\n') {
-                  res.write('<br>');
-                }
-                else if (stdout[i] == '<' || stdout[i] == '>') continue;
-                else {
-                  res.write(stdout[i]);
-                }
+            res.write('stdout:');
+
+            for (var i = 0; i < stdout.length; i++) {
+              if (stdout[i] == '\n') {
+                res.write('<br>');
               }
-              console.log(`${stdout}`);
+              else if (stdout[i] == '<' || stdout[i] == '>') continue;
+              else {
+                res.write(stdout[i]);
+              }
             }
+            console.log(`${stdout}`);
+
           }).on('close', () => {
             if (lastuploadedpath != undefined) {
               res.end('</div><form id="projectionform" action="project" method="post" enctype="multipart/form-data"><input id="lastpatharea" name="filename" type="textarea" value="' + lastuploadedpath.substring(lastuploadedpath.lastIndexOf("/")) + '"><label><input id="projectbutton" type="submit" /> <svg width="599" height="338" viewBox="0 0 599 338" fill="none" xmlns="http://www.w3.org/2000/svg"> <circle cx="7.5" cy="7.5" r="7" stroke=" black"/> <circle cx="7.5" cy="134.5" r="7" stroke=" black"/> <circle cx="76.5" cy="134.5" r="7" stroke=" black"/> <path d="M7.5 7.5V134.5H76.5" stroke=" black"/> <circle cx="207.5" cy="134.5" r="7" stroke=" black"/> <circle cx="192.5" cy="96.5" r="7" stroke=" black"/> <circle cx="156.5" cy="7.5" r="7" stroke=" black"/> <circle cx="121.5" cy="96.5" r="7" stroke=" black"/> <circle cx="106.5" cy="134.5" r="7" stroke=" black"/> <path d="M106.5 134.5L121.5 96.5L156.5 6.5L192.5 96.5L207.5 134.5" stroke=" black"/> <path d="M121.5 96.5H192.5" stroke=" black"/> <circle cx="240.5" cy="109.5" r="7" stroke=" black"/> <circle cx="322.5" cy="32.5" r="7" stroke=" black"/> <path d="M240 109.5C269 154 319.5 134 322.5 106.5C326.973 65.5 239 71.5 243 34C248 -3.5 303.5 3.5 310.5 12.5C317.5 21.5 322.5 24.5 322.5 34" stroke=" black"/> <circle cx="282.5" cy="70.5" r="7" stroke=" black"/> <circle cx="355.5" cy="7.5" r="7" stroke=" black"/> <circle cx="445.5" cy="7.5" r="7" stroke=" black"/> <circle cx="400.5" cy="134.5" r="7" stroke=" black"/> <path d="M355.5 7.5H445.5" stroke=" black"/> <path d="M400.5 7.5V134.664" stroke=" black"/> <circle cx="400.5" cy="7.5" r="7" stroke=" black"/> <line x1="532.5" y1="338" x2="532.5" y2="206" stroke=" black"/> <line x1="579.985" y1="318.692" x2="486.646" y2="225.354" stroke=" black"/> <line x1="485.646" y1="317.985" x2="578.985" y2="224.646" stroke=" black"/> <circle cx="533" cy="272" r="14.5" stroke=" black"/> <line x1="467" y1="271.5" x2="599" y2="271.5" stroke=" black"/> <path d="M532 272L8 135" stroke=" black"/> <path d="M531 272.5L75 133.5" stroke=" black"/> <path d="M533 273.5L106 135" stroke=" black"/> <path d="M530.5 274L159 7" stroke=" black"/> <path d="M532 271.5L206.5 134" stroke=" black"/> <path d="M532 271.5L240.5 110" stroke=" black"/> <path d="M533 272.5L283 70.5" stroke=" black"/> <path d="M534 272.5L321.5 33" stroke=" black"/> <path d="M532 272L400 133.5" stroke=" black"/> <path d="M530.5 274L400.5 7.5" stroke=" black"/> <path d="M530 273.5L356.5 6" stroke=" black"/> <path d="M534 271.5L445.5 7" stroke=" black"/> <path d="M533 272L7 7" stroke=" black"/> </svg> </label></body></html>');
@@ -167,28 +166,26 @@ http.createServer(function (req, res) {
         if (fields.text.length > 0) {
           exec(fields.text, (error, stdout, stderr) => {
             if (error) {
-              res.write(`error:\n${error.message}`);
-              console.log(`error:\n${error.message}`);
+              res.write(`error:<br>${error.message}<br>`);
+              console.log(`error:\n${error.message}\n`);
               return;
             }
             if (stderr) {
-              res.write(`stderr:\n${stderr}`);
-              console.log(`stderr:\n${stderr}`);
+              res.write(`stderr:<br>${stderr}<br>`);
+              console.log(`stderr:\n${stderr}\n`);
               return;
             }
-            if (stdout.length > 0) {
-              res.write(stdout[0]);
-              for (var i = 1; i < stdout.length; i++) {
-                if (stdout[i] == '\n') {
-                  res.write('<br>');
-                }
-                else if (stdout[i] == '<' || stdout[i] == '>') continue;
-                else {
-                  res.write(stdout[i]);
-                }
+            res.write('stdout:');
+            for (var i = 1; i < stdout.length; i++) {
+              if (stdout[i] == '\n') {
+                res.write('<br>');
               }
-              console.log(`${stdout}`);
+              else if (stdout[i] == '<' || stdout[i] == '>') continue;
+              else {
+                res.write(stdout[i]);
+              }
             }
+            console.log(`${stdout}`);
           }).on('close', () => {
             if (lastuploadedpath != undefined) {
               res.end('</div><form id="projectionform" action="project" method="post" enctype="multipart/form-data"><input id="lastpatharea" name="filename" type="textarea" value="' + lastuploadedpath.substring(lastuploadedpath.lastIndexOf("/")) + '"><label><input id="projectbutton" type="submit" /> <svg width="599" height="338" viewBox="0 0 599 338" fill="none" xmlns="http://www.w3.org/2000/svg"> <circle cx="7.5" cy="7.5" r="7" stroke=" black"/> <circle cx="7.5" cy="134.5" r="7" stroke=" black"/> <circle cx="76.5" cy="134.5" r="7" stroke=" black"/> <path d="M7.5 7.5V134.5H76.5" stroke=" black"/> <circle cx="207.5" cy="134.5" r="7" stroke=" black"/> <circle cx="192.5" cy="96.5" r="7" stroke=" black"/> <circle cx="156.5" cy="7.5" r="7" stroke=" black"/> <circle cx="121.5" cy="96.5" r="7" stroke=" black"/> <circle cx="106.5" cy="134.5" r="7" stroke=" black"/> <path d="M106.5 134.5L121.5 96.5L156.5 6.5L192.5 96.5L207.5 134.5" stroke=" black"/> <path d="M121.5 96.5H192.5" stroke=" black"/> <circle cx="240.5" cy="109.5" r="7" stroke=" black"/> <circle cx="322.5" cy="32.5" r="7" stroke=" black"/> <path d="M240 109.5C269 154 319.5 134 322.5 106.5C326.973 65.5 239 71.5 243 34C248 -3.5 303.5 3.5 310.5 12.5C317.5 21.5 322.5 24.5 322.5 34" stroke=" black"/> <circle cx="282.5" cy="70.5" r="7" stroke=" black"/> <circle cx="355.5" cy="7.5" r="7" stroke=" black"/> <circle cx="445.5" cy="7.5" r="7" stroke=" black"/> <circle cx="400.5" cy="134.5" r="7" stroke=" black"/> <path d="M355.5 7.5H445.5" stroke=" black"/> <path d="M400.5 7.5V134.664" stroke=" black"/> <circle cx="400.5" cy="7.5" r="7" stroke=" black"/> <line x1="532.5" y1="338" x2="532.5" y2="206" stroke=" black"/> <line x1="579.985" y1="318.692" x2="486.646" y2="225.354" stroke=" black"/> <line x1="485.646" y1="317.985" x2="578.985" y2="224.646" stroke=" black"/> <circle cx="533" cy="272" r="14.5" stroke=" black"/> <line x1="467" y1="271.5" x2="599" y2="271.5" stroke=" black"/> <path d="M532 272L8 135" stroke=" black"/> <path d="M531 272.5L75 133.5" stroke=" black"/> <path d="M533 273.5L106 135" stroke=" black"/> <path d="M530.5 274L159 7" stroke=" black"/> <path d="M532 271.5L206.5 134" stroke=" black"/> <path d="M532 271.5L240.5 110" stroke=" black"/> <path d="M533 272.5L283 70.5" stroke=" black"/> <path d="M534 272.5L321.5 33" stroke=" black"/> <path d="M532 272L400 133.5" stroke=" black"/> <path d="M530.5 274L400.5 7.5" stroke=" black"/> <path d="M530 273.5L356.5 6" stroke=" black"/> <path d="M534 271.5L445.5 7" stroke=" black"/> <path d="M533 272L7 7" stroke=" black"/> </svg> </label></body></html>');
