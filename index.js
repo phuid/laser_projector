@@ -58,14 +58,12 @@ http.createServer(function (req, res) {
                   if (error) {
                     res.write(`error:<br>${error.message}<br>`);
                     console.log(`error:\n${error.message}\n`);
-                    return;
                   }
                   if (stderr) {
                     res.write(`stderr:<br>${stderr}<br>`);
                     console.log(`stderr:\n${stderr}\n`);
-                    return;
                   }
-                  res.write('stdout:');
+                  res.write('stdout:<br>');
                   for (var i = 0; i < stdout.length; i++) {
                     if (stdout[i] == '\n') {
                       res.write('<br>');
@@ -121,19 +119,18 @@ http.createServer(function (req, res) {
             if (error) {
               res.write(`error:<br>${error.message}<br>`);
               console.log(`error:\n${error.message}\n`);
-              return;
             }
             if (stderr) {
               res.write(`stderr:<br>${stderr}<br>`);
               console.log(`stderr:\n${stderr}\n`);
-              return;
             }
-            res.write('stdout:');
+            res.write('stdout:<br>');
 
             for (var i = 0; i < stdout.length; i++) {
               if (stdout[i] == '\n') {
                 res.write('<br>');
               }
+              //protection from creating unwanted html elements
               else if (stdout[i] == '<' || stdout[i] == '>') continue;
               else {
                 res.write(stdout[i]);
@@ -168,14 +165,12 @@ http.createServer(function (req, res) {
             if (error) {
               res.write(`error:<br>${error.message}<br>`);
               console.log(`error:\n${error.message}\n`);
-              return;
             }
             if (stderr) {
               res.write(`stderr:<br>${stderr}<br>`);
               console.log(`stderr:\n${stderr}\n`);
-              return;
             }
-            res.write('stdout:');
+            res.write('stdout:<br>');
             for (var i = 1; i < stdout.length; i++) {
               if (stdout[i] == '\n') {
                 res.write('<br>');
@@ -212,5 +207,21 @@ http.createServer(function (req, res) {
       }
     }
   }
-}).listen(5000);
-console.log("localhost:5000");
+}).listen(3000);
+console.log("localhost:3000");
+
+var lasttime = 0;
+var lastpath = 'asdf';
+
+var fs = require('fs');
+fs.readdir("./ild/", function (err, list) {
+  list.forEach(function (file) {
+    // console.log(path.join(__dirname + '/ild/', file));
+    stats = fs.statSync(path.join(__dirname + '/ild/', file), true);
+    if (stats.mtimeMs > lasttime) {
+      lasttime = stats.mtimeMs;
+      lastpath = path.join(__dirname + '/ild/', file);
+    }
+  })
+  console.log(lastpath);
+})

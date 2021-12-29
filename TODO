@@ -1,0 +1,19 @@
+Disable access point :
+
+    sudo systemctl disable hostapd dnsmasq
+
+    comment the static ip config in /etc/dhcpcd.conf
+
+    sudo reboot
+
+Enable access point
+
+    sudo systemctl enable hostapd dnsmasq
+
+    comment the static IP config in /etc/dhcpcd.conf
+
+    sudo reboot
+
+    sudo ifdown wlan0
+    sudo hostapd -B /etc/hostapd/hostapd.conf
+    sudo systemctl reload dnsmasq
