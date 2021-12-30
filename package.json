@@ -2,7 +2,7 @@
   "name": "laser_projector-web_ui",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "laser_projector-web-ui.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

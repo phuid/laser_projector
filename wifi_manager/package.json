@@ -1,0 +1,14 @@
+{
+  "name": "wifi_manager",
+  "version": "1.0.0",
+  "description": "",
+  "main": "wifi_manager.js",
+  "dependencies": {
+    "onoff": "^6.0.3"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
