@@ -114,6 +114,7 @@ http.createServer(function (req, res) {
         console.log('asdfasdf' + fields.filename);
         console.log(fields.filename);
         if (fields.filename.length > 0) {
+          //add stoping of previous projection
           console.log('./lasershow 0 ' + path.join(__dirname, '/ild/' + fields.filename));
           exec('./lasershow 0 ' + path.join(__dirname, '/ild/' + fields.filename), (error, stdout, stderr) => {
             if (error) {

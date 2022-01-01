@@ -15,8 +15,12 @@ const commands = [
         .setRequired(true)),
 
   new SlashCommandBuilder()
-    .setName('user')
-    .setDescription('Replies with user info!')
+    .setName('project')
+    .setDescription('Projects the file from inputs filename')
+    .addStringOption(option =>
+      option.setName('filename')
+        .setDescription('The file to Project')
+        .setRequired(true))
 ]
   .map(command => command.toJSON());
 
