@@ -212,7 +212,7 @@ http.createServer(function (req, res) {
 console.log("localhost:3000");
 
 var lasttime = 0;
-var lastpath = 'asdf';
+var lastpath = '';
 
 var fs = require('fs');
 const ildFiles = fs.readdirSync('./ild/').filter(file => file.endsWith('.ild'));
@@ -226,4 +226,3 @@ ildFiles.forEach(function (file) {
   }
 })
 console.log(lastpath);
-
