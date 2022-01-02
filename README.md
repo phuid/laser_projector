@@ -124,6 +124,6 @@ this part is not gonna be added untill around Febuary 2022, since that's when my
 
 for some reason my pi saw the voltage on some pins as HIGH when they werent connected to anything, so i had to detect, wht pins were grounded instead of wht pins were taking power
 
-![first setup](https://github.com/phuid/laser-projector/tree/master/progress-first-setup.jpg?raw=true)
+![first setup](https://github.com/phuid/laser-projector/blob/master/img/progress-first_setup.jpg?raw=true)
 
-![first wiring](https://github.com/phuid/laser-projector/tree/master/progress-first-wiring.jpg?raw=true)
+![first wiring](https://github.com/phuid/laser-projector/blob/master/img/progress-first_wiring.jpg?raw=true)
