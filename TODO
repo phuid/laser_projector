@@ -2,3 +2,4 @@ project last updated file when stealth is on
 
 //add stoping of previous projection
 
+check if exec() doesnt have smth like .on('stdout') that would b emitted when the process outputs some stdout
