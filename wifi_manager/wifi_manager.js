@@ -4,7 +4,7 @@ const fs = require('fs');
 
 var APButton = new Gpio(6, 'in', 'both');
 var wifiButton = new Gpio(5, 'in', 'both');
-var sdButton = new Gpio(26, 'in', 'both');
+var sdButton = new Gpio(26, 'in', 'both'); //shutdown
 
 function togglewifi() {
   var waitTill = new Date(new Date().getTime() + 100);
@@ -163,6 +163,9 @@ if (1 - APButton.readSync()) {
         }
         console.log(stdout);
       })
+
+      exec('sudo systemctl start dnsmasq');
+
       exec('sudo hostapd -B /etc/hostapd/hostapd.conf', (error, stdout, stderr) => {
         if (error) {
           console.log(`error:\n${error.message}\n`);

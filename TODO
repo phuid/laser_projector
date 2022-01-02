@@ -5,3 +5,5 @@ project last updated file when stealth is on
 check if exec() doesnt have smth like .on('stdout') that would b emitted when the process outputs some stdout
 
 README.md - isntalling system dependencies and WiringPi and pm2
+
+discord help command
