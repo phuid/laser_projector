@@ -487,12 +487,16 @@ client.on('interactionCreate', async interaction => {
       })
 
       const row = new MessageActionRow()
-        .addComponents(
+        .addComponents([
           new MessageButton()
             .setCustomId('last')
             .setLabel('Project last uploaded file')
             .setStyle('PRIMARY'),
-        );
+          new MessageButton()
+            .setCustomId('ls')
+            .setLabel('Show all available ILDA files')
+            .setStyle('SECONDARY'),
+        ]);
       try {
         const newrow = new MessageActionRow()
           .addComponents(
