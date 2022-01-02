@@ -45,6 +45,7 @@ function togglewifi() {
 
   if (1 - wifiButton.readSync()) {
     console.log('wifi');
+    exec('sudo systemctl disable hostapd dnsmasq');
     exec('iwconfig', (error, stdout, stderr) => {
       if (error) {
         console.log(`error:\n${error.message}\n`);
@@ -197,6 +198,7 @@ if (1 - APButton.readSync()) {
 
 if (1 - wifiButton.readSync()) {
   console.log('wifi');
+  exec('sudo systemctl disable hostapd dnsmasq');
   exec('iwconfig', (error, stdout, stderr) => {
     if (error) {
       console.log(`error:\n${error.message}\n`);
