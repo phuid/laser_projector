@@ -1,6 +1,6 @@
 // Require the necessary discord.js classes
 const { exec } = require("child_process");
-const { Client, Intents, MessageActionRow, MessageButton } = require('discord.js');
+const { Client, Intents, MessageActionRow, MessageButton, MessageSelectMenu } = require('discord.js');
 const { token } = require('./config.json');
 var path = require('path');
 let request = require(`request`);
@@ -104,16 +104,16 @@ client.on('interactionCreate', async interaction => {
 
   if (interaction.isButton()) {
     if (interaction.customId == 'last') {
-      const row = new MessageActionRow()
-        .addComponents(
-          new MessageButton()
-            .setCustomId('last')
-            .setLabel('Project last uploaded file')
-            .setStyle('PRIMARY'),
-        );
+      // const row = new MessageActionRow()
+      //   .addComponents(
+      //     new MessageButton()
+      //       .setCustomId('last')
+      //       .setLabel('Project last uploaded file')
+      //       .setStyle('PRIMARY'),
+      //   );
 
-      interaction.reply({ content: path.join(__dirname, '../lasershow') + ' 0 ' + getLastChangedFile(), components: [row] });
-      exec(path.join(__dirname, '../lasershow') + ' 0 ' + getLastChangedFile()), (error, stdout, stderr) => {
+      // interaction.reply({ content: path.join('../lasershow') + ' 0 ' + getLastChangedFile(), components: [row] });
+      exec(path.join('../lasershow') + ' 0 ' + getLastChangedFile(), (error, stdout, stderr) => {
         console.log('exec');
         var response = '__**filename:**__ `' + getLastChangedFile() + '`\n```';
         if (error) {
@@ -127,6 +127,29 @@ client.on('interactionCreate', async interaction => {
         response += `stdout:\n${stdout}\n`;
         console.log(`${stdout}`);
         response += '```';
+
+        const ildFiles = fs.readdirSync('../ild/').filter(file => file.endsWith('.ild'));
+        var latestfilepaths = [];
+        latestfilepaths.length = ildFiles.length;
+        var latestfiles = [];
+        latestfiles.length = ildFiles.length;
+
+        ildFiles.forEach(function (file) {
+          // console.log(path.join(__dirname + '/ild/', file));
+          stats = fs.statSync(path.join(__dirname, '../ild/' + file), true);
+          var biggerThan = 0;
+
+          ildFiles.forEach(function (comparefile) {
+            comparestats = fs.statSync(path.join(__dirname, '../ild/' + comparefile), true);
+            if (stats.mtimeMs > comparestats.mtimeMs) {
+              biggerThan += 1; //never used ++ in js, so i feel safer this way
+            }
+          })
+
+          latestfilepaths[ildFiles.length - biggerThan - 1] = path.join(__dirname, '../ild/' + file);
+          latestfiles[ildFiles.length - biggerThan - 1] = file;
+        })
+
         const row = new MessageActionRow()
           .addComponents(
             new MessageButton()
@@ -134,30 +157,175 @@ client.on('interactionCreate', async interaction => {
               .setLabel('Project last uploaded file')
               .setStyle('PRIMARY'),
           );
+        try {
+          const newrow = new MessageActionRow()
+            .addComponents(
+              new MessageSelectMenu()
+                .setCustomId('select')
+                .setPlaceholder('last 5 modified files')
+                .addOptions([
+                  {
+                    label: latestfiles[0],
+                    description: fs.statSync(latestfilepaths[0]).mtime.toString(),
+                    value: latestfilepaths[0],
+                  },
+                  {
+                    label: latestfiles[1],
+                    description: fs.statSync(latestfilepaths[1]).mtime.toString(),
+                    value: latestfilepaths[1],
+                  },
+                  {
+                    label: latestfiles[2],
+                    description: fs.statSync(latestfilepaths[2]).mtime.toString(),
+                    value: latestfilepaths[2],
+                  },
+                  {
+                    label: latestfiles[3],
+                    description: fs.statSync(latestfilepaths[3]).mtime.toString(),
+                    value: latestfilepaths[3],
+                  },
+                  {
+                    label: latestfiles[4],
+                    description: fs.statSync(latestfilepaths[4]).mtime.toString(),
+                    value: latestfilepaths[4],
+                  },
+                ]),
+            );
 
-        interaction.reply({ content: response, components: [row] });
-      }
+          interaction.reply({ content: response, components: [row, newrow] });
+        } catch (error) {
+          console.log('catch: ' + error)
+          interaction.reply({ content: response, components: [row] });
+        }
+      })
     }
   }
+  else if (interaction.isSelectMenu()) {
+    console.log(path.join(__dirname, '../lasershow') + ' 0 ' + interaction.values[0]);
+    exec(path.join(__dirname, '../lasershow') + ' 0 ' + interaction.values[0], async (error, stdout, stderr) => {
+      var response = '__**filename:**__ `' + interaction.values[0] + '`\n```';
+      if (error) {
+        response += `error:\n${error.message}\n`;
+        console.log(`error:\n${error.message}\n`);
+      }
+      if (stderr) {
+        response += `stderr:\n${stderr}\n`;
+        console.log(`stderr:\n${stderr}\n`);
+      }
+      response += `stdout:\n${stdout}\n`;
+      console.log(`${stdout}`);
+      response += '```';
+      const ildFiles = fs.readdirSync('../ild/').filter(file => file.endsWith('.ild'));
+        var latestfilepaths = [];
+        latestfilepaths.length = ildFiles.length;
+        var latestfiles = [];
+        latestfiles.length = ildFiles.length;
 
+        ildFiles.forEach(function (file) {
+          // console.log(path.join(__dirname + '/ild/', file));
+          stats = fs.statSync(path.join(__dirname, '../ild/' + file), true);
+          var biggerThan = 0;
+
+          ildFiles.forEach(function (comparefile) {
+            comparestats = fs.statSync(path.join(__dirname, '../ild/' + comparefile), true);
+            if (stats.mtimeMs > comparestats.mtimeMs) {
+              biggerThan += 1; //never used ++ in js, so i feel safer this way
+            }
+          })
+
+          latestfilepaths[ildFiles.length - biggerThan - 1] = path.join(__dirname, '../ild/' + file);
+          latestfiles[ildFiles.length - biggerThan - 1] = file;
+        })
+
+        const row = new MessageActionRow()
+          .addComponents(
+            new MessageButton()
+              .setCustomId('last')
+              .setLabel('Project last uploaded file')
+              .setStyle('PRIMARY'),
+          );
+        try {
+          const newrow = new MessageActionRow()
+            .addComponents(
+              new MessageSelectMenu()
+                .setCustomId('select')
+                .setPlaceholder('last 5 modified files')
+                .addOptions([
+                  {
+                    label: latestfiles[0],
+                    description: fs.statSync(latestfilepaths[0]).mtime.toString(),
+                    value: latestfilepaths[0],
+                  },
+                  {
+                    label: latestfiles[1],
+                    description: fs.statSync(latestfilepaths[1]).mtime.toString(),
+                    value: latestfilepaths[1],
+                  },
+                  {
+                    label: latestfiles[2],
+                    description: fs.statSync(latestfilepaths[2]).mtime.toString(),
+                    value: latestfilepaths[2],
+                  },
+                  {
+                    label: latestfiles[3],
+                    description: fs.statSync(latestfilepaths[3]).mtime.toString(),
+                    value: latestfilepaths[3],
+                  },
+                  {
+                    label: latestfiles[4],
+                    description: fs.statSync(latestfilepaths[4]).mtime.toString(),
+                    value: latestfilepaths[4],
+                  },
+                ]),
+            );
+
+          interaction.reply({ content: response, components: [row, newrow] });
+        } catch (error) {
+          console.log('catch: ' + error)
+          interaction.reply({ content: response, components: [row] });
+        }
+    })
+  }
   else if (interaction.isCommand()) {
 
-    const { commandName } = interaction;
+  const { commandName } = interaction;
 
-    if (commandName === 'cmd') {
-      exec(interaction.options.get('input').value, async (error, stdout, stderr) => {
-        var response = '__**input:**__ `' + interaction.options.get('input').value + '`\n```';
-        if (error) {
-          response += `error:\n${error.message}\n`;
-          console.log(`error:\n${error.message}\n`);
-        }
-        if (stderr) {
-          response += `stderr:\n${stderr}\n`;
-          console.log(`stderr:\n${stderr}\n`);
-        }
-        response += `stdout:\n${stdout}\n`;
-        console.log(`${stdout}`);
-        response += '```';
+  if (commandName === 'cmd') {
+    exec(interaction.options.get('input').value, async (error, stdout, stderr) => {
+      var response = '__**input:**__ `' + interaction.options.get('input').value + '`\n```';
+      if (error) {
+        response += `error:\n${error.message}\n`;
+        console.log(`error:\n${error.message}\n`);
+      }
+      if (stderr) {
+        response += `stderr:\n${stderr}\n`;
+        console.log(`stderr:\n${stderr}\n`);
+      }
+      response += `stdout:\n${stdout}\n`;
+      console.log(`${stdout}`);
+      response += '```';
+      const ildFiles = fs.readdirSync('../ild/').filter(file => file.endsWith('.ild'));
+        var latestfilepaths = [];
+        latestfilepaths.length = ildFiles.length;
+        var latestfiles = [];
+        latestfiles.length = ildFiles.length;
+
+        ildFiles.forEach(function (file) {
+          // console.log(path.join(__dirname + '/ild/', file));
+          stats = fs.statSync(path.join(__dirname, '../ild/' + file), true);
+          var biggerThan = 0;
+
+          ildFiles.forEach(function (comparefile) {
+            comparestats = fs.statSync(path.join(__dirname, '../ild/' + comparefile), true);
+            if (stats.mtimeMs > comparestats.mtimeMs) {
+              biggerThan += 1; //never used ++ in js, so i feel safer this way
+            }
+          })
+
+          latestfilepaths[ildFiles.length - biggerThan - 1] = path.join(__dirname, '../ild/' + file);
+          latestfiles[ildFiles.length - biggerThan - 1] = file;
+        })
+
         const row = new MessageActionRow()
           .addComponents(
             new MessageButton()
@@ -165,26 +333,86 @@ client.on('interactionCreate', async interaction => {
               .setLabel('Project last uploaded file')
               .setStyle('PRIMARY'),
           );
+        try {
+          const newrow = new MessageActionRow()
+            .addComponents(
+              new MessageSelectMenu()
+                .setCustomId('select')
+                .setPlaceholder('last 5 modified files')
+                .addOptions([
+                  {
+                    label: latestfiles[0],
+                    description: fs.statSync(latestfilepaths[0]).mtime.toString(),
+                    value: latestfilepaths[0],
+                  },
+                  {
+                    label: latestfiles[1],
+                    description: fs.statSync(latestfilepaths[1]).mtime.toString(),
+                    value: latestfilepaths[1],
+                  },
+                  {
+                    label: latestfiles[2],
+                    description: fs.statSync(latestfilepaths[2]).mtime.toString(),
+                    value: latestfilepaths[2],
+                  },
+                  {
+                    label: latestfiles[3],
+                    description: fs.statSync(latestfilepaths[3]).mtime.toString(),
+                    value: latestfilepaths[3],
+                  },
+                  {
+                    label: latestfiles[4],
+                    description: fs.statSync(latestfilepaths[4]).mtime.toString(),
+                    value: latestfilepaths[4],
+                  },
+                ]),
+            );
 
-        await interaction.reply({ content: response, components: [row] });
-      })
-    } else if (commandName === 'project') {
-      console.log('project');
-      //add stoping of previous projection
-      console.log(path.join(__dirname, '../lasershow') + ' 0 ' + path.join(__dirname, '../ild/' + interaction.options.get('filename').value));
-      exec(path.join(__dirname, '../lasershow') + ' 0 ' + path.join(__dirname, '../ild/' + interaction.options.get('filename').value), async (error, stdout, stderr) => {
-        var response = '__**filename:**__ `' + interaction.options.get('filename').value + '`\n```';
-        if (error) {
-          response += `error:\n${error.message}\n`;
-          console.log(`error:\n${error.message}\n`);
+          interaction.reply({ content: response, components: [row, newrow] });
+        } catch (error) {
+          console.log('catch: ' + error)
+          interaction.reply({ content: response, components: [row] });
         }
-        if (stderr) {
-          response += `stderr:\n${stderr}\n`;
-          console.log(`stderr:\n${stderr}\n`);
-        }
-        response += `stdout:\n${stdout}\n`;
-        console.log(`${stdout}`);
-        response += '```';
+    })
+  } else if (commandName === 'project') {
+    console.log('project');
+    //add stoping of previous projection
+    console.log(path.join(__dirname, '../lasershow') + ' 0 ' + path.join(__dirname, '../ild/' + interaction.options.get('filename').value));
+    exec(path.join(__dirname, '../lasershow') + ' 0 ' + path.join(__dirname, '../ild/' + interaction.options.get('filename').value), async (error, stdout, stderr) => {
+      var response = '__**filename:**__ `' + interaction.options.get('filename').value + '`\n```';
+      if (error) {
+        response += `error:\n${error.message}\n`;
+        console.log(`error:\n${error.message}\n`);
+      }
+      if (stderr) {
+        response += `stderr:\n${stderr}\n`;
+        console.log(`stderr:\n${stderr}\n`);
+      }
+      response += `stdout:\n${stdout}\n`;
+      console.log(`${stdout}`);
+      response += '```';
+      const ildFiles = fs.readdirSync('../ild/').filter(file => file.endsWith('.ild'));
+        var latestfilepaths = [];
+        latestfilepaths.length = ildFiles.length;
+        var latestfiles = [];
+        latestfiles.length = ildFiles.length;
+
+        ildFiles.forEach(function (file) {
+          // console.log(path.join(__dirname + '/ild/', file));
+          stats = fs.statSync(path.join(__dirname, '../ild/' + file), true);
+          var biggerThan = 0;
+
+          ildFiles.forEach(function (comparefile) {
+            comparestats = fs.statSync(path.join(__dirname, '../ild/' + comparefile), true);
+            if (stats.mtimeMs > comparestats.mtimeMs) {
+              biggerThan += 1; //never used ++ in js, so i feel safer this way
+            }
+          })
+
+          latestfilepaths[ildFiles.length - biggerThan - 1] = path.join(__dirname, '../ild/' + file);
+          latestfiles[ildFiles.length - biggerThan - 1] = file;
+        })
+
         const row = new MessageActionRow()
           .addComponents(
             new MessageButton()
@@ -192,11 +420,49 @@ client.on('interactionCreate', async interaction => {
               .setLabel('Project last uploaded file')
               .setStyle('PRIMARY'),
           );
+        try {
+          const newrow = new MessageActionRow()
+            .addComponents(
+              new MessageSelectMenu()
+                .setCustomId('select')
+                .setPlaceholder('last 5 modified files')
+                .addOptions([
+                  {
+                    label: latestfiles[0],
+                    description: fs.statSync(latestfilepaths[0]).mtime.toString(),
+                    value: latestfilepaths[0],
+                  },
+                  {
+                    label: latestfiles[1],
+                    description: fs.statSync(latestfilepaths[1]).mtime.toString(),
+                    value: latestfilepaths[1],
+                  },
+                  {
+                    label: latestfiles[2],
+                    description: fs.statSync(latestfilepaths[2]).mtime.toString(),
+                    value: latestfilepaths[2],
+                  },
+                  {
+                    label: latestfiles[3],
+                    description: fs.statSync(latestfilepaths[3]).mtime.toString(),
+                    value: latestfilepaths[3],
+                  },
+                  {
+                    label: latestfiles[4],
+                    description: fs.statSync(latestfilepaths[4]).mtime.toString(),
+                    value: latestfilepaths[4],
+                  },
+                ]),
+            );
 
-        await interaction.reply({ content: response, components: [row] });
-      })
-    }
+          interaction.reply({ content: response, components: [row, newrow] });
+        } catch (error) {
+          console.log('catch: ' + error)
+          interaction.reply({ content: response, components: [row] });
+        }
+    })
   }
+}
 });
 
 client.login(token);
