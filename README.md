@@ -169,7 +169,11 @@ cd wifi_manager && npm i onoff child_process fs && cd ..
 cd discord_bot && npm i discord.js @discordjs/builders @discordjs/rest child_process path request fs
 ```
 
-while you still are in **./discord_bot** you should register the bots commands by running the deploy_commands.js script
+while you still are in **./discord_bot** you should put your bot credentials into config.json file and register the bots commands by running the deploy_commands.js script
+
+```console
+nano config.json
+```
 
 ```console
 node ./deploy_commands.js
