@@ -4,8 +4,13 @@ project last updated file when stealth is on
 
 check if exec() doesnt have smth like .on('stdout') that would b emitted when the process outputs some stdout
 
-README.md - isntalling system dependencies and WiringPi and pm2
+README.md
+  isntalling system dependencies and WiringPi and pm2
+  pm2 status outputs
+
 
 discord help command
 
 delete laser_projector/config.json - to bylo k té staré knihovně ty kokot
+
+wifi manager only run, if some pin is connected to prevent wlan0 down without a switch attached

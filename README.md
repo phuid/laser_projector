@@ -153,16 +153,20 @@ rm -r rpi-lasershow
 now install the system dependencies and WiringPi and pm2
 //TODO
 
-then install all the node dependencies
+then install all the node dependencies and set up pm2
 
 enter every dir where a separate node server is gonna be located (**.**, **./discord_bot**, **./wifi_manager**) and intall its depencencies, then leave it
 
 ```console
-npm i child_process http formidable fs path
-```
+npm i child_process http formidable fs path && pm2 start laser_projector-web-ui.js
+``` 
+
+**MAKE SURE, YOU CONNECTED THE AP/STEALTH/WIFI SWITCH CORRECTLY BEFORE STARTING THE wifi_manager.js SCRIPT, I DID IMPLEMENT A FAILSAFE, BUT EVEN I DONT REALLY TRUST IT (the failsafe includes the script not running if a pin isnt connected)
+
+//TODO what fkin pin
 
 ```console
-cd wifi_manager && npm i onoff child_process fs && cd ..
+cd wifi_manager && npm i onoff child_process fs && pm2 start wifi_manager.js && cd ..
 ```
 
 ```console
@@ -179,11 +183,27 @@ nano config.json
 node ./deploy_commands.js
 ```
 
-now you can exit it
+now configure the pm2 autostart
+
+```console
+pm2 start discord_bot.js
+```
+
+then you can exit it
 
 ```console
 cd ..
 ```
+
+now check that all the pm2 services are online
+
+```console
+pm2 status
+```
+
+there should be three processes online like you can see below
+
+//TODO
 
 
 
