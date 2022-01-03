@@ -7,3 +7,5 @@ check if exec() doesnt have smth like .on('stdout') that would b emitted when th
 README.md - isntalling system dependencies and WiringPi and pm2
 
 discord help command
+
+delete laser_projector/config.json - to bylo k té staré knihovně ty kokot
