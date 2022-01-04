@@ -1,1 +1,0 @@
-python3 C:\Users\simon\random_code\_projects\laser_projector\svg2ild.py C:\Users\simon\random_code\_projects\laser_projector\gyrec.svg C:\Users\simon\random_code\_projects\laser_projector\gyrecfromsvg.ild

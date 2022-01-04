@@ -1,6 +1,6 @@
-project last updated file when stealth is on
+delete laser_projector/config.json - to bylo k té staré knihovně ty kokot
 
-//add stoping of previous projection
+add stoping of previous projection - implement to lasershow.cpp?
 
 check if exec() doesnt have smth like .on('stdout') that would b emitted when the process outputs some stdout
 
@@ -8,9 +8,12 @@ README.md
   isntalling system dependencies and WiringPi and pm2
   pm2 status outputs
 
-
 discord help command
 
-delete laser_projector/config.json - to bylo k té staré knihovně ty kokot
+wifi manager
+  only run, if some pin is connected to prevent wlan0 down without a switch attached
+  project last updated file when stealth is on stop when switched?
 
-wifi manager only run, if some pin is connected to prevent wlan0 down without a switch attached
+web-ui
+  colors not cringe
+  list ILDAs instead of that stupid prefiled command
