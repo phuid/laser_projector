@@ -27,7 +27,7 @@ http.createServer(function (req, res) {
     res.write('</form>');
     res.write('<form id="input" action="cmd" method="post" enctype="multipart/form-data">');
     res.write('<input type="textarea" onClick="this.select();" value="cd ild && ls" rows="4" cols="50" name="text" autofocus><br>');
-    res.write('<input class="button" type="submit" value="run cmd">');
+    res.write('<input class="button" type="submit" value="cmd">');
     res.write('</form>');
 
     res.write('<div id="output">');

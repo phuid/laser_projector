@@ -1,32 +1,62 @@
+:root {
+  --background-1: hsl(220, 13%, 15%);
+  --background-2: hsl(220, 13%, 18%);
+  --foreground-1: hsl(220, 13%, 25%);
+  --foreground-2: hsl(220, 13%, 30%);
+  --text-1: hsl(220, 13%, 80%);
+  --text-2: hsl(95, 38%, 62%);
+  --text-button: hsl(207, 82%, 66%);
+
+  background-color: var(--background-1);
+  color: var(--text-2);
+  overflow-y: scroll;
+}
+
 #output {
   font-family: Inconsolata, monospace;
-  border: 1px solid grey;
-  background-color: lightgrey;
+  border: 1px solid var(--text-2);
+  background-color: var(--background-2);
   overflow: scroll;
+  display: flex;
+  flex-direction: column-reverse;
 }
 
-#last {
-  position: absolute;
-  top: 40vh;
-  left: 40vw;
-  z-index: 10;
+input[type="textarea"] {
+  color: var(--text-1);
 }
 
-#last button {
-  position: absolute;
-  top: 40vh;
-  left: 40vw;
-  z-index: inherit;
+input[type="file"]::-webkit-file-upload-button {
+  background-color: var(--foreground-1);
+  color: var(--text-button);
+  border-radius: 2rem;
+  border: none;
 }
 
-form#projectform input[type="submit"] {
+input[type="file"]::file-selector-button {
+  background-color: var(--foreground-1);
+  color: var(--text-button);
+  border-radius: 2rem;
+  border: none;
+}
+
+input[type="submit"] {
+  color: var(--text-button);
+}
+
+input {
+  background-color: var(--foreground-2);
+  border: none;
+  border-radius: 2rem;
+}
+
+#projectbutton {
   display: none;
 }
 
 svg {
-  background-color: greenyellow;
-  border: 1px solid grey;
-  border-radius: 20%;
+  background-color: var(--text-button);
+  border: none;
+  border-radius: 2rem;
 }
 
 @media (orientation: portrait) {
@@ -34,18 +64,29 @@ svg {
     width: 100%;
   } */
 
+  #fileupload input[type="file"] {
+    height: 10rem;
+    width: 80%;
+  }
+
+  input[type="file"]::file-selector-button {
+    height: 100%;
+  }
+  input[type="file"]::-webkit-file-upload-button {
+    height: 100%;
+  }
+
+  #fileupload input[type="submit"] {
+    height: 10rem;
+    width: 20%;
+    position: relative;
+    top: -10rem;
+    left: 80%;
+  }
+
   input {
     font-size: 4rem;
     width: 100%;
-    height: 50%;
-  }
-
-  #fileupload {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 85%;
   }
 
   #input {
@@ -56,18 +97,30 @@ svg {
     bottom: 10rem;
   }
 
+  #input input[type="submit"] {
+    position: relative;
+    left: 80%;
+    top: -10rem;
+    height: 10rem;
+    width: 20%;
+  }
+
+  #input input[type="textarea"] {
+    height: 10rem;
+    width: 80%;
+  }
+
   #output {
-    font-size: 1.8rem;
     position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 22rem;
-    top: 15%;
+    top: 11rem;
+    bottom: 23rem;
+    font-size: 1.8rem;
+    width: 100%;
+    z-index: -1;
+    overflow-y: scroll;
   }
 
   #lastpatharea {
-    background-color: white;
-    border: 1px solid black;
     font-size: 5rem;
     position: absolute;
     left: 0;

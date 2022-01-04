@@ -16,4 +16,4 @@ wifi manager
 
 web-ui
   colors not cringe
-  list ILDAs instead of that stupid prefiled command
+  make a selectmenu of ILDA files instead of typing the name
