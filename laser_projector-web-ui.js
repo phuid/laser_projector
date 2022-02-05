@@ -18,6 +18,15 @@ http.createServer(function (req, res) {
     // We replaced all the event handlers with a simple call to readStream.pipe()
     readStream.pipe(res);
   }
+
+  else if (req.url == '/script.js') {
+    res.writeHead(200, { 'Content-Type': 'text/js' });
+    var filePath = path.join(__dirname, 'script.js');
+    var readStream = fs.createReadStream(filePath);
+    // We replaced all the event handlers with a simple call to readStream.pipe()
+    readStream.pipe(res);
+  }
+
   else {
     res.writeHead(200, { 'Content-Type': 'text/html' });
     res.write('<html lang="cs"><head><meta cahrset="utf-8"><title>laser-projector</title><link rel="stylesheet" href="style.css"></head><body>')
