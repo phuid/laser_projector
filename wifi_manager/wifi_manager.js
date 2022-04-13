@@ -1,6 +1,15 @@
 var Gpio = require('onoff').Gpio; //include onoff to interact with the GPIO
 const { exec } = require("child_process");
 const fs = require('fs');
+const { exit } = require('process');
+
+var check = new Gpio(4, 'in');
+if (check.readSync() == 1) {
+  console.log("failsafe check didn't pass (pin4 not connected to ground)\n-> exiting");
+  exit(0);
+} else {
+  console.log("failsafe check passed");
+}
 
 var APButton = new Gpio(6, 'in', 'both');
 var wifiButton = new Gpio(5, 'in', 'both');
@@ -10,7 +19,7 @@ function togglewifi() {
   var waitTill = new Date(new Date().getTime() + 100);
   while (waitTill > new Date()) { }
 
-  console.log('AP=' + (1 - APButton.readSync()) + ' | wifi=' + (1 - wifiButton.readSync()));
+  console.log(`APButton: ${APButton.readSync()}\nwifiButton: ${wifiButton.readSync()}`);
 
   if (APButton.readSync() && wifiButton.readSync()) {
     console.log('wlan down')
@@ -112,6 +121,8 @@ function unexportOnClose() { //function to run when exiting program
   sdButton.unexport(); // Unexport Button GPIO to free resources
   console.log("close");
 };
+
+console.log(`APButton: ${APButton.readSync()}\nwifiButton: ${wifiButton.readSync()}`);
 
 if (APButton.readSync() && wifiButton.readSync()) {
   console.log('wlan down')

@@ -1,5 +1,3 @@
-delete laser_projector/config.json - to bylo k té staré knihovně ty kokot
-
 add stoping of previous projection - implement to lasershow.cpp?
 
 check if exec() doesnt have smth like .on('stdout') that would b emitted when the process outputs some stdout
@@ -15,5 +13,4 @@ wifi manager
   project last updated file when stealth is on stop when switched?
 
 web-ui
-  colors not cringe
   make a selectmenu of ILDA files instead of typing the name

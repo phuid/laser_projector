@@ -1,7 +1,7 @@
 // Require the necessary discord.js classes
 const { exec } = require("child_process");
 const { Client, Intents, MessageActionRow, MessageButton, MessageSelectMenu } = require('discord.js');
-const { token } = require('./config.json');
+const { token } = require('../config.json').discord;
 var path = require('path');
 let request = require(`request`);
 let fs = require(`fs`);
@@ -30,6 +30,30 @@ function getLastChangedFile() {
     }
   })
   return lastpath;
+}
+
+function getnewrow() {
+  const ildFiles = fs.readdirSync('../ild/').filter(file => file.endsWith('.ild'));
+
+  var options = [];
+
+  ildFiles.forEach(function (file) {
+    stats = fs.statSync(path.join(__dirname, '../ild/' + file), true);
+    options.push({
+      label: file,
+      description: stats.mtime.toString(),
+      value: path.join(__dirname, '../ild/' + file)
+    })
+  })
+
+  const newrow = new MessageActionRow()
+    .addComponents(
+      new MessageSelectMenu()
+        .setCustomId('select')
+        .setPlaceholder('project ILDA file:')
+        .addOptions(options)
+    );
+  return newrow;
 }
 
 function download(url, filename, msg) {
@@ -87,39 +111,7 @@ function download(url, filename, msg) {
             .setStyle('SECONDARY'),
         ]);
       try {
-        const newrow = new MessageActionRow()
-          .addComponents(
-            new MessageSelectMenu()
-              .setCustomId('select')
-              .setPlaceholder('last 5 modified files')
-              .addOptions([
-                {
-                  label: latestfiles[0],
-                  description: fs.statSync(latestfilepaths[0]).mtime.toString(),
-                  value: latestfilepaths[0],
-                },
-                {
-                  label: latestfiles[1],
-                  description: fs.statSync(latestfilepaths[1]).mtime.toString(),
-                  value: latestfilepaths[1],
-                },
-                {
-                  label: latestfiles[2],
-                  description: fs.statSync(latestfilepaths[2]).mtime.toString(),
-                  value: latestfilepaths[2],
-                },
-                {
-                  label: latestfiles[3],
-                  description: fs.statSync(latestfilepaths[3]).mtime.toString(),
-                  value: latestfilepaths[3],
-                },
-                {
-                  label: latestfiles[4],
-                  description: fs.statSync(latestfilepaths[4]).mtime.toString(),
-                  value: latestfilepaths[4],
-                },
-              ]),
-          );
+        const newrow = getnewrow();
 
         if (response.length < 2000) msg.reply({ content: response, components: [row, newrow] });
         else {
@@ -197,39 +189,7 @@ client.on(`messageCreate`, function (msg) {
             .setStyle('SECONDARY'),
         ]);
       try {
-        const newrow = new MessageActionRow()
-          .addComponents(
-            new MessageSelectMenu()
-              .setCustomId('select')
-              .setPlaceholder('last 5 modified files')
-              .addOptions([
-                {
-                  label: latestfiles[0],
-                  description: fs.statSync(latestfilepaths[0]).mtime.toString(),
-                  value: latestfilepaths[0],
-                },
-                {
-                  label: latestfiles[1],
-                  description: fs.statSync(latestfilepaths[1]).mtime.toString(),
-                  value: latestfilepaths[1],
-                },
-                {
-                  label: latestfiles[2],
-                  description: fs.statSync(latestfilepaths[2]).mtime.toString(),
-                  value: latestfilepaths[2],
-                },
-                {
-                  label: latestfiles[3],
-                  description: fs.statSync(latestfilepaths[3]).mtime.toString(),
-                  value: latestfilepaths[3],
-                },
-                {
-                  label: latestfiles[4],
-                  description: fs.statSync(latestfilepaths[4]).mtime.toString(),
-                  value: latestfilepaths[4],
-                },
-              ]),
-          );
+        const newrow = getnewrow();
 
         if (response.length < 2000) msg.reply({ content: response, components: [row, newrow] });
         else {
@@ -305,39 +265,7 @@ client.on('interactionCreate', async interaction => {
           ]
           );
         try {
-          const newrow = new MessageActionRow()
-            .addComponents(
-              new MessageSelectMenu()
-                .setCustomId('select')
-                .setPlaceholder('last 5 modified files')
-                .addOptions([
-                  {
-                    label: latestfiles[0],
-                    description: fs.statSync(latestfilepaths[0]).mtime.toString(),
-                    value: latestfilepaths[0],
-                  },
-                  {
-                    label: latestfiles[1],
-                    description: fs.statSync(latestfilepaths[1]).mtime.toString(),
-                    value: latestfilepaths[1],
-                  },
-                  {
-                    label: latestfiles[2],
-                    description: fs.statSync(latestfilepaths[2]).mtime.toString(),
-                    value: latestfilepaths[2],
-                  },
-                  {
-                    label: latestfiles[3],
-                    description: fs.statSync(latestfilepaths[3]).mtime.toString(),
-                    value: latestfilepaths[3],
-                  },
-                  {
-                    label: latestfiles[4],
-                    description: fs.statSync(latestfilepaths[4]).mtime.toString(),
-                    value: latestfilepaths[4],
-                  },
-                ]),
-            );
+          const newrow = getnewrow();
 
           interaction.reply({ content: response, components: [row, newrow] });
         } catch (error) {
@@ -407,39 +335,7 @@ client.on('interactionCreate', async interaction => {
           ]
           );
         try {
-          const newrow = new MessageActionRow()
-            .addComponents(
-              new MessageSelectMenu()
-                .setCustomId('select')
-                .setPlaceholder('last 5 modified files')
-                .addOptions([
-                  {
-                    label: latestfiles[0],
-                    description: fs.statSync(latestfilepaths[0]).mtime.toString(),
-                    value: latestfilepaths[0],
-                  },
-                  {
-                    label: latestfiles[1],
-                    description: fs.statSync(latestfilepaths[1]).mtime.toString(),
-                    value: latestfilepaths[1],
-                  },
-                  {
-                    label: latestfiles[2],
-                    description: fs.statSync(latestfilepaths[2]).mtime.toString(),
-                    value: latestfilepaths[2],
-                  },
-                  {
-                    label: latestfiles[3],
-                    description: fs.statSync(latestfilepaths[3]).mtime.toString(),
-                    value: latestfilepaths[3],
-                  },
-                  {
-                    label: latestfiles[4],
-                    description: fs.statSync(latestfilepaths[4]).mtime.toString(),
-                    value: latestfilepaths[4],
-                  },
-                ]),
-            );
+          const newrow = getnewrow();
 
           interaction.reply({ content: response, components: [row, newrow] });
         } catch (error) {
@@ -498,39 +394,7 @@ client.on('interactionCreate', async interaction => {
             .setStyle('SECONDARY'),
         ]);
       try {
-        const newrow = new MessageActionRow()
-          .addComponents(
-            new MessageSelectMenu()
-              .setCustomId('select')
-              .setPlaceholder('last 5 modified files')
-              .addOptions([
-                {
-                  label: latestfiles[0],
-                  description: fs.statSync(latestfilepaths[0]).mtime.toString(),
-                  value: latestfilepaths[0],
-                },
-                {
-                  label: latestfiles[1],
-                  description: fs.statSync(latestfilepaths[1]).mtime.toString(),
-                  value: latestfilepaths[1],
-                },
-                {
-                  label: latestfiles[2],
-                  description: fs.statSync(latestfilepaths[2]).mtime.toString(),
-                  value: latestfilepaths[2],
-                },
-                {
-                  label: latestfiles[3],
-                  description: fs.statSync(latestfilepaths[3]).mtime.toString(),
-                  value: latestfilepaths[3],
-                },
-                {
-                  label: latestfiles[4],
-                  description: fs.statSync(latestfilepaths[4]).mtime.toString(),
-                  value: latestfilepaths[4],
-                },
-              ]),
-          );
+        const newrow = getnewrow();
 
         interaction.reply({ content: response, components: [row, newrow] });
       } catch (error) {
@@ -587,39 +451,7 @@ client.on('interactionCreate', async interaction => {
               .setStyle('PRIMARY'),
           );
         try {
-          const newrow = new MessageActionRow()
-            .addComponents(
-              new MessageSelectMenu()
-                .setCustomId('select')
-                .setPlaceholder('last 5 modified files')
-                .addOptions([
-                  {
-                    label: latestfiles[0],
-                    description: fs.statSync(latestfilepaths[0]).mtime.toString(),
-                    value: latestfilepaths[0],
-                  },
-                  {
-                    label: latestfiles[1],
-                    description: fs.statSync(latestfilepaths[1]).mtime.toString(),
-                    value: latestfilepaths[1],
-                  },
-                  {
-                    label: latestfiles[2],
-                    description: fs.statSync(latestfilepaths[2]).mtime.toString(),
-                    value: latestfilepaths[2],
-                  },
-                  {
-                    label: latestfiles[3],
-                    description: fs.statSync(latestfilepaths[3]).mtime.toString(),
-                    value: latestfilepaths[3],
-                  },
-                  {
-                    label: latestfiles[4],
-                    description: fs.statSync(latestfilepaths[4]).mtime.toString(),
-                    value: latestfilepaths[4],
-                  },
-                ]),
-            );
+          const newrow = getnewrow();
 
           interaction.reply({ content: response, components: [row, newrow] });
         } catch (error) {
@@ -674,39 +506,7 @@ client.on('interactionCreate', async interaction => {
               .setStyle('PRIMARY'),
           );
         try {
-          const newrow = new MessageActionRow()
-            .addComponents(
-              new MessageSelectMenu()
-                .setCustomId('select')
-                .setPlaceholder('last 5 modified files')
-                .addOptions([
-                  {
-                    label: latestfiles[0],
-                    description: fs.statSync(latestfilepaths[0]).mtime.toString(),
-                    value: latestfilepaths[0],
-                  },
-                  {
-                    label: latestfiles[1],
-                    description: fs.statSync(latestfilepaths[1]).mtime.toString(),
-                    value: latestfilepaths[1],
-                  },
-                  {
-                    label: latestfiles[2],
-                    description: fs.statSync(latestfilepaths[2]).mtime.toString(),
-                    value: latestfilepaths[2],
-                  },
-                  {
-                    label: latestfiles[3],
-                    description: fs.statSync(latestfilepaths[3]).mtime.toString(),
-                    value: latestfilepaths[3],
-                  },
-                  {
-                    label: latestfiles[4],
-                    description: fs.statSync(latestfilepaths[4]).mtime.toString(),
-                    value: latestfilepaths[4],
-                  },
-                ]),
-            );
+          const newrow = getnewrow();
 
           interaction.reply({ content: response, components: [row, newrow] });
         } catch (error) {

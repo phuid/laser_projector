@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
-const { clientId, token } = require('./config.json');
+const { clientId, token } = require('../config.json').discord;
 
 //https://discordjs.guide/interactions/registering-slash-commands.html#options
 
@@ -20,7 +20,11 @@ const commands = [
     .addStringOption(option =>
       option.setName('filename')
         .setDescription('The file to Project')
-        .setRequired(true))
+        .setRequired(true)),
+
+  new SlashCommandBuilder()
+    .setName('help')
+    .setDescription('display all available commands and interactions')
 ]
   .map(command => command.toJSON());
 

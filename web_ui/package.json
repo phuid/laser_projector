@@ -1,0 +1,21 @@
+{
+  "name": "browser_ssh",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "childprocess": "^2.0.2",
+    "express": "^4.17.2",
+    "formidable": "^2.0.1",
+    "socket.io": "^4.4.1",
+    "ssh2": "^1.5.0",
+    "xterm": "^4.16.0",
+    "xterm-addon-fit": "^0.5.0"
+  }
+}
