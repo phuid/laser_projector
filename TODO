@@ -1,6 +1,6 @@
 add stoping of previous projection - implement to lasershow.cpp?
 
-check if exec() doesnt have smth like .on('stdout') that would b emitted when the process outputs some stdout
+//DONE check if exec() doesnt have smth like .on('stdout') that would b emitted when the process outputs some stdout -no
 
 README.md
   isntalling system dependencies and WiringPi and pm2
@@ -9,8 +9,8 @@ README.md
 discord help command
 
 wifi manager
-  only run, if some pin is connected to prevent wlan0 down without a switch attached
-  project last updated file when stealth is on stop when switched?
+  //DONE only run, if some pin is connected to prevent wlan0 down without a switch attached
+  //DONE project last updated file when stealth is on stop when switched?
 
 web-ui
   make a selectmenu of ILDA files instead of typing the name

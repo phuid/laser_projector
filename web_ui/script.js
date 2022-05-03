@@ -56,19 +56,21 @@ $("#fileupload").submit(function (e) {
 $("#projectionform").submit(function (e) {
   e.preventDefault(); // prevent actual form submit
   var postData = new FormData(this);
-  $.ajax({
-    type: "POST",
-    url: '/project',
-    data: postData,
-    contentType: false, //this is requireded please see answers above
-    processData: false, //this is requireded please see answers above
-    success: function (data) {
-      term.write('\n' + data);
-    },
-    error: function (data) {
-      alert('ERROR\n' + data);
-    }
-  });
+  socket.emit('projection', "asf");
+  console.log(postData);
+  // $.ajax({
+  //   type: "POST",
+  //   url: '/project',
+  //   data: postData,
+  //   contentType: false, //this is requireded please see answers above
+  //   processData: false, //this is requireded please see answers above
+  //   success: function (data) {
+  //     term.write('\n' + data);
+  //   },
+  //   error: function (data) {
+  //     alert('ERROR\n' + data);
+  //   }
+  // });
 });
 
 function focusOnTextArea() {

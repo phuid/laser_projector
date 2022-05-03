@@ -141,6 +141,9 @@ io.on('connection', function (socket) {
       socket.on('sshdata', function (data) {
         stream.write(data);
       });
+      socket.on('projection', function (data) {
+        console.log('projection');
+      });
       stream.on('data', function (d) {
         socket.emit('sshdata', d.toString('binary'));
       }).on('close', function () {

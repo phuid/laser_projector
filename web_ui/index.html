@@ -15,14 +15,16 @@
 </head>
 
 <body>
-  <form id="fileupload" action="fileupload" method="post" enctype="multipart/form-data"><input type="file"
-      name="filetoupload"><br><label><input id="uploadbutton" class="button" type="submit" value="upload">
-        <svg version="1.1" id="uploadsvg"
-        xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-        viewBox="0 0 300 300" style="enable-background:new 0 0 300 300;" xml:space="preserve">
+  <form id="fileupload" action="fileupload" method="post" enctype="multipart/form-data">
+    <input type="file" id="filetoupload" name="filetoupload"><br>
+    <label for="filetoupload">File to upload:</label><br>
+    <input id="uploadbutton" class="button" type="submit" value="upload">
+    <label for="uploadbutton">Upload:</label>
+    <svg version="1.1" id="uploadsvg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px" y="0px" viewBox="0 0 300 300" style="enable-background:new 0 0 300 300;" xml:space="preserve">
+      <g>
         <g>
-          <g>
-            <path d="M149.997,0.003C67.156,0.003,0,67.161,0,150s67.156,149.997,149.997,149.997C232.834,299.997,300,232.837,300,150
+          <path d="M149.997,0.003C67.156,0.003,0,67.161,0,150s67.156,149.997,149.997,149.997C232.834,299.997,300,232.837,300,150
            C300,67.158,232.834,0.003,149.997,0.003z M110.967,81.483l31.712-31.709c2.077-2.075,4.79-3.105,7.506-3.105
            c0.026,0,0.054,0,0.078,0c0.029,0,0.054,0,0.078,0c2.715,0,5.434,1.03,7.511,3.105l31.707,31.709c4.15,4.147,4.15,10.872,0,15.017
            c-2.072,2.075-4.793,3.112-7.508,3.112c-2.721,0-5.436-1.037-7.508-3.112l-14.016-14.013v32.259v20.749v3.888
@@ -32,20 +34,25 @@
            c0-14.337,14.057-25.568,32.005-25.568h13.385c1.522,0.272,3.079,0.431,4.658,0.431c1.569,0,3.115-0.161,4.63-0.431h0.612v20.749
            h-23.285c-7.265,0-11.256,3.621-11.256,4.819v69.008c0,1.198,3.992,4.816,11.256,4.816h99.135c7.265,0,11.256-3.621,11.256-4.816
            V140.31c0-1.198-3.992-4.819-11.256-4.819h-23.485v-20.749h1.437c1.481,0.257,2.988,0.431,4.526,0.431
-           c1.579,0,3.133-0.158,4.658-0.431h12.864c17.948,0,32.005,11.233,32.005,25.568V209.318z" fill="currentColor" />
-          </g>
+           c1.579,0,3.133-0.158,4.658-0.431h12.864c17.948,0,32.005,11.233,32.005,25.568V209.318z"
+            fill="currentColor" />
         </g>
-      </svg>
-    </label>
+      </g>
+    </svg>
   </form>
   <div id="terminal-container" onclick="focusOnTextArea()"></div>
-  <form id="projectionform" action="project" method="post" enctype="multipart/form-data"><input id="lastpatharea"
-      name="filename" type="textarea" onClick="this.select();" value="name of ild file here"><label><input
-        id="projectbutton" type="submit" /> <svg id="projectsvg" width="20px" height="20px" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path fill-rule="evenodd" clip-rule="evenodd" d="M1.68542 6.65868C0.758716 6.96758 0.779177 8.28543 1.71502 8.56541L9.20844 10.8072L11.6551 18.5165C11.948 19.4394 13.2507 19.4488 13.5569 18.5302L18.8602 2.62029C19.1208 1.83853 18.3771 1.09479 17.5953 1.35538L1.68542 6.65868ZM5.31842 7.55586L16.3304 3.8852L12.6316 14.9817L10.9548 9.69826C10.8547 9.38295 10.6052 9.13754 10.2883 9.04272L5.31842 7.55586Z" fill="currentColor"/>
-          <path d="M17.7674 1.43951L18.8105 2.51742L9.98262 11.0605L8.93948 9.98265L17.7674 1.43951Z" fill="currentColor"/>
-          </svg>
-           </label>
+  <form id="projectionform" action="project" method="post" enctype="multipart/form-data">
+
+    <label for="lastpatharea">last path:</label>
+    <input id="lastpatharea" name="filename" type="textarea" onClick="this.select();" value="name of ild file here" />
+    <input id="projectbutton" type="submit" />
+    <svg id="projectsvg" width="20px" height="20px" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill-rule="evenodd" clip-rule="evenodd"
+        d="M1.68542 6.65868C0.758716 6.96758 0.779177 8.28543 1.71502 8.56541L9.20844 10.8072L11.6551 18.5165C11.948 19.4394 13.2507 19.4488 13.5569 18.5302L18.8602 2.62029C19.1208 1.83853 18.3771 1.09479 17.5953 1.35538L1.68542 6.65868ZM5.31842 7.55586L16.3304 3.8852L12.6316 14.9817L10.9548 9.69826C10.8547 9.38295 10.6052 9.13754 10.2883 9.04272L5.31842 7.55586Z"
+        fill="currentColor" />
+      <path d="M17.7674 1.43951L18.8105 2.51742L9.98262 11.0605L8.93948 9.98265L17.7674 1.43951Z" fill="currentColor" />
+    </svg>
+
 </body>
 
 </html>
