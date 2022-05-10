@@ -9,6 +9,7 @@ good to read:
   https://www.instructables.com/DIY-STEPDIR-LASER-GALVO-CONTROLLER/
   https://hackaday.io/project/172284-galvo-laser-cutterengraver
 
+    https://hackaday.io/project/172284/instructions
 
   https://learn.adafruit.com/mcp4725-12-bit-dac-with-raspberry-pi/hooking-it-up
   https://www.ilda.com/resources/StandardsDocs/ILDA_IDTF14_rev011.pdf
