@@ -56,39 +56,53 @@ $("#fileupload").submit(function (e) {
 $("#projectionform").submit(function (e) {
   e.preventDefault(); // prevent actual form submit
   var postData = new FormData(this);
-  socket.emit("projection", "asf");
-  console.log(postData);
-  // $.ajax({
-  //   type: "POST",
-  //   url: '/project',
-  //   data: postData,
-  //   contentType: false, //this is requireded please see answers above
-  //   processData: false, //this is requireded please see answers above
-  //   success: function (data) {
-  //     term.write('\n' + data);
-  //   },
-  //   error: function (data) {
-  //     alert('ERROR\n' + data);
-  //   }
-  // });
+  $.ajax({
+    type: "POST",
+    url: "/project",
+    data: postData,
+    contentType: false, //this is requireded please see answers above
+    processData: false, //this is requireded please see answers above
+    success: function (data) {
+      term.write("\n" + data);
+    },
+    error: function (data) {
+      alert("ERROR\n" + data);
+    },
+  });
+});
+$("#projectsvg").on('click', () => {
+  var postData = new FormData(document.getElementById("projectionform"));
+  $.ajax({
+    type: "POST",
+    url: "/project",
+    data: postData,
+    contentType: false, //this is requireded please see answers above
+    processData: false, //this is requireded please see answers above
+    success: function (data) {
+      term.write("\n" + data);
+    },
+    error: function (data) {
+      alert("ERROR\n" + data);
+    },
+  });
 });
 
 function fillProjectForm() {
-  fetch("/listIld", {method: "POST"}).then((response) => {
+  fetch("/listIld", { method: "POST" }).then((response) => {
     console.log(response);
     response.json().then((data) => {
-      data.forEach(filename => {
+      data.forEach((filename) => {
         document.getElementById("lastpatharea").innerHTML +=
-          `<option value=\"${filename}\">${filename}</option>`;
+          `<option class=\"IldOption\" value=\"${filename}\">${filename}</option>`;
       });
     });
-});
+  });
 }
+
+fillProjectForm();
 
 function focusOnTextArea() {
   document.getElementsByClassName("xterm-helper-textarea")[0].focus();
 }
 
 document.getElementById("terminal-container").style.zIndex = "10";
-
-fillProjectForm();
