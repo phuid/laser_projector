@@ -42,9 +42,10 @@
   </form>
   <div id="terminal-container" onclick="focusOnTextArea()"></div>
   <form id="projectionform" action="project" method="post" enctype="multipart/form-data">
-
     <label for="lastpatharea">last path:</label>
-    <input id="lastpatharea" name="filename" type="textarea" onClick="this.select();" value="name of ild file here" />
+    <select id="lastpatharea" name="filename" placeholder="name of ild file here">
+
+    </select>
     <input id="projectbutton" type="submit" />
     <svg id="projectsvg" width="20px" height="20px" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path fill-rule="evenodd" clip-rule="evenodd"
@@ -52,6 +53,7 @@
         fill="currentColor" />
       <path d="M17.7674 1.43951L18.8105 2.51742L9.98262 11.0605L8.93948 9.98265L17.7674 1.43951Z" fill="currentColor" />
     </svg>
+  </form>
 
 </body>
 

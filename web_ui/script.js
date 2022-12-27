@@ -1,38 +1,38 @@
-var terminalContainer = document.getElementById('terminal-container');
+var terminalContainer = document.getElementById("terminal-container");
 const term = new Terminal({
   cursorBlink: true,
   allowTransparency: true,
   drawBoldTextInBrightColors: true,
-  fontSize: (1 * parseFloat(getComputedStyle(document.documentElement).fontSize)),
+  fontSize: 1 * parseFloat(getComputedStyle(document.documentElement).fontSize),
   theme: {
-    background: 'rgba(0, 0, 0, 0)'
-  }
+    background: "rgba(0, 0, 0, 0)",
+  },
 });
 const fitAddon = new FitAddon.FitAddon();
 term.loadAddon(fitAddon);
 term.open(terminalContainer);
 fitAddon.fit();
 
-var socket = io() //.connect();
-socket.on('connect', function () {
-  term.write('\r\n*** WebSocket connection estabilished ***\r\n');
+var socket = io(); //.connect();
+socket.on("connect", function () {
+  term.write("\r\n*** WebSocket connection estabilished ***\r\n");
 });
 
 // Browser -> Backend
 term.onData(function (ev) {
-  socket.emit('sshdata', ev.toString());
+  socket.emit("sshdata", ev.toString());
 });
 
 // Backend -> Browser
-socket.on('sshdata', function (data) {
+socket.on("sshdata", function (data) {
   term.write(data);
 });
 
-socket.on('disconnect', function () {
-  term.write('\r\n*** WebSocket connection lost ***\r\n');
+socket.on("disconnect", function () {
+  term.write("\r\n*** WebSocket connection lost ***\r\n");
 });
 
-socket.on('alert', (alert) => {
+socket.on("alert", (alert) => {
   alert(alert);
 });
 
@@ -41,7 +41,7 @@ $("#fileupload").submit(function (e) {
   var postData = new FormData(this);
   $.ajax({
     type: "POST",
-    url: '/fileupload',
+    url: "/fileupload",
     data: postData,
     contentType: false, //this is requireded please see answers above
     processData: false, //this is requireded please see answers above
@@ -49,14 +49,14 @@ $("#fileupload").submit(function (e) {
       alert(data);
     },
     error: function () {
-      alert('HTTP request ERROR\n');
-    }
+      alert("HTTP request ERROR\n");
+    },
   });
 });
 $("#projectionform").submit(function (e) {
   e.preventDefault(); // prevent actual form submit
   var postData = new FormData(this);
-  socket.emit('projection', "asf");
+  socket.emit("projection", "asf");
   console.log(postData);
   // $.ajax({
   //   type: "POST",
@@ -73,8 +73,22 @@ $("#projectionform").submit(function (e) {
   // });
 });
 
-function focusOnTextArea() {
-  document.getElementsByClassName('xterm-helper-textarea')[0].focus();
+function fillProjectForm() {
+  fetch("/listIld", {method: "POST"}).then((response) => {
+    console.log(response);
+    response.json().then((data) => {
+      data.forEach(filename => {
+        document.getElementById("lastpatharea").innerHTML +=
+          `<option value=\"${filename}\">${filename}</option>`;
+      });
+    });
+});
 }
 
-document.getElementById('terminal-container').style.zIndex = '10';
+function focusOnTextArea() {
+  document.getElementsByClassName("xterm-helper-textarea")[0].focus();
+}
+
+document.getElementById("terminal-container").style.zIndex = "10";
+
+fillProjectForm();
