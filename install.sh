@@ -135,6 +135,18 @@ echo -e "${URed}CONFIG TODO${Color_Off}"
 echo -e "${URed}CONFIG TODO${Color_Off}"
 echo -e "${URed}CONFIG TODO${Color_Off}"
 
+echo ""
+
+echo -e "${URed}WIFI MANAGER SHIT TODO${Color_Off}"
+echo -e "${URed}WIFI MANAGER SHIT TODO${Color_Off}"
+echo -e "${URed}WIFI MANAGER SHIT TODO${Color_Off}"
+echo -e "${URed}WIFI MANAGER SHIT TODO${Color_Off}"
+echo -e "${URed}WIFI MANAGER SHIT TODO${Color_Off}"
+echo -e "${URed}WIFI MANAGER SHIT TODO${Color_Off}"
+echo -e "${URed}WIFI MANAGER SHIT TODO${Color_Off}"
+echo -e "${URed}WIFI MANAGER SHIT TODO${Color_Off}"
+echo -e "${URed}WIFI MANAGER SHIT TODO${Color_Off}"
+
 #npm dependencies
 for i in {"discord_bot","web_ui","wifi_manager"}
 do
