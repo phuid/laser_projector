@@ -61,7 +61,7 @@ change your current working directory
 cd laser-projector
 ```
 
-Install lasershow executable from [rpi-lasershow](https://github.com/tteskac/rpi-lasershow) project made by [tteskac](https://github.com/tteskac)
+Install lasershow executable from [rpi-lasershow](https://github.com/tteskac/rpi-lasershow) project made by [@tteskac](https://github.com/tteskac)
 
 enter rpi-lasershow dir
 
@@ -150,7 +150,28 @@ there should be three processes online like you can see below
 
 //TODO
 
+###### possible errors
+if wifi manager isn't running and `pm2 logs wifi_manager` displays following
+```js
+/home/pi/laser_projector/wifi_manager/node_modules/bindings/bindings.js:121
+        throw e;
+        ^
 
+Error: libnode.so.72: cannot open shared object file: No such file or directory
+    at Object.Module._extensions..node (node:internal/modules/cjs/loader:1249:18)
+    at Module.load (node:internal/modules/cjs/loader:1043:32)
+    at Function.Module._load (node:internal/modules/cjs/loader:878:12)
+    at Module.require (node:internal/modules/cjs/loader:1067:19)
+    at require (node:internal/modules/cjs/helpers:103:18)
+    at bindings (/home/pi/laser_projector/wifi_manager/node_modules/bindings/bindings.js:112:48)
+    at /home/pi/laser_projector/wifi_manager/node_modules/epoll/epoll.js:7:31
+    at Object.<anonymous> (/home/pi/laser_projector/wifi_manager/node_modules/epoll/epoll.js:15:3)
+    at Module._compile (node:internal/modules/cjs/loader:1165:14)
+    at Object.Module._extensions..js (node:internal/modules/cjs/loader:1219:10) {
+  code: 'ERR_DLOPEN_FAILED'
+}
+```
+run `cd wifi_manager/ && npm clean-install` in the laser_projector directory
 
 ### Hardware construction
 
