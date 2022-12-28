@@ -1,0 +1,12 @@
+{
+  "discord" : {
+    "clientId": "111111111111111111",
+    "token": "xXxXxXxXxXxXxXxXxXxXxXxX.Xx111X.X1X_XxXxXxXxXxXxXxXxXxXxXxX"
+  },
+  "web_ui" : {
+    "sshHost": "localhost",
+    "sshPort": 22,
+    "sshUsername": "pi",
+    "sshPassword": "111111111"
+  }
+}
