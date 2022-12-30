@@ -1,5 +1,7 @@
 #!/bin/bash
 
+SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+
 # Reset
 Color_Off='\033[0m'       # Text Reset
 
@@ -75,6 +77,10 @@ On_IWhite='\033[0;107m'   # White
 
 cd "$(dirname "$0")"
 
+echo -e "${BIWhite}##${Color_Off} updating your packages"
+echo -e "${BIWhite}++${Color_Off} sudo apt-get update && sudo apt-get upgrade"
+sudo apt-get update -y && sudo apt-get upgrade -y
+
 if which node > /dev/null
 then
   echo -e "${BIWhite}##${Color_Off} ${Yellow}node${Color_Off} is already installed, ${UWhite}skipping${Color_Off}...${Purple}(cant check version, give me a way in issues pls)${Color_Off}"
@@ -106,6 +112,62 @@ else
   (cd /tmp && wget https://project-downloads.drogon.net/wiringpi-latest.deb && sudo dpkg -i wiringpi-latest.deb)
 fi
 
+if which dnsmasq > /dev/null
+then
+  echo -e "${BIWhite}##${Color_Off} ${Yellow}dnsmasq${Color_Off} is already installed, ${UWhite}skipping${Color_Off}..."
+else
+  echo -e "${BIWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}dnsmasq${Color_Off}..."
+  echo -e "${BIWhite}++${Color_Off} sudo apt-get install dnsmasq -y"
+  sudo apt-get install dnsmasq -y
+fi
+
+if which hostapd > /dev/null
+then
+  echo -e "${BIWhite}##${Color_Off} ${Yellow}hostapd${Color_Off} is already installed, ${UWhite}skipping${Color_Off}..."
+else
+  echo -e "${BIWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}hostapd${Color_Off}..."
+  echo -e "${BIWhite}++${Color_Off} sudo apt-get install hostapd -y"
+  sudo apt-get install hostapd -y
+fi
+
+# echo -e "${BIWhite}##${Color_Off} configuring AP"
+
+# echo -e "${BIWhite}###${Color_Off} diverting ${Yellow}dhcpcd${Color_Off} config to custom file"
+# echo -e "${BIWhite}++${Color_Off} dhcpcd -f \"$(dirname $0)/dhcpcd.conf\""
+# dhcpcd -f "$(dirname $0)/dhcpcd.conf"
+# echo -e "${BIWhite}++${Color_Off} sudo systemctl reload dhcpcd"
+# sudo systemctl reload dhcpcd
+
+# echo -e "${BIWhite}###${Color_Off} diverting ${Yellow}dnsmasq${Color_Off} config to custom file"
+# echo -e "${BIWhite}++${Color_Off} dnsmasq -C \"$(dirname $0)/dnsmasq.conf\""
+# dnsmasq -C "$(dirname $0)/dnsmasq.conf"
+# echo -e "${BIWhite}++${Color_Off} sudo systemctl reload dnsmasq"
+# sudo systemctl reload dnsmasq
+
+#locate hostapd.service
+loc=$(systemctl cat hostapd | head -n 1)
+loc=${loc:2}
+
+echo -e "${BIWhite}++${Color_Off} sudo systemctl stop hostapd"
+sudo systemctl stop hostapd
+
+out=""
+while read line
+do
+  if [[ "$line" == "Environment=DAEMON_CONF="* ]]
+  then
+    out="${out}Environment=DAEMON_CONF=$SCRIPTPATH/hostapd.conf\n"
+  else
+    out="${out}${line}\n"
+  fi
+done < $loc
+
+echo -e "${BIWhite}##${Color_Off} writing following text to $loc"
+echo -e "$out" | sudo tee "$loc"
+
+echo -e "${BIWhite}++${Color_Off} sudo systemctl reload hostapd"
+sudo systemctl reload hostapd
+
 echo -e "${BIWhite}##${Color_Off} ${UWhite}compiling${Color_Off} lasershow executable..."
 echo -e "${BIWhite}++${Color_Off} (cd rpi-lasershow && make)"
 if !(out=$(cd rpi-lasershow && make))
@@ -114,7 +176,7 @@ then
   echo -e "${BIWhite}##${Color_Off} ${Red}...compilation failed..exiting${Color_Off}"
   exit 1
 else
-  echo -e "${BIWhite}##${Color_Off}                               ${Green}...success${Color_Off}"
+  echo -e "${BIWhite}##${Color_Off}                               ${Green}...success${Color_Off
 fi
 
 if which pm2 > /dev/null
@@ -137,15 +199,8 @@ echo -e "${URed}CONFIG TODO${Color_Off}"
 
 echo ""
 
-echo -e "${URed}WIFI MANAGER SHIT TODO${Color_Off}"
-echo -e "${URed}WIFI MANAGER SHIT TODO${Color_Off}"
-echo -e "${URed}WIFI MANAGER SHIT TODO${Color_Off}"
-echo -e "${URed}WIFI MANAGER SHIT TODO${Color_Off}"
-echo -e "${URed}WIFI MANAGER SHIT TODO${Color_Off}"
-echo -e "${URed}WIFI MANAGER SHIT TODO${Color_Off}"
-echo -e "${URed}WIFI MANAGER SHIT TODO${Color_Off}"
-echo -e "${URed}WIFI MANAGER SHIT TODO${Color_Off}"
-echo -e "${URed}WIFI MANAGER SHIT TODO${Color_Off}"
+echo -e "${Red} let user selecet if -y${Color_Off}"
+echo ""
 
 #npm dependencies
 for i in {"discord_bot","web_ui","wifi_manager"}
@@ -167,4 +222,5 @@ echo -e "${BIWhite}##${Color_Off} ${UWhite}saving pm2 configuration${Color_Off}.
 echo -e "${BIWhite}++${Color_Off} pm2 save && sudo env PATH=$PATH:/usr/local/bin pm2 startup systemd -u pi --hp /home/pi && pm2 restart all"
 pm2 save && sudo env PATH=$PATH:/usr/local/bin pm2 startup systemd -u pi --hp /home/pi && pm2 restart all
 
+echo ""
 echo -e "${BIWhite}##${Color_Off} ${Green}instalation finished${Color_Off}"

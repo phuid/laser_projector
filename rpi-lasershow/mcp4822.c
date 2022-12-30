@@ -41,7 +41,7 @@
 #define MCP4822_GAIN_BIT               ((uint8_t)0x20)
 #define MCP4822_SHDN_BIT               ((uint8_t)0x10)
 
-static const char *device = "/dev/spidev0.0";
+static const char *device = "/dev/spidev0.1";
 static bool mcp4822_is_initialized;
 static uint32_t mode;
 static uint8_t bits = 8;
