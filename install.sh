@@ -130,7 +130,7 @@ else
   sudo apt-get install hostapd -y
 fi
 
-# echo -e "${BIWhite}##${Color_Off} configuring AP"
+echo -e "${BIWhite}##${Color_Off} configuring AP"
 
 # echo -e "${BIWhite}###${Color_Off} diverting ${Yellow}dhcpcd${Color_Off} config to custom file"
 # echo -e "${BIWhite}++${Color_Off} dhcpcd -f \"$(dirname $0)/dhcpcd.conf\""
@@ -176,7 +176,9 @@ then
   echo -e "${BIWhite}##${Color_Off} ${Red}...compilation failed..exiting${Color_Off}"
   exit 1
 else
-  echo -e "${BIWhite}##${Color_Off}                               ${Green}...success${Color_Off
+  echo -e "${BIWhite}##${Color_Off}                               ${Green}...success${Color_Off}"
+  echo -e "${BIWhite}##${Color_Off} cp rpi-lasershow/lasershow ."
+  cp rpi-lasershow/lasershow .
 fi
 
 if which pm2 > /dev/null
@@ -221,6 +223,11 @@ echo -e "${BIWhite}++${Color_Off} (cd discord_bot && node deploy_commands.js)"
 echo -e "${BIWhite}##${Color_Off} ${UWhite}saving pm2 configuration${Color_Off}..."
 echo -e "${BIWhite}++${Color_Off} pm2 save && sudo env PATH=$PATH:/usr/local/bin pm2 startup systemd -u pi --hp /home/pi && pm2 restart all"
 pm2 save && sudo env PATH=$PATH:/usr/local/bin pm2 startup systemd -u pi --hp /home/pi && pm2 restart all
+
+echo -e "${Red}NEED COMMENTS${Color_Off}"
+echo -e "[Unit]\nDescription=Service to redirect all pm2 logs to /dev/tty1 - RPI HDMI output\nAfter=pm2-pi.service\n[Service]\nUser=pi\nType=simple\nStandardOutput=tty\nTTYPath=/dev/tty1\nTimeoutStartSec=5\nEnvironment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games:/usr/local/bin:/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin\nEnvironment=PM2_HOME=/home/pi/.pm2\nRestart=on-failure\nExecStart=/bin/bash -c 'echo \$\$\$\$ > /tmp/pm2LogsToTty1.pid;exec pm2 logs'\nExecStop=/bin/bash -c 'sudo kill \$(cat /tmp/pm2LogsToTty1.pid)'\n[Install]\nWantedBy=default.target\n" | sudo tee /etc/systemd/system/pm2LogsToTty1.service
+sudo systemctl daemon-reload
+sudo systemctl enable pm2LogsToTty1 # only tested with start
 
 echo ""
 echo -e "${BIWhite}##${Color_Off} ${Green}instalation finished${Color_Off}"
