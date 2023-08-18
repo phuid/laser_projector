@@ -41,26 +41,33 @@ int main(void)
 	double sine_val = 0.0;
 	double sine_res;
 
-	for(;;) {
+	//for(;;) {
 		/* channel A: sawtooth */
-		mcp4822_set_voltage(MCP_4822_CHANNEL_A, voltage);
-		++voltage;
-		if (voltage >= 4095)
-			voltage = 0;
+		//mcp4822_set_voltage(MCP_4822_CHANNEL_A, voltage);
+		//++voltage;
+		//if (voltage >= 4095)
+		//	voltage = 0;
 
 		/* channel B: sine */
-		sine_res = sin(sine_val);
-		sine_res += 1.0;
-		mcp4822_set_voltage(MCP_4822_CHANNEL_B, (uint16_t)((4095.0  / 2.0) * sine_res));
+		//sine_res = sin(sine_val);
+		//sine_res += 1.0;
+		//mcp4822_set_voltage(MCP_4822_CHANNEL_B, (uint16_t)((4095.0  / 2.0) * sine_res));
 
 
-		sine_val += sine_step;
-		if(sine_val >= (2 * M_PI))
-			sine_val = 0.0;
+		//sine_val += sine_step;
+		//if(sine_val >= (2 * M_PI))
+		//	sine_val = 0.0;
 
-		usleep(1000);
+		//usleep(1000);
+	//}
+
+	while(1) for(int i = 0; i < 4096; i++){
+	printf("%i\n", i);
+	mcp4822_set_voltage(MCP_4822_CHANNEL_A, i);
+	mcp4822_set_voltage(MCP_4822_CHANNEL_B, i);
+	usleep(10000);
 	}
-
 	mcp4822_deinitialize();
 	return 0;
 }
+
