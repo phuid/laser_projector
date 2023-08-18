@@ -1,3 +1,5 @@
+REWRITE WIFI_MANAGER TO CHANGE WHAT CONFIGS SERVICES USE INSTEAD OF CHANGING CONFIGS THEMSELVES
+
 add stoping of previous projection - implement to lasershow.cpp?
 
 prusa style ui with oled display and rotary encoder
@@ -18,3 +20,9 @@ wifi manager
 
 web-ui
   make a selectmenu of ILDA files instead of typing the name
+
+
+//WATCH-OUT
+hostapd
+  The previously supported configuration setting DAEMON_CONF in
+  /etc/default/hostapd is deprecated and its support will be removed.

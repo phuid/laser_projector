@@ -1,0 +1,16 @@
+[Unit]
+Description=Service to redirect all pm2 logs to /dev/tty1 - RPI HDMI output
+After=pm2-pi.service
+[Service]
+User=pi
+Type=simple
+StandardOutput=tty
+TTYPath=/dev/tty1
+TimeoutStartSec=5
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games:/usr/local/bin:/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+Environment=PM2_HOME=/home/pi/.pm2
+Restart=on-failure
+ExecStart=/bin/bash -c 'echo $$$$ > /tmp/pm2LogsToTty1.pid;exec pm2 logs'
+ExecStop=/bin/bash -c 'sudo kill $(cat /tmp/pm2LogsToTty1.pid)'
+[Install]
+WantedBy=default.target
