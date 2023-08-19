@@ -13,13 +13,64 @@
 #include "mcp4822.h"
 #include "Points.h"
 #include "IldaReader.h"
-"
+
 using namespace std;
 
 void onInterrupt(int);
 
+#define REPEAT_ONE 1
+
+#define R_LASER 0
+#define G_LASER 2
+#define B_LASER 3
+
+enum COLOR_SCHEME {
+    RGB = 0,
+    R,
+    G,
+    B
+}
+
+COLOR_SCHEME color_scheme = RGB;
+
+// struct menu_option {
+//     string text;
+//     bool has_function;
+//     void (*function_ptr)(int);
+// };
+
+
+// int SelectDelay() {
+//     NumberSlider(&delay);
+// }
+
+
+// menu_option menu[] {
+//     {"Project File", true, displayLaserOptionsMenu},
+//     {"Laser options", false, void},
+//     {"WiFi options", false, void},
+// };
+// menu_option submenu[][] {
+//     { //project file
+//     },
+//     { //laser options
+//         {"Select color scheme", true, SelectColorScheme}, // <RGB> (<R> <G> <B>)
+//         {"Select delay (higher delay, lower speed)", true, SelectDelay},
+//         {},
+//     },
+// }
+
 int main(int argc, char **argv)
 {
+
+    //have a menu
+    // every cycle:
+    // - if projecting - project
+    // - display output to an oled display
+    // - read communication from node.js processes (prolly FIFOs)
+    // - check if user turned encoder (have interrupt in the background that just adds to an int,, now in the cycle check that int)
+
+
 
     // Validate arguments.
     if (argc < 3)
@@ -91,7 +142,7 @@ int main(int argc, char **argv)
     std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
     while (true)
     {
-        // Exit if no points found.
+        // Exit if no points found. //huh?@phuid
         if (points.size == 0)
             break;
 
@@ -100,10 +151,7 @@ int main(int argc, char **argv)
         mcp4822_set_voltage(MCP_4822_CHANNEL_B, 4096 - points.store[(points.index * 3) + 1]);
 
         // Turn on/off laser diode.
-        if (points.store[(points.index * 3) + 2] == 1)
-            digitalWrite(0, HIGH);
-        else
-            digitalWrite(0, LOW);
+            digitalWrite(0, points.store[(points.index * 3) + 2]);
 
         // Maybe wait a while there.
         if (pointDelay > 0)
@@ -116,11 +164,19 @@ int main(int argc, char **argv)
             if (elapsedSeconds.count() > frameDuration)
             {
                 start = std::chrono::system_clock::now();
-                digitalWrite(0, LOW);
-                ildaReader.getNextFrame(&points);
+                digitalWrite(R_LASER, LOW);
+                digitalWrite(G_LASER, LOW);
+                digitalWrite(B_LASER, LOW);
+                if (!ildaReader.getNextFrame(&points)) {
+                    if (REPEAT_ONE)
+                        file.seekg(0);
+                    else
+                        break;
+                }
             }
         }
     }
+    
 
     // Cleanup and exit.
     ildaReader.closeFile();
@@ -132,7 +188,10 @@ int main(int argc, char **argv)
 void onInterrupt(int)
 {
     printf("Turn off laser diode.\n\r");
-    digitalWrite(0, LOW);
+    digitalWrite(R_LASER, LOW);
+    digitalWrite(G_LASER, LOW);
+    digitalWrite(B_LASER, LOW);
+    ildaReader.closeFile();
     mcp4822_deinitialize();
     printf("Program was interrupted.\n\r");
     exit(1);

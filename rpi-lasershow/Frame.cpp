@@ -5,11 +5,13 @@
 #include <fstream>
 using namespace std;
 
+#define MAX_DAC_VALUE 4095
+
 // Format spec: https://www.ilda.com/resources/StandardsDocs/ILDA_IDTF14_rev011.pdf
 
 Frame::Frame(){}
 
-bool Frame::getNext(std::ifstream& file, Points* points) {
+bool Frame::getNext(std::ifstream& file, Points* points, uint8_t format_code) {
 
     FrameData data;
     char bytes[FrameData::NUMBER_OF_DATA_BYTES];
@@ -24,7 +26,6 @@ bool Frame::getNext(std::ifstream& file, Points* points) {
     // End of file...
     if (fileSize - (position + Frame::NUMBER_OF_HEADER_BYTES) < Frame::NUMBER_OF_HEADER_BYTES + FrameData::NUMBER_OF_DATA_BYTES) {
         // return false to nofity end of file but jump to begining of the file in case we will loop the file again. 
-        file.seekg(0);
         return false;
     }
 
@@ -48,8 +49,8 @@ bool Frame::getNext(std::ifstream& file, Points* points) {
         if (data.y > 32768) data.y = data.y - 65536;
 
         // Map ILDA values to DAC value range and store the data to array. 
-        points->store[points->size*3] = map(data.x, -32768, +32767, 0, 4095);
-        points->store[(points->size*3)+1] = map(data.y, -32768, +32767, 0, 4095);
+        points->store[points->size*3] = map(data.x, -32768, +32767, 0, MAX_DAC_VALUE);
+        points->store[(points->size*3)+1] = map(data.y, -32768, +32767, 0, MAX_DAC_VALUE);
         points->store[(points->size*3)+2] = data.laserOn;
         points->size++;
 
