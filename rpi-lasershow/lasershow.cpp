@@ -13,6 +13,7 @@
 #include "mcp4822.h"
 #include "Points.h"
 #include "IldaReader.h"
+#include "ColorPalette.h"
 
 using namespace std;
 
@@ -138,47 +139,50 @@ int main(int argc, char **argv)
     // Subscribe program to exit/interrupt signal.
     signal(SIGINT, onInterrupt);
 
-    // Start the scanner loop with the current time.
-    std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
-    while (true)
-    {
-        // Exit if no points found. //huh?@phuid
-        if (points.size == 0)
-            break;
+    try {
+        // Start the scanner loop with the current time.
+        std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
+        while (true)
+        {
+            // Exit if no points found. (used them all, points.next() decreases the sice of points)
+            if (points.size == 0)
+                break;
 
-        // Move galvos to x,y position. (4096 is to invert horizontally)
-        mcp4822_set_voltage(MCP_4822_CHANNEL_A, points.store[points.index * 3]);
-        mcp4822_set_voltage(MCP_4822_CHANNEL_B, 4096 - points.store[(points.index * 3) + 1]);
+            // Move galvos to x,y position. (4096 is to invert horizontally)
+            mcp4822_set_voltage(MCP_4822_CHANNEL_A, points.store[points.index * 3]);
+            mcp4822_set_voltage(MCP_4822_CHANNEL_B, 4096 - points.store[(points.index * 3) + 1]);
 
-        // Turn on/off laser diode.
+            // Turn on/off laser diode.
             digitalWrite(0, points.store[(points.index * 3) + 2]);
 
-        // Maybe wait a while there.
-        if (pointDelay > 0)
-            usleep(pointDelay);
+            // Maybe wait a while there.
+            if (pointDelay > 0)
+                usleep(pointDelay);
 
-        // In case there's no more points in the current frame check if it's time to load next frame.
-        if (!points.next())
-        {
-            std::chrono::duration<double> elapsedSeconds = std::chrono::system_clock::now() - start;
-            if (elapsedSeconds.count() > frameDuration)
+            // In case there's no more points in the current frame check if it's time to load next frame.
+            if (!points.next())
             {
-                start = std::chrono::system_clock::now();
-                digitalWrite(R_LASER, LOW);
-                digitalWrite(G_LASER, LOW);
-                digitalWrite(B_LASER, LOW);
-                if (!ildaReader.getNextFrame(&points)) {
-                    if (REPEAT_ONE)
-                        file.seekg(0);
-                    else
-                        break;
+                std::chrono::duration<double> elapsedSeconds = std::chrono::system_clock::now() - start;
+                if (elapsedSeconds.count() > frameDuration)
+                {
+                    start = std::chrono::system_clock::now();
+                    digitalWrite(R_LASER, LOW);
+                    digitalWrite(G_LASER, LOW);
+                    digitalWrite(B_LASER, LOW);
+                    break;
                 }
             }
         }
+        file.seekg(0);
     }
-    
+    catch (UnsupportedFormatExceprion& e) {
+        cerr << e << endl;
+    }
 
     // Cleanup and exit.
+    digitalWrite(R_LASER, LOW);
+    digitalWrite(G_LASER, LOW);
+    digitalWrite(B_LASER, LOW);
     ildaReader.closeFile();
     mcp4822_deinitialize();
     return (0);

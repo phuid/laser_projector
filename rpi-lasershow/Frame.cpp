@@ -1,6 +1,7 @@
 #include "Frame.h"
 #include "FrameData.h"
 #include "Points.h"
+#include <stdint.h>
 
 #include <fstream>
 using namespace std;
@@ -13,8 +14,13 @@ Frame::Frame(){}
 
 bool Frame::getNext(std::ifstream& file, Points* points, uint8_t format_code) {
 
+    //TODO: check if next dataRecord isnt a header
+
     FrameData data;
-    char bytes[FrameData::NUMBER_OF_DATA_BYTES];
+    uint8_t bytes[FrameData::format_definitions[format_code].NUMBER_OF_DATA_BYTES];
+
+    //if byte is defined in format_def[format_code], save it to data
+    
 
     unsigned int position = file.tellg();
 
@@ -23,11 +29,12 @@ bool Frame::getNext(std::ifstream& file, Points* points, uint8_t format_code) {
     int fileSize = file.tellg();
     file.seekg(position);
 
-    // End of file...
-    if (fileSize - (position + Frame::NUMBER_OF_HEADER_BYTES) < Frame::NUMBER_OF_HEADER_BYTES + FrameData::NUMBER_OF_DATA_BYTES) {
-        // return false to nofity end of file but jump to begining of the file in case we will loop the file again. 
-        return false;
-    }
+    //TODO: rewrite this to check number of records and be in the header check
+    // // End of file...
+    // if (fileSize - (position + Frame::NUMBER_OF_HEADER_BYTES) < Frame::NUMBER_OF_HEADER_BYTES + FrameData::NUMBER_OF_DATA_BYTES) {
+    //     // return false to nofity end of file but jump to begining of the file in case we will loop the file again. 
+    //     return false;
+    // }
 
     // Skip header data.
     file.seekg(position + Frame::NUMBER_OF_HEADER_BYTES);
@@ -66,9 +73,9 @@ bool Frame::isLastPoint(char* bytes) {
     return getBit(bytes[FrameData::STATUS_BYTE], FrameData::LAST_POINT_BIT);
 }
 
-// Helpter function to get arbitrary bit value from byte.
+// Helpter function to get arbitrary bit value from byte. (bitnumber counted from 0)
 bool Frame::getBit(char b, int bitNumber) {
-    return (b & (1 << (bitNumber - 1))) != 0;
+    return (b & (1 << bitNumber)) != 0;
 }
 
 // Helper function to map a value between two value ranges.

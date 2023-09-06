@@ -1,4 +1,5 @@
 #include "Points.h"
+#include <stdint.h>
 
 #include <fstream>
 using namespace std;
@@ -9,7 +10,7 @@ class Frame {
 
     public:
         Frame();
-        bool getNext(std::ifstream& file, Points* points);
+        bool getNext(std::ifstream& file, Points* points, uint8_t format_code);
 
     private:
         bool isLastPoint(char* bytes);
