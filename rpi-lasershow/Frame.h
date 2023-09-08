@@ -13,7 +13,7 @@ class Frame {
         bool getNext(std::ifstream& file, Points* points, uint8_t format_code);
 
     private:
-        bool isLastPoint(char* bytes);
+        bool isLastPoint(char* bytes, FrameData data, uint8_t format_code);
         bool getBit(char b, int bitNumber);
         int map(int x, int in_min, int in_max, int out_min, int out_max);
 

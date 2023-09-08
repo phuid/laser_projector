@@ -175,7 +175,7 @@ int main(int argc, char **argv)
         }
         file.seekg(0);
     }
-    catch (UnsupportedFormatExceprion& e) {
+    catch (e) {
         cerr << e << endl;
     }
 

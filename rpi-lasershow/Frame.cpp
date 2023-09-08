@@ -17,7 +17,7 @@ bool Frame::getNext(std::ifstream& file, Points* points, uint8_t format_code) {
     //TODO: check if next dataRecord isnt a header
 
     FrameData data;
-    uint8_t bytes[FrameData::format_definitions[format_code].NUMBER_OF_DATA_BYTES];
+    uint8_t bytes[data.format_definitions[format_code].NUMBER_OF_DATA_BYTES];
 
     //if byte is defined in format_def[format_code], save it to data
     
@@ -44,10 +44,10 @@ bool Frame::getNext(std::ifstream& file, Points* points, uint8_t format_code) {
 
     do {
         // Read next point in the frame.
-        file.read(bytes, FrameData::NUMBER_OF_DATA_BYTES);
-        data.x = (bytes[FrameData::X_BYTE] << 8 ) + bytes[FrameData::X_BYTE + 1];
-        data.y = (bytes[FrameData::Y_BYTE] << 8 ) + bytes[FrameData::Y_BYTE + 1];
-        data.laserOn = !getBit(bytes[FrameData::STATUS_BYTE], FrameData::LASER_ON_BIT);
+        file.read(bytes, data.format_definitions[format_code].NUMBER_OF_DATA_BYTES);
+        data.x = (bytes[data.format_definitions[format_code].X_BYTE] << 8 ) + bytes[data.format_definitions[format_code].X_BYTE + 1];
+        data.y = (bytes[data.format_definitions[format_code].Y_BYTE] << 8 ) + bytes[data.format_definitions[format_code].Y_BYTE + 1];
+        data.laserOn = !getBit(bytes[data.format_definitions[format_code].STATUS_BYTE], data.format_definitions[format_code].LASER_ON_BIT);
 
         // ILDA format has a weird way of storing values. Positive numbers are stored nomally
         // but negative numbers are stored in second part of 'unsigned short' (>32768) so e.g. 
@@ -62,15 +62,15 @@ bool Frame::getNext(std::ifstream& file, Points* points, uint8_t format_code) {
         points->size++;
 
     // Read next if current not last.
-    } while (!isLastPoint(bytes));
+    } while (!isLastPoint(bytes, data, format_code));
 
     // true = no more points in current frame to read.
     return true;
 }
 
 // Get the last-point-bit-flag from status byte x.
-bool Frame::isLastPoint(char* bytes) {
-    return getBit(bytes[FrameData::STATUS_BYTE], FrameData::LAST_POINT_BIT);
+bool Frame::isLastPoint(char* bytes, FrameData data, uint8_t format_code) {
+    return getBit(bytes[data.format_definitions[format_code].STATUS_BYTE], data.format_definitions[format_code].LAST_POINT_BIT);
 }
 
 // Helpter function to get arbitrary bit value from byte. (bitnumber counted from 0)
