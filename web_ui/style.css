@@ -12,7 +12,6 @@
   overflow-y: scroll;
 }
 
-
 #terminal-container {
   font-family: Inconsolata, monospace;
   border: 1px solid var(--text-2);
@@ -66,16 +65,32 @@ svg {
   } */
 
   #fileupload {
-    height: 10vh;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: calc(90vh);
+    position: absolute;
+    padding: 0;
+    margin: 0;
+    background: linear-gradient(var(--text-2), rgba(0,0,0,0));
+    z-index: 11;
   }
 
   #fileupload input[type="file"] {
     height: 10vh;
     width: 80%;
+    border-style: solid;
+    border-width: 3px;
+    border-image: linear-gradient(to right, var(--text-button), var(--text-2) 30%);
+    border-image-slice: 1 fill;
+    border-radius: 5vh;
+    background-color: var(--background-2);
+    color: var(--background-1);
   }
 
   input[type="file"]::file-selector-button {
     height: 100%;
+    color: var(--background-1);
   }
   input[type="file"]::-webkit-file-upload-button {
     height: 100%;
@@ -105,7 +120,7 @@ svg {
 
   #terminal-container {
     position: absolute;
-    top: 11vh;
+    top: 0;
     bottom: 11vh;
     right: 0;
     left: 0;
@@ -130,7 +145,7 @@ svg {
     position: absolute;
     right: 0;
     bottom: 0;
-    height:  10vh;
+    height: 10vh;
     width: 20%;
     z-index: 2;
   }

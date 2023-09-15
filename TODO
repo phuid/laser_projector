@@ -2,7 +2,7 @@ REWRITE WIFI_MANAGER TO CHANGE WHAT CONFIGS SERVICES USE INSTEAD OF CHANGING CON
 
 add stoping of previous projection - implement to lasershow.cpp?
 
-prusa style ui with oled display and rotary encoder
+prusa style ui with oled display and rotary encoder - use FIFOs for communication with lasershow.cpp https://www.youtube.com/watch?v=2hba3etpoJg
 
 
 

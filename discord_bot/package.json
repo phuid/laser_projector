@@ -1,21 +1,30 @@
 {
-  "name": "discord_bot",
+  "name": "robutek",
   "version": "1.0.0",
-  "description": "",
-  "main": "discord_bot.js",
+  "description": "Robotarnas discord bot",
+  "main": "build/src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node build/index.js",
+    "deploy_commands": "node deploy-commands.js"
   },
-  "author": "",
-  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/haberturdeur/Robutek.git"
+  },
+  "author": "Tomáš Rohlínek",
+  "bugs": {
+    "url": "https://github.com/haberturdeur/Robutek/issues"
+  },
+  "homepage": "https://github.com/haberturdeur/Robutek#readme",
   "dependencies": {
-    "@discordjs/builders": "^0.11.0",
-    "@discordjs/rest": "^0.2.0-canary.0",
-    "discord-api-types": "^0.26.0",
-    "discord-reply": "^0.1.2",
-    "discord.js": "^13.5.0",
-    "path": "^0.12.7",
-    "request": "^2.88.2",
-    "util": "^0.12.4"
+    "@discordjs/rest": "^0.1.0-canary.0",
+    "discord-api-types": "^0.22.0",
+    "discord.js": "^13.1.0",
+    "dotenv": "^10.0.0"
+  },
+  "devDependencies": {
+    "@tsconfig/node14": "^1.0.1",
+    "@types/node": "^16.9.0"
   }
 }

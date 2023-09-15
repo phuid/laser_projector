@@ -83,51 +83,51 @@ sudo apt-get update -y && sudo apt-get upgrade -y
 
 if which node > /dev/null
 then
-  echo -e "${BIWhite}##${Color_Off} ${Yellow}node${Color_Off} is already installed, ${UWhite}skipping${Color_Off}...${Purple}(cant check version, give me a way in issues pls)${Color_Off}"
+    echo -e "${BIWhite}##${Color_Off} ${Yellow}node${Color_Off} is already installed, ${UWhite}skipping${Color_Off}...${Purple}(cant check version, give me a way in issues pls)${Color_Off}"
 else
-  echo -e "${BIWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}node${Color_Off}..."
-  sudo curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash -
-  echo -e "${BIWhite}++${Color_Off} sudo curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash -"
-  sudo apt-get install nodejs -y
-  echo -e "${BIWhite}++${Color_Off} sudo apt-get install nodejs -y"
+    echo -e "${BIWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}node${Color_Off}..."
+    sudo curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash -
+    echo -e "${BIWhite}++${Color_Off} sudo curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash -"
+    sudo apt-get install nodejs -y
+    echo -e "${BIWhite}++${Color_Off} sudo apt-get install nodejs -y"
 fi
 
 if which npm > /dev/null
 then
-  echo -e "${BIWhite}##${Color_Off} ${Yellow}npm${Color_Off} is already installed, ${UWhite}skipping${Color_Off}..."
+    echo -e "${BIWhite}##${Color_Off} ${Yellow}npm${Color_Off} is already installed, ${UWhite}skipping${Color_Off}..."
 else
-  echo -e "${BIWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}npm${Color_Off}..."
-  echo -e "${BIWhite}++${Color_Off} sudo curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash -"
-  sudo curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash -
-  echo -e "${BIWhite}++${Color_Off} sudo apt-get install npm -y"
-  sudo apt-get install npm -y
+    echo -e "${BIWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}npm${Color_Off}..."
+    echo -e "${BIWhite}++${Color_Off} sudo curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash -"
+    sudo curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash -
+    echo -e "${BIWhite}++${Color_Off} sudo apt-get install npm -y"
+    sudo apt-get install npm -y
 fi
 
 if which gpio > /dev/null
 then
-  echo -e "${BIWhite}##${Color_Off} ${Yellow}wiringpi${Color_Off} is already installed, ${UWhite}skipping${Color_Off}..."
+    echo -e "${BIWhite}##${Color_Off} ${Yellow}wiringpi${Color_Off} is already installed, ${UWhite}skipping${Color_Off}..."
 else
-  echo -e "${BIWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}wiringpi${Color_Off}..."
-  echo -e "${BIWhite}++${Color_Off} (cd /tmp && wget https://project-downloads.drogon.net/wiringpi-latest.deb && sudo dpkg -i wiringpi-latest.deb)"
-  (cd /tmp && wget https://project-downloads.drogon.net/wiringpi-latest.deb && sudo dpkg -i wiringpi-latest.deb)
+    echo -e "${BIWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}wiringpi${Color_Off}..."
+    echo -e "${BIWhite}++${Color_Off} (cd /tmp && wget https://project-downloads.drogon.net/wiringpi-latest.deb && sudo dpkg -i wiringpi-latest.deb)"
+    (cd /tmp && wget https://project-downloads.drogon.net/wiringpi-latest.deb && sudo dpkg -i wiringpi-latest.deb)
 fi
 
 if which dnsmasq > /dev/null
 then
-  echo -e "${BIWhite}##${Color_Off} ${Yellow}dnsmasq${Color_Off} is already installed, ${UWhite}skipping${Color_Off}..."
+    echo -e "${BIWhite}##${Color_Off} ${Yellow}dnsmasq${Color_Off} is already installed, ${UWhite}skipping${Color_Off}..."
 else
-  echo -e "${BIWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}dnsmasq${Color_Off}..."
-  echo -e "${BIWhite}++${Color_Off} sudo apt-get install dnsmasq -y"
-  sudo apt-get install dnsmasq -y
+    echo -e "${BIWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}dnsmasq${Color_Off}..."
+    echo -e "${BIWhite}++${Color_Off} sudo apt-get install dnsmasq -y"
+    sudo apt-get install dnsmasq -y
 fi
 
 if which hostapd > /dev/null
 then
-  echo -e "${BIWhite}##${Color_Off} ${Yellow}hostapd${Color_Off} is already installed, ${UWhite}skipping${Color_Off}..."
+    echo -e "${BIWhite}##${Color_Off} ${Yellow}hostapd${Color_Off} is already installed, ${UWhite}skipping${Color_Off}..."
 else
-  echo -e "${BIWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}hostapd${Color_Off}..."
-  echo -e "${BIWhite}++${Color_Off} sudo apt-get install hostapd -y"
-  sudo apt-get install hostapd -y
+    echo -e "${BIWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}hostapd${Color_Off}..."
+    echo -e "${BIWhite}++${Color_Off} sudo apt-get install hostapd -y"
+    sudo apt-get install hostapd -y
 fi
 
 echo -e "${BIWhite}##${Color_Off} configuring AP"
@@ -151,19 +151,45 @@ loc=${loc:2}
 echo -e "${BIWhite}++${Color_Off} sudo systemctl stop hostapd"
 sudo systemctl stop hostapd
 
+echo -e "${BIWhite}##${Color_Off} changing config path in $loc"
+
 out=""
 while read line
 do
-  if [[ "$line" == "Environment=DAEMON_CONF="* ]]
-  then
-    out="${out}Environment=DAEMON_CONF=$SCRIPTPATH/hostapd.conf\n"
-  else
-    out="${out}${line}\n"
-  fi
+    if [[ "$line" == "Environment=DAEMON_CONF="* ]]
+    then
+        out="${out}Environment=DAEMON_CONF=$SCRIPTPATH/hostapd.conf\n"
+    else
+        out="${out}${line}\n"
+    fi
 done < $loc
 
 echo -e "${BIWhite}##${Color_Off} writing following text to $loc"
 echo -e "$out" | sudo tee "$loc"
+
+echo -e "${BIWhite}##${Color_Off} changing config path in $loc" //WTF
+
+LineFound=0
+out=""
+loc="/boot/config.txt"
+while read line
+do
+    if [[ "$line" == *"dtparam=spi="* ]]
+    then
+        out="${out}dtparam=spi=on\n"
+        LineFound=1
+    else
+        out="${out}${line}\n"
+    fi
+done < "$loc"
+
+if [[ LineFound == 0 ]]
+then
+    echo -e "${BIWhite}##${Color_Off} writing following text to $loc"
+    echo -e "$out" | sudo tee "$loc"
+else
+    echo -e "dtparam=spi=on" | sudo tee -a "$loc"
+fi
 
 echo -e "${BIWhite}++${Color_Off} sudo systemctl reload hostapd"
 sudo systemctl reload hostapd
@@ -172,22 +198,22 @@ echo -e "${BIWhite}##${Color_Off} ${UWhite}compiling${Color_Off} lasershow execu
 echo -e "${BIWhite}++${Color_Off} (cd rpi-lasershow && make)"
 if !(out=$(cd rpi-lasershow && make))
 then
-  echo $out
-  echo -e "${BIWhite}##${Color_Off} ${Red}...compilation failed..exiting${Color_Off}"
-  exit 1
+    echo $out
+    echo -e "${BIWhite}##${Color_Off} ${Red}...compilation failed..exiting${Color_Off}"
+    exit 1
 else
-  echo -e "${BIWhite}##${Color_Off}                               ${Green}...success${Color_Off}"
-  echo -e "${BIWhite}##${Color_Off} cp rpi-lasershow/lasershow ."
-  cp rpi-lasershow/lasershow .
+    echo -e "${BIWhite}##${Color_Off}                               ${Green}...success${Color_Off}"
+    echo -e "${BIWhite}##${Color_Off} cp rpi-lasershow/lasershow ."
+    cp rpi-lasershow/lasershow .
 fi
 
 if which pm2 > /dev/null
 then
-  echo -e "${BIWhite}##${Color_Off} ${Yellow}pm2${Color_Off} is already installed, ${UWhite}skipping${Color_Off}..."
+    echo -e "${BIWhite}##${Color_Off} ${Yellow}pm2${Color_Off} is already installed, ${UWhite}skipping${Color_Off}..."
 else
-  echo -e "${BIWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}pm2${Color_Off}..."
-  echo -e "${BIWhite}++${Color_Off} sudo npm install pm2 -g"
-  sudo npm install pm2 -g
+    echo -e "${BIWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}pm2${Color_Off}..."
+    echo -e "${BIWhite}++${Color_Off} sudo npm install pm2 -g"
+    sudo npm install pm2 -g
 fi
 
 echo -e "${URed}CONFIG TODO${Color_Off}"
@@ -207,13 +233,13 @@ echo ""
 #npm dependencies
 for i in {"discord_bot","web_ui","wifi_manager"}
 do
-  echo -e "${BIWhite}##${Color_Off} ${UWhite}installing${Color_Off} dependencies for ${Yellow}${i}${Color_Off}..."
-  echo -e "${BIWhite}++${Color_Off} (cd $i && npm install)"
-  (cd $i && npm install && echo -e "${BIWhite}++${Color_Off} npm audit fix" && npm audit fix)
-
-  echo -e "${BIWhite}##${Color_Off} ${UWhite}deploying${Color_Off} ${Yellow}$i${Color_Off} to pm2..."
-  echo -e "${BIWhite}++${Color_Off} (cd $i && pm2 start . --name $i --restart-delay=5000)"
-  (cd $i && pm2 start . --name $i --restart-delay=5000)
+    echo -e "${BIWhite}##${Color_Off} ${UWhite}installing${Color_Off} dependencies for ${Yellow}${i}${Color_Off}..."
+    echo -e "${BIWhite}++${Color_Off} (cd $i && npm install)"
+    (cd $i && npm install && echo -e "${BIWhite}++${Color_Off} npm audit fix" && npm audit fix)
+    
+    echo -e "${BIWhite}##${Color_Off} ${UWhite}deploying${Color_Off} ${Yellow}$i${Color_Off} to pm2..."
+    echo -e "${BIWhite}++${Color_Off} (cd $i && pm2 start . --name $i --restart-delay=5000)"
+    (cd $i && pm2 start . --name $i --restart-delay=5000)
 done
 
 echo -e "${BIWhite}##${Color_Off} ${UWhite}deploying discord commands${Color_Off}..."
@@ -230,4 +256,10 @@ sudo systemctl daemon-reload
 sudo systemctl enable pm2LogsToTty1 # only tested with start
 
 echo ""
-echo -e "${BIWhite}##${Color_Off} ${Green}instalation finished${Color_Off}"
+echo -e "${BIWhite}##${Color_Off} ${UYellow}reboot${Color_Off} is required to ${Green}finish instalation${Color_Off}\n${UWhite}do you want to reboot system now?${Color_Off} [Y/n]"
+read reb
+if [[ reb=="Y"||reb=="y" ]]
+then
+  echo -e "${BIWhite}++${Color_Off} sudo reboot"
+  sudo reboot
+fi

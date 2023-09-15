@@ -17,9 +17,7 @@
 <body>
   <form id="fileupload" action="fileupload" method="post" enctype="multipart/form-data">
     <input type="file" id="filetoupload" name="filetoupload"><br>
-    <label for="filetoupload">File to upload:</label><br>
     <input id="uploadbutton" class="button" type="submit" value="upload">
-    <label for="uploadbutton">Upload:</label>
     <svg version="1.1" id="uploadsvg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
       x="0px" y="0px" viewBox="0 0 300 300" style="enable-background:new 0 0 300 300;" xml:space="preserve">
       <g>
@@ -42,10 +40,7 @@
   </form>
   <div id="terminal-container" onclick="focusOnTextArea()"></div>
   <form id="projectionform" action="project" method="post" enctype="multipart/form-data">
-    <label for="lastpatharea">last path:</label>
-    <select id="lastpatharea" name="filename" placeholder="name of ild file here">
-
-    </select>
+    <select id="lastpatharea" name="filename" placeholder="name of ild file here"></select>
     <input id="projectbutton" type="submit" />
     <svg id="projectsvg" width="20px" height="20px" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path fill-rule="evenodd" clip-rule="evenodd"

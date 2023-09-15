@@ -1,7 +1,8 @@
 {
   "discord" : {
     "clientId": "111111111111111111",
-    "token": "xXxXxXxXxXxXxXxXxXxXxXxX.Xx111X.X1X_XxXxXxXxXxXxXxXxXxXxXxX"
+    "token": "xXxXxXxXxXxXxXxXxXxXxXxX.Xx111X.X1X_XxXxXxXxXxXxXxXxXxXxXxX",
+    "console_channel": "1111111111111111111"
   },
   "web_ui" : {
     "sshHost": "localhost",
