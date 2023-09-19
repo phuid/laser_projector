@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#TODO:
+# * !verbose - use more echos instead of tee and condition them
+
 SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
 # Reset
@@ -75,147 +78,321 @@ On_IPurple='\033[0;105m'  # Purple
 On_ICyan='\033[0;106m'    # Cyan
 On_IWhite='\033[0;107m'   # White
 
+Debug="${On_Cyan}DBG: "
+Error=" ${On_IRed}!!${Color_Off} ${Red}"
+Warning=" ${On_IYellow}!!${Color_Off} ${Yellow}"
+
 cd "$(dirname "$0")"
 
-echo -e "${BIWhite}##${Color_Off} updating your packages"
-echo -e "${BIWhite}++${Color_Off} sudo apt-get update && sudo apt-get upgrade"
-sudo apt-get update -y && sudo apt-get upgrade -y
+err=""
 
+userauth=1
+
+while getopts 'hy' OPTION
+do
+    case "$OPTION" in
+        h)
+            echo "script usage: $(basename \$0) [-l] [-h] [-a somevalue]" >&2
+            exit 1
+        ;;
+        y)
+            echo -e "-y flag provided, skipping userauth for each command"
+            userauth=0
+        ;;
+        ?)
+            echo "script usage: $(basename \$0) [-l] [-h] [-a somevalue]" >&2
+            exit 1
+        ;;
+    esac
+done
+shift "$(($OPTIND -1))"
+
+if [ $userauth == 1 ]
+then
+    echo -e "${IWhite}do you wish to review every step of instalation that could change your system settings? (if you answer no the installer will complete all its steps without asking for permission)(answer q to quit)"
+    while true
+    do
+        read -p "[y/n/q]: " userauth
+        case $userauth in
+            [Yy]* ) userauth=1; break;;
+            [Nn]* ) userauth=0; break;;
+            [Qq]* ) exit;;
+            * ) echo "Please answer Y/y or N/n or Q/q to quit.";;
+        esac
+    done
+fi
+
+# read -p "[y/n]: " userauth
+# if [ "$userauth" != "${userauth#[Yy]}" ];
+# then
+#     userauth=1
+# else
+#     userauth=0
+# fi
+
+echo -e "userauth: $userauth"
+
+echo -e "${On_IWhite}##${Color_Off} updating your packages ${On_IWhite}##${Color_Off}"
+if [ $userauth == 1 ]
+then
+    echo -e "${On_IBlack}++${Color_Off} sudo apt-get update && sudo apt-get upgrade ${On_IBlack}++${Color_Off}"
+    read -p "[y/n]: " currentauth
+    if [ "$currentauth" != "${currentauth#[Yy]}" ];
+    then
+        sudo apt-get update && sudo apt-get upgrade
+    fi
+    unset currentauth
+else
+    echo -e "${On_IBlack}++${Color_Off} sudo apt-get update -y && sudo apt-get upgrade -y ${On_IBlack}++${Color_Off}"
+    sudo apt-get update -y && sudo apt-get upgrade -y
+fi
 if which node > /dev/null
 then
-    echo -e "${BIWhite}##${Color_Off} ${Yellow}node${Color_Off} is already installed, ${UWhite}skipping${Color_Off}...${Purple}(cant check version, give me a way in issues pls)${Color_Off}"
+    echo -e "${On_IWhite}##${Color_Off} ${Yellow}node${Color_Off} is already installed, ${UWhite}skipping${Color_Off}...${Purple}(cant check version, give me a way in issues pls)${Color_Off} ${On_IWhite}##${Color_Off}"
 else
-    echo -e "${BIWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}node${Color_Off}..."
-    sudo curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash -
-    echo -e "${BIWhite}++${Color_Off} sudo curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash -"
-    sudo apt-get install nodejs -y
-    echo -e "${BIWhite}++${Color_Off} sudo apt-get install nodejs -y"
+    echo -e "${On_IWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}node${Color_Off}... ${On_IWhite}##${Color_Off}"
+    echo -e "${On_IBlack}++${Color_Off} sudo curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash - ${On_IBlack}++${Color_Off}"
+    echo -e "${On_IBlack}++${Color_Off} sudo apt-get install nodejs -y ${On_IBlack}++${Color_Off}"
+    
+    if [ $userauth == 1 ];
+    then
+        read -p "[y/n]: " currentauth
+        if [ "$currentauth" != "${currentauth#[Yy]}" ];
+        then
+            sudo curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash -
+            sudo apt-get install nodejs
+        fi
+        unset currentauth
+    else
+        sudo curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash -
+        sudo apt-get install nodejs -y
+    fi
 fi
 
 if which npm > /dev/null
 then
-    echo -e "${BIWhite}##${Color_Off} ${Yellow}npm${Color_Off} is already installed, ${UWhite}skipping${Color_Off}..."
+    echo -e "${On_IWhite}##${Color_Off} ${Yellow}npm${Color_Off} is already installed, ${UWhite}skipping${Color_Off}... ${On_IWhite}##${Color_Off}"
 else
-    echo -e "${BIWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}npm${Color_Off}..."
-    echo -e "${BIWhite}++${Color_Off} sudo curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash -"
-    sudo curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash -
-    echo -e "${BIWhite}++${Color_Off} sudo apt-get install npm -y"
-    sudo apt-get install npm -y
+    echo -e "${On_IWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}npm${Color_Off}... ${On_IWhite}##${Color_Off}"
+    echo -e "${On_IBlack}++${Color_Off} sudo curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash - ${On_IBlack}++${Color_Off}"
+    echo -e "${On_IBlack}++${Color_Off} sudo apt-get install npm -y ${On_IBlack}++${Color_Off}"
+    if [ $userauth == 1 ];
+    then
+        read -p "[y/n]: " currentauth
+        if [ "$currentauth" != "${currentauth#[Yy]}" ];
+        then
+            sudo curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash -
+            sudo apt-get install npm
+        fi
+        unset currentauth
+    else
+        sudo curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash -
+        sudo apt-get install npm -y
+    fi
 fi
 
 if which gpio > /dev/null
 then
-    echo -e "${BIWhite}##${Color_Off} ${Yellow}wiringpi${Color_Off} is already installed, ${UWhite}skipping${Color_Off}..."
+    echo -e "${On_IWhite}##${Color_Off} ${Yellow}wiringpi${Color_Off} is already installed, ${UWhite}skipping${Color_Off}... ${On_IWhite}##${Color_Off}"
 else
-    echo -e "${BIWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}wiringpi${Color_Off}..."
-    echo -e "${BIWhite}++${Color_Off} (cd /tmp && wget https://project-downloads.drogon.net/wiringpi-latest.deb && sudo dpkg -i wiringpi-latest.deb)"
-    (cd /tmp && wget https://project-downloads.drogon.net/wiringpi-latest.deb && sudo dpkg -i wiringpi-latest.deb)
+    echo -e "${On_IWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}wiringpi${Color_Off}... ${On_IWhite}##${Color_Off}"
+    echo -e "${On_IBlack}++${Color_Off} (cd /tmp && wget https://project-downloads.drogon.net/wiringpi-latest.deb && sudo dpkg -i wiringpi-latest.deb) ${On_IBlack}++${Color_Off}"
+    if [ $userauth == 1 ];
+    then
+        read -p "[y/n]: " currentauth
+        if [ "$currentauth" != "${currentauth#[Yy]}" ];
+        then
+            (cd /tmp && wget https://project-downloads.drogon.net/wiringpi-latest.deb && sudo dpkg -i wiringpi-latest.deb)
+        fi
+        unset currentauth
+    else
+        (cd /tmp && wget https://project-downloads.drogon.net/wiringpi-latest.deb && sudo dpkg -i wiringpi-latest.deb)
+    fi
 fi
 
 if which dnsmasq > /dev/null
 then
-    echo -e "${BIWhite}##${Color_Off} ${Yellow}dnsmasq${Color_Off} is already installed, ${UWhite}skipping${Color_Off}..."
+    echo -e "${On_IWhite}##${Color_Off} ${Yellow}dnsmasq${Color_Off} is already installed, ${UWhite}skipping${Color_Off}... ${On_IWhite}##${Color_Off}"
 else
-    echo -e "${BIWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}dnsmasq${Color_Off}..."
-    echo -e "${BIWhite}++${Color_Off} sudo apt-get install dnsmasq -y"
-    sudo apt-get install dnsmasq -y
+    echo -e "${On_IWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}dnsmasq${Color_Off}... ${On_IWhite}##${Color_Off}"
+    echo -e "${On_IBlack}++${Color_Off} sudo apt-get install dnsmasq -y ${On_IBlack}++${Color_Off}"
+    if [ $userauth == 1 ];
+    then
+        read -p "[y/n]: " currentauth
+        if [ "$currentauth" != "${currentauth#[Yy]}" ];
+        then
+            sudo apt-get install dnsmasq
+        fi
+        unset currentauth
+    else
+        sudo apt-get install dnsmasq -y
+    fi
 fi
 
 if which hostapd > /dev/null
 then
-    echo -e "${BIWhite}##${Color_Off} ${Yellow}hostapd${Color_Off} is already installed, ${UWhite}skipping${Color_Off}..."
+    echo -e "${On_IWhite}##${Color_Off} ${Yellow}hostapd${Color_Off} is already installed, ${UWhite}skipping${Color_Off}... ${On_IWhite}##${Color_Off}"
 else
-    echo -e "${BIWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}hostapd${Color_Off}..."
-    echo -e "${BIWhite}++${Color_Off} sudo apt-get install hostapd -y"
-    sudo apt-get install hostapd -y
+    echo -e "${On_IWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}hostapd${Color_Off}... ${On_IWhite}##${Color_Off}"
+    echo -e "${On_IBlack}++${Color_Off} sudo apt-get install hostapd -y ${On_IBlack}++${Color_Off}"
+    if [ $userauth == 1 ];
+    then
+        read -p "[y/n]: " currentauth
+        if [ "$currentauth" != "${currentauth#[Yy]}" ];
+        then
+            sudo apt-get install hostapd
+        fi
+        unset currentauth
+    else
+        sudo apt-get install hostapd -y
+    fi
 fi
 
-echo -e "${BIWhite}##${Color_Off} configuring AP"
+echo -e "${On_IWhite}##${Color_Off} configuring AP ${On_IWhite}##${Color_Off}"
 
-# echo -e "${BIWhite}###${Color_Off} diverting ${Yellow}dhcpcd${Color_Off} config to custom file"
-# echo -e "${BIWhite}++${Color_Off} dhcpcd -f \"$(dirname $0)/dhcpcd.conf\""
+# echo -e "${On_IWhite}###${Color_Off} diverting ${Yellow}dhcpcd${Color_Off} config to custom file ${On_IWhite}##${Color_Off}"
+# echo -e "${On_IBlack}++${Color_Off} dhcpcd -f \"$(dirname $0)/dhcpcd.conf\" ${On_IBlack}++${Color_Off}"
 # dhcpcd -f "$(dirname $0)/dhcpcd.conf"
-# echo -e "${BIWhite}++${Color_Off} sudo systemctl reload dhcpcd"
+# echo -e "${On_IBlack}++${Color_Off} sudo systemctl reload dhcpcd ${On_IBlack}++${Color_Off}"
 # sudo systemctl reload dhcpcd
 
-# echo -e "${BIWhite}###${Color_Off} diverting ${Yellow}dnsmasq${Color_Off} config to custom file"
-# echo -e "${BIWhite}++${Color_Off} dnsmasq -C \"$(dirname $0)/dnsmasq.conf\""
+# echo -e "${On_IWhite}###${Color_Off} diverting ${Yellow}dnsmasq${Color_Off} config to custom file ${On_IWhite}##${Color_Off}"
+# echo -e "${On_IBlack}++${Color_Off} dnsmasq -C \"$(dirname $0)/dnsmasq.conf\" ${On_IBlack}++${Color_Off}"
 # dnsmasq -C "$(dirname $0)/dnsmasq.conf"
-# echo -e "${BIWhite}++${Color_Off} sudo systemctl reload dnsmasq"
+# echo -e "${On_IBlack}++${Color_Off} sudo systemctl reload dnsmasq ${On_IBlack}++${Color_Off}"
 # sudo systemctl reload dnsmasq
 
 #locate hostapd.service
 loc=$(systemctl cat hostapd | head -n 1)
 loc=${loc:2}
+hostapdstopped=0
 
-echo -e "${BIWhite}++${Color_Off} sudo systemctl stop hostapd"
-sudo systemctl stop hostapd
+echo -e "\n${On_IWhite}##${Color_Off} stop hostapd and set up its config path ${On_IWhite}##${Color_Off}"
 
-echo -e "${BIWhite}##${Color_Off} changing config path in $loc"
-
-out=""
-while read line
-do
-    if [[ "$line" == "Environment=DAEMON_CONF="* ]]
+echo -e "${On_IBlack}++${Color_Off} sudo systemctl stop hostapd ${On_IBlack}++${Color_Off}"
+if [ $userauth == 1 ];
+then
+    read -p "[y/n]: " currentauth
+    if [ "$currentauth" != "${currentauth#[Yy]}" ];
     then
-        out="${out}Environment=DAEMON_CONF=$SCRIPTPATH/hostapd.conf\n"
-    else
-        out="${out}${line}\n"
+        sudo systemctl stop hostapd
+        hostapdstopped=1
     fi
-done < $loc
+    unset currentauth
+else
+    sudo systemctl stop hostapd
+    hostapdstopped=1
+fi
+echo -e "${Debug}stoppd: $hostapdstopped${Color_Off}"
 
-echo -e "${BIWhite}##${Color_Off} writing following text to $loc"
-echo -e "$out" | sudo tee "$loc"
-
-echo -e "${BIWhite}##${Color_Off} changing config path in $loc" //WTF
+if [ $hostapdstopped == 1 ];
+then
+    
+    echo -e "${On_IWhite}##${Color_Off} changing config path in $loc ${On_IWhite}##${Color_Off}"
+    
+    out=""
+    prev=""
+    while read line
+    do
+        if [[ "$line" == "Environment=DAEMON_CONF="* ]]
+        then
+            prev="$line"
+            out="${out}Environment=DAEMON_CONF=$SCRIPTPATH/hostapd.conf\n"
+        else
+            out="${out}${line}\n"
+        fi
+    done < $loc
+    out=${out%??} #remove last \n
+    
+    echo -e "${On_IWhite}#+${Color_Off} replace line ${UWhite}$prev${Color_Off} in file ${Yellow}$loc${Color_Off} with ${UWhite}Environment=DAEMON_CONF=$SCRIPTPATH/hostapd.conf${Color_Off} ${On_IWhite}+#${Color_Off}"
+    
+    if [ $userauth == 1 ];
+    then
+        read -p "[y/n]: " currentauth
+        if [ "$currentauth" != "${currentauth#[Yy]}" ];
+        then
+            echo -e "$out" | sudo tee "$loc" #TODO: replace with echo if it works
+        fi
+        unset currentauth
+    else
+        echo -e "$out" | sudo tee "$loc" #TODO: replace with echo if it works
+    fi
+    
+    echo -e "${On_IBlack}++${Color_Off} sudo systemctl reload hostapd ${On_IBlack}++${Color_Off}"
+    if [ $userauth == 1 ];
+    then
+        read -p "[y/n]: " currentauth
+        if [ "$currentauth" != "${currentauth#[Yy]}" ];
+        then
+            sudo systemctl reload hostapd
+        fi
+        unset currentauth
+    else
+        sudo systemctl reload hostapd
+    fi
+else
+    echo -e "${Error}skipped setting hostapd.conf path ${Error}${Color_Off}"
+    err="${err}${Error}skipped setting hostapd.conf path - user input ${Error}${Color_Off}\n"
+fi
 
 LineFound=0
 out=""
+prev=""
 loc="/boot/config.txt"
 while read line
 do
-    if [[ "$line" == *"dtparam=spi="* ]]
+    if [[ "$line" == *dtparam\=spi\=* ]]
     then
+        prev="$line"
         out="${out}dtparam=spi=on\n"
         LineFound=1
+        echo -e "${Debug} found dtparam line: ${Color_Off}${UCyan}\"$line\"${Color_Off}"
     else
         out="${out}${line}\n"
     fi
 done < "$loc"
+out=${out%??} #remove last \n
 
-if [[ LineFound == 0 ]]
+if [[ $LineFound == 1 ]]
 then
-    echo -e "${BIWhite}##${Color_Off} writing following text to $loc"
+    echo -e "${On_IWhite}#+${Color_Off} replace line ${UWhite}$prev${Color_Off} in file ${Yellow}$loc${Color_Off} with ${UWhite}dtparam=spi=on${Color_Off} ${On_IWhite}+#${Color_Off}"
     echo -e "$out" | sudo tee "$loc"
 else
+    echo -e "${On_IWhite}#+${Color_Off} appending ${UWhite}dtparam=spi=on${Color_Off} to file ${Yellow}$loc${Color_Off}${On_IWhite}+#${Color_Off}"
     echo -e "dtparam=spi=on" | sudo tee -a "$loc"
 fi
 
-echo -e "${BIWhite}++${Color_Off} sudo systemctl reload hostapd"
-sudo systemctl reload hostapd
-
-echo -e "${BIWhite}##${Color_Off} ${UWhite}compiling${Color_Off} lasershow executable..."
-echo -e "${BIWhite}++${Color_Off} (cd rpi-lasershow && make)"
-if !(out=$(cd rpi-lasershow && make))
+echo -e "${On_IWhite}##${Color_Off} ${UWhite}compiling${Color_Off} lasershow executable... ${On_IWhite}##${Color_Off}"
+echo -e "${On_IBlack}++${Color_Off} (cd rpi-lasershow && make) ${On_IBlack}++${Color_Off}"
+#TODO: copy exec to root folder
+if !(out="$(cd rpi-lasershow && make)")
 then
-    echo $out
-    echo -e "${BIWhite}##${Color_Off} ${Red}...compilation failed..exiting${Color_Off}"
-    exit 1
+    echo -e "${Error}compilation resulted in an error${Error}${Color_Off}\ndetails:"
+    echo "$out"
+    err="${err}${Error}lasershow executable compilation resulted in an error${Error}${Color_Off}\ndetails:${out}\n"
 else
-    echo -e "${BIWhite}##${Color_Off}                               ${Green}...success${Color_Off}"
-    echo -e "${BIWhite}##${Color_Off} cp rpi-lasershow/lasershow ."
+    echo -e "${On_IWhite}##${Color_Off}                               ...${Green}success${Color_Off} ${On_IWhite}##${Color_Off}"
+    echo -e "${On_IWhite}##${Color_Off} cp rpi-lasershow/lasershow . ${On_IWhite}##${Color_Off}"
     cp rpi-lasershow/lasershow .
 fi
 
 if which pm2 > /dev/null
 then
-    echo -e "${BIWhite}##${Color_Off} ${Yellow}pm2${Color_Off} is already installed, ${UWhite}skipping${Color_Off}..."
+    echo -e "${On_IWhite}##${Color_Off} ${Yellow}pm2${Color_Off} is already installed, ${UWhite}skipping${Color_Off}... ${On_IWhite}##${Color_Off}"
 else
-    echo -e "${BIWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}pm2${Color_Off}..."
-    echo -e "${BIWhite}++${Color_Off} sudo npm install pm2 -g"
+    echo -e "${On_IWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}pm2${Color_Off}... ${On_IWhite}##${Color_Off}"
+    echo -e "${On_IBlack}++${Color_Off} sudo npm install pm2 -g ${On_IBlack}++${Color_Off}"
     sudo npm install pm2 -g
 fi
 
+echo -e "${URed}pm2 -y confirm todo${Color_Off}"
+echo -e "${URed}pm2 -y confirm todo${Color_Off}"
+echo -e "${URed}pm2 -y confirm todo${Color_Off}"
+echo -e "${URed}pm2 -y confirm todo${Color_Off}"
+echo -e "${URed}pm2 -y confirm todo${Color_Off}"
+echo -e "${URed}pm2 -y confirm todo${Color_Off}"
+echo -e "${URed}pm2 -y confirm todo${Color_Off}\n\n\n"
+
 echo -e "${URed}CONFIG TODO${Color_Off}"
 echo -e "${URed}CONFIG TODO${Color_Off}"
 echo -e "${URed}CONFIG TODO${Color_Off}"
@@ -225,41 +402,47 @@ echo -e "${URed}CONFIG TODO${Color_Off}"
 echo -e "${URed}CONFIG TODO${Color_Off}"
 echo -e "${URed}CONFIG TODO${Color_Off}"
 
-echo ""
-
-echo -e "${Red} let user selecet if -y${Color_Off}"
 echo ""
 
 #npm dependencies
 for i in {"discord_bot","web_ui","wifi_manager"}
 do
-    echo -e "${BIWhite}##${Color_Off} ${UWhite}installing${Color_Off} dependencies for ${Yellow}${i}${Color_Off}..."
-    echo -e "${BIWhite}++${Color_Off} (cd $i && npm install)"
-    (cd $i && npm install && echo -e "${BIWhite}++${Color_Off} npm audit fix" && npm audit fix)
+    echo -e "${On_IWhite}##${Color_Off} ${UWhite}installing${Color_Off} dependencies for ${Yellow}${i}${Color_Off}... ${On_IWhite}##${Color_Off}"
+    echo -e "${On_IBlack}++${Color_Off} (cd $i && npm install) ${On_IBlack}++${Color_Off}"
+    (cd $i && npm install && echo -e "${On_IBlack}++${Color_Off} npm audit fix ${On_IBlack}++${Color_Off}" && npm audit fix)
     
-    echo -e "${BIWhite}##${Color_Off} ${UWhite}deploying${Color_Off} ${Yellow}$i${Color_Off} to pm2..."
-    echo -e "${BIWhite}++${Color_Off} (cd $i && pm2 start . --name $i --restart-delay=5000)"
+    echo -e "${On_IWhite}##${Color_Off} ${UWhite}deploying${Color_Off} ${Yellow}$i${Color_Off} to pm2... ${On_IWhite}##${Color_Off}"
+    echo -e "${On_IBlack}++${Color_Off} (cd $i && pm2 start . --name $i --restart-delay=5000) ${On_IBlack}++${Color_Off}"
     (cd $i && pm2 start . --name $i --restart-delay=5000)
 done
 
-echo -e "${BIWhite}##${Color_Off} ${UWhite}deploying discord commands${Color_Off}..."
-echo -e "${BIWhite}++${Color_Off} (cd discord_bot && node deploy_commands.js)"
+echo -e "${On_IWhite}##${Color_Off} ${UWhite}deploying discord commands${Color_Off}... ${On_IWhite}##${Color_Off}"
+echo -e "${On_IBlack}++${Color_Off} (cd discord_bot && node deploy_commands.js) ${On_IBlack}++${Color_Off}"
 (cd discord_bot && node deploy_commands.js)
 
-echo -e "${BIWhite}##${Color_Off} ${UWhite}saving pm2 configuration${Color_Off}..."
-echo -e "${BIWhite}++${Color_Off} pm2 save && sudo env PATH=$PATH:/usr/local/bin pm2 startup systemd -u pi --hp /home/pi && pm2 restart all"
+echo -e "${On_IWhite}##${Color_Off} ${UWhite}saving pm2 configuration${Color_Off}... ${On_IWhite}##${Color_Off}"
+echo -e "${On_IBlack}++${Color_Off} pm2 save && sudo env PATH=$PATH:/usr/local/bin pm2 startup systemd -u pi --hp /home/pi && pm2 restart all ${On_IBlack}++${Color_Off}"
 pm2 save && sudo env PATH=$PATH:/usr/local/bin pm2 startup systemd -u pi --hp /home/pi && pm2 restart all
 
-echo -e "${Red}NEED COMMENTS${Color_Off}"
+echo -e "${Red}NEED COMMENTS${Color_Off}" #TODO:
 echo -e "[Unit]\nDescription=Service to redirect all pm2 logs to /dev/tty1 - RPI HDMI output\nAfter=pm2-pi.service\n[Service]\nUser=pi\nType=simple\nStandardOutput=tty\nTTYPath=/dev/tty1\nTimeoutStartSec=5\nEnvironment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games:/usr/local/bin:/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin\nEnvironment=PM2_HOME=/home/pi/.pm2\nRestart=on-failure\nExecStart=/bin/bash -c 'echo \$\$\$\$ > /tmp/pm2LogsToTty1.pid;exec pm2 logs'\nExecStop=/bin/bash -c 'sudo kill \$(cat /tmp/pm2LogsToTty1.pid)'\n[Install]\nWantedBy=default.target\n" | sudo tee /etc/systemd/system/pm2LogsToTty1.service
 sudo systemctl daemon-reload
 sudo systemctl enable pm2LogsToTty1 # only tested with start
 
-echo ""
-echo -e "${BIWhite}##${Color_Off} ${UYellow}reboot${Color_Off} is required to ${Green}finish instalation${Color_Off}\n${UWhite}do you want to reboot system now?${Color_Off} [Y/n]"
-read reb
-if [[ reb=="Y"||reb=="y" ]]
+echo -e -n "installation finished "
+if [ "$err" == "" ];
 then
-  echo -e "${BIWhite}++${Color_Off} sudo reboot"
-  sudo reboot
+    echo -e "${Green}without errors${Color_Off}"
+else
+    echo -e "${UYellow}with following warnings/${URed}errors:${Color_Off}\n$err"
+fi
+
+echo ""
+echo -e "${On_IWhite}##${Color_Off} ${UYellow}reboot${Color_Off} is required to ${Green}finish instalation${Color_Off}\n${UWhite}do you want to reboot system now?${Color_Off} [Y/n] ${On_IWhite}##${Color_Off}"
+read reb
+
+if [ "$reb" != "${reb#[Yy]}" ];
+then
+    echo -e "${On_IBlack}++${Color_Off} sudo reboot ${On_IBlack}++${Color_Off}"
+    sudo reboot
 fi

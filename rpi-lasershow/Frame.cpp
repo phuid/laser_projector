@@ -1,18 +1,26 @@
 #include "Frame.h"
 #include "FrameData.h"
 #include "Points.h"
+#include <stdint.h>
 
 #include <fstream>
 using namespace std;
+
+#define MAX_DAC_VALUE 4095
 
 // Format spec: https://www.ilda.com/resources/StandardsDocs/ILDA_IDTF14_rev011.pdf
 
 Frame::Frame(){}
 
-bool Frame::getNext(std::ifstream& file, Points* points) {
+bool Frame::getNext(std::ifstream& file, Points* points, uint8_t format_code) {
+
+    //TODO: check if next dataRecord isnt a header
 
     FrameData data;
-    char bytes[FrameData::NUMBER_OF_DATA_BYTES];
+    uint8_t bytes[data.format_definitions[format_code].NUMBER_OF_DATA_BYTES];
+
+    //if byte is defined in format_def[format_code], save it to data
+    
 
     unsigned int position = file.tellg();
 
@@ -21,12 +29,12 @@ bool Frame::getNext(std::ifstream& file, Points* points) {
     int fileSize = file.tellg();
     file.seekg(position);
 
-    // End of file...
-    if (fileSize - (position + Frame::NUMBER_OF_HEADER_BYTES) < Frame::NUMBER_OF_HEADER_BYTES + FrameData::NUMBER_OF_DATA_BYTES) {
-        // return false to nofity end of file but jump to begining of the file in case we will loop the file again. 
-        file.seekg(0);
-        return false;
-    }
+    //TODO: rewrite this to check number of records and be in the header check
+    // // End of file...
+    // if (fileSize - (position + Frame::NUMBER_OF_HEADER_BYTES) < Frame::NUMBER_OF_HEADER_BYTES + FrameData::NUMBER_OF_DATA_BYTES) {
+    //     // return false to nofity end of file but jump to begining of the file in case we will loop the file again. 
+    //     return false;
+    // }
 
     // Skip header data.
     file.seekg(position + Frame::NUMBER_OF_HEADER_BYTES);
@@ -36,10 +44,10 @@ bool Frame::getNext(std::ifstream& file, Points* points) {
 
     do {
         // Read next point in the frame.
-        file.read(bytes, FrameData::NUMBER_OF_DATA_BYTES);
-        data.x = (bytes[FrameData::X_BYTE] << 8 ) + bytes[FrameData::X_BYTE + 1];
-        data.y = (bytes[FrameData::Y_BYTE] << 8 ) + bytes[FrameData::Y_BYTE + 1];
-        data.laserOn = !getBit(bytes[FrameData::STATUS_BYTE], FrameData::LASER_ON_BIT);
+        file.read(bytes, data.format_definitions[format_code].NUMBER_OF_DATA_BYTES);
+        data.x = (bytes[data.format_definitions[format_code].X_BYTE] << 8 ) + bytes[data.format_definitions[format_code].X_BYTE + 1];
+        data.y = (bytes[data.format_definitions[format_code].Y_BYTE] << 8 ) + bytes[data.format_definitions[format_code].Y_BYTE + 1];
+        data.laserOn = !getBit(bytes[data.format_definitions[format_code].STATUS_BYTE], data.format_definitions[format_code].LASER_ON_BIT);
 
         // ILDA format has a weird way of storing values. Positive numbers are stored nomally
         // but negative numbers are stored in second part of 'unsigned short' (>32768) so e.g. 
@@ -48,26 +56,26 @@ bool Frame::getNext(std::ifstream& file, Points* points) {
         if (data.y > 32768) data.y = data.y - 65536;
 
         // Map ILDA values to DAC value range and store the data to array. 
-        points->store[points->size*3] = map(data.x, -32768, +32767, 0, 4095);
-        points->store[(points->size*3)+1] = map(data.y, -32768, +32767, 0, 4095);
+        points->store[points->size*3] = map(data.x, -32768, +32767, 0, MAX_DAC_VALUE);
+        points->store[(points->size*3)+1] = map(data.y, -32768, +32767, 0, MAX_DAC_VALUE);
         points->store[(points->size*3)+2] = data.laserOn;
         points->size++;
 
     // Read next if current not last.
-    } while (!isLastPoint(bytes));
+    } while (!isLastPoint(bytes, data, format_code));
 
     // true = no more points in current frame to read.
     return true;
 }
 
 // Get the last-point-bit-flag from status byte x.
-bool Frame::isLastPoint(char* bytes) {
-    return getBit(bytes[FrameData::STATUS_BYTE], FrameData::LAST_POINT_BIT);
+bool Frame::isLastPoint(char* bytes, FrameData data, uint8_t format_code) {
+    return getBit(bytes[data.format_definitions[format_code].STATUS_BYTE], data.format_definitions[format_code].LAST_POINT_BIT);
 }
 
-// Helpter function to get arbitrary bit value from byte.
+// Helpter function to get arbitrary bit value from byte. (bitnumber counted from 0)
 bool Frame::getBit(char b, int bitNumber) {
-    return (b & (1 << (bitNumber - 1))) != 0;
+    return (b & (1 << bitNumber)) != 0;
 }
 
 // Helper function to map a value between two value ranges.

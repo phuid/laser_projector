@@ -14,4 +14,5 @@ class IldaReader {
 
     public:
         std::ifstream file;
+        uint8_t current_format_code;
 };

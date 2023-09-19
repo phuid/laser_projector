@@ -1,13 +1,12 @@
 {
   "discord" : {
-    "clientId": "111111111111111111",
-    "token": "xXxXxXxXxXxXxXxXxXxXxXxX.Xx111X.X1X_XxXxXxXxXxXxXxXxXxXxXxX",
-    "console_channel": "1111111111111111111"
+    "clientId": "926432210683310141",
+    "token": "OTI2NDMyMjEwNjgzMzEwMTQx.GUpL7k.0L06nf7_RLV8svtwsxtu_1iUSSIrBEVXFRyMGM"
   },
   "web_ui" : {
     "sshHost": "localhost",
     "sshPort": 22,
     "sshUsername": "pi",
-    "sshPassword": "111111111"
+    "sshPassword": "123456789"
   }
 }
