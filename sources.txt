@@ -2,6 +2,7 @@ copied code:
   https://github.com/marcan/openlase/blob/master/tools/svg2ild.py
   https://github.com/tteskac/rpi-lasershow
   https://github.com/sabhiram/raspberry-wifi-conf/blob/master/app/wifi_manager.js
+  http://www.electronicayciencia.com/wPi_soft_lcd/
 
 good to read:
   https://www.instructables.com/Arduino-Laser-Show-With-Real-Galvos/
