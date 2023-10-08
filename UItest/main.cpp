@@ -56,6 +56,8 @@ struct menu_option
 	menu_option_style style;
 
 	std::vector<menu_option> nested_options; // does this work????????
+	uint8_t nest_selected = 0;
+	uint8_t nest_scroll = 0;
 	menu_val<int16_t> value;
 	std::vector<std::string> selection; // value changes with selection
 	void (*function)(void);
@@ -94,9 +96,6 @@ int main()
 	wiringPiISR(encoder_pins[1], INT_EDGE_BOTH, *handle_enc_interrupts);
 	wiringPiISR(encoder_button_pin, INT_EDGE_FALLING, *handle_btn_interrupts);
 
-	menu_val<int8_t> screen_brightness = {50, 0, 100};
-	// menu_val<int8_t> menu_pos = {50, 0, menu[].max_pos};
-
 	std::vector<menu_option> menu = {
 			{
 					.name = (char *)"1 - nest",
@@ -106,7 +105,7 @@ int main()
 									.name = (char *)"1.1 - text",
 									.style = TEXT,
 							},
-							{.name = "1.2 - func",
+							{.name = (char *)"1.2 - func",
 							 .style = FUNCTION,
 							 .function = *print_test},
 					},
@@ -116,19 +115,25 @@ int main()
 					.style = TEXT,
 			},
 			{
-					.name = (char *)"3 - val",
+					.name = (char *)"3 - val - brightness",
 					.style = VALUE,
 					.value = {50, 0, 100},
-			}
-
+			},
+			{
+					.name = (char *)"4 - func",
+					.style = FUNCTION,
+					.function = *print_test,
+			},
 	};
+	uint8_t menu_selected = 0;
+	uint8_t menu_scroll = 0;
 
 	while (true)
 	{
 		lcd_pos(lcd, 0, 0);
-		change_val<int8_t *>(screen_brightness.min, screen_brightness.max, &screen_brightness.num);
-		lcd_backlight_dim(lcd, (float)screen_brightness.num / 100.f);
-		lcd_printf(lcd, (char *)"brightness: %d%% ", screen_brightness.num);
+		change_val<int16_t *>(menu[2].value.min, menu[2].value.max, &menu[2].value.num);
+		lcd_backlight_dim(lcd, (float)menu[2].value.num / 100.f);
+		lcd_printf(lcd, (char *)"brightness: %d%% ", menu[2].value.num);
 	}
 
 	lcd_backlight_off(lcd);
