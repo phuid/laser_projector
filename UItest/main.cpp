@@ -84,9 +84,9 @@ int main()
 	while (true)
 	{
 		lcd_pos(lcd, 0, 0);
-		change_val<int8_t *>(screen_brightness.min, screen_brightness.max, &screen_brightness.num);
-		lcd_backlight_dim(lcd, (float)screen_brightness.num / 100.f);
-		lcd_printf(lcd, (char *)"brightness:%d%% ", screen_brightness.num);
+		change_val<int8_t *>(screen_brightness.min, screen_brightness.max, &screen_brightness.val);
+		lcd_backlight_dim(lcd, (float)screen_brightness.val / 100.f);
+		lcd_printf(lcd, (char *)"brightness:%d%% ", screen_brightness.val);
 	}
 
 	lcd_backlight_off(lcd);
