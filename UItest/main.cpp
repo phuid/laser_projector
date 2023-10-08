@@ -16,38 +16,39 @@
 #include <wiringPi.h>
 #include <iostream>
 #include "soft_lcd.h"
+
+#define ENCODER_PINS \
+	{                  \
+		25, 27           \
+	}
+#define ENCODER_BUTTON_PIN 23
 #include "encoder.h"
 
+template <typename T>
+struct menu_val {
+	T val;
+	T min;
+	T max;
+};
 
 template <typename T>
-void change_val(lcd_t *lcd, int16_t val_max, int16_t val_min, T val, char *suffix, uint8_t pos_row, uint8_t pos_column)
+void change_val(int16_t val_min, int16_t val_max, T val)
 {
-	pos = 0;
-	while (!btn_pressed)
+	if (encoder_pos > 0)
 	{
-		if (pos > 0)
-		{
-			if (*val + pos <= val_max)
-				*val += pos;
-			else
-				*val = val_max;
-		}
-		else if (pos < 0)
-		{
-			if (*val + pos >= val_min)
-				*val += pos;
-			else
-				*val = val_min;
-		}
-		pos = 0;
-
-		lcd_pos(lcd, pos_row, pos_column);
-		lcd_printf(lcd, "%2d%s ", *val, suffix);
-
-		usleep(1000000 / 30);
+		if (*val + encoder_pos <= val_max)
+			*val += encoder_pos;
+		else
+			*val = val_max;
 	}
-	btn_pressed = 0;
-	pos = 0;
+	else if (encoder_pos < 0)
+	{
+		if (*val + encoder_pos >= val_min)
+			*val += encoder_pos;
+		else
+			*val = val_min;
+	}
+	encoder_pos = 0;
 }
 
 int main()
@@ -66,33 +67,26 @@ int main()
 
 	lcd_init(lcd);
 
-	/* Print a string in each of 4 lines */
-	// for (size_t i = 0; i < 4; i++)
-	// {
-	// 	lcd_print(lcd, (char *)"This is line ");
-	// 	lcd_print(lcd, const_cast<char *>(std::to_string(i).c_str()));
-	// 	lcd_print(lcd, (char *)"\n");
-	// }
-
 	pinMode(encoder_pins[0], INPUT);
 	pinMode(encoder_pins[1], INPUT);
-	pinMode(button_pin, INPUT);
+	pinMode(encoder_button_pin, INPUT);
 
 	pullUpDnControl(encoder_pins[0], PUD_UP);
 	pullUpDnControl(encoder_pins[1], PUD_UP);
-	pullUpDnControl(button_pin, PUD_UP);
+	pullUpDnControl(encoder_button_pin, PUD_UP);
 
 	wiringPiISR(encoder_pins[0], INT_EDGE_BOTH, *handle_enc_interrupts);
 	wiringPiISR(encoder_pins[1], INT_EDGE_BOTH, *handle_enc_interrupts);
-	wiringPiISR(button_pin, INT_EDGE_FALLING, *handle_btn_interrupts);
+	wiringPiISR(encoder_button_pin, INT_EDGE_FALLING, *handle_btn_interrupts);
 
-	int8_t br = 50; // percent
-	lcd_print(lcd, (char *)"brightness:");
+	menu_val<int8_t> screen_brightness = {50, 0, 100};
 
 	while (true)
 	{
-		change_val<int8_t *>(lcd, 100, 0, &br, (char *)"%", 0, 12);
-		lcd_backlight_dim(lcd, (float)br / 100.f);
+		lcd_pos(lcd, 0, 0);
+		change_val<int8_t *>(screen_brightness.min, screen_brightness.max, &screen_brightness.num);
+		lcd_backlight_dim(lcd, (float)screen_brightness.num / 100.f);
+		lcd_printf(lcd, (char *)"brightness:%d%% ", screen_brightness.num);
 	}
 
 	lcd_backlight_off(lcd);
