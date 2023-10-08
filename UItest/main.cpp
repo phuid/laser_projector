@@ -1,18 +1,7 @@
-/* Program to test LCD basic usage.
- *
- * Electronicayciencia
- * https://github.com/electronicayciencia/wPi_soft_lcd
- *
- * Compile this way:
- * gcc -lwiringPi -o example_basic example_basic.c soft_lcd.c soft_i2c.c
- *
- * Reinoso G.   25/07/2018
- */
-
 #include <stdio.h>
 #include <unistd.h>
-#include <string>
 #include <cstring>
+#include <vector>
 #include <wiringPi.h>
 #include <iostream>
 #include "soft_lcd.h"
@@ -25,8 +14,9 @@
 #include "encoder.h"
 
 template <typename T>
-struct menu_val {
-	T val;
+struct menu_val
+{
+	T num;
 	T min;
 	T max;
 };
@@ -49,6 +39,31 @@ void change_val(int16_t val_min, int16_t val_max, T val)
 			*val = val_min;
 	}
 	encoder_pos = 0;
+}
+
+enum menu_option_style
+{
+	NESTED_MENU = 0,
+	VALUE,
+	SELECTION,
+	FUNCTION,
+	TEXT
+};
+
+struct menu_option
+{
+	char *name;
+	menu_option_style style;
+
+	std::vector<menu_option> nested_options; // does this work????????
+	menu_val<int16_t> value;
+	std::vector<std::string> selection; // value changes with selection
+	void (*function)(void);
+};
+
+void print_test()
+{
+	std::cout << "print test" << std::endl;
 }
 
 int main()
@@ -80,13 +95,40 @@ int main()
 	wiringPiISR(encoder_button_pin, INT_EDGE_FALLING, *handle_btn_interrupts);
 
 	menu_val<int8_t> screen_brightness = {50, 0, 100};
+	// menu_val<int8_t> menu_pos = {50, 0, menu[].max_pos};
+
+	std::vector<menu_option> menu = {
+			{
+					.name = (char *)"1 - nest",
+					.style = NESTED_MENU,
+					.nested_options = {
+							{
+									.name = (char *)"1.1 - text",
+									.style = TEXT,
+							},
+							{.name = "1.2 - func",
+							 .style = FUNCTION,
+							 .function = *print_test},
+					},
+			},
+			{
+					.name = (char *)"2 - text",
+					.style = TEXT,
+			},
+			{
+					.name = (char *)"3 - val",
+					.style = VALUE,
+					.value = {50, 0, 100},
+			}
+
+	};
 
 	while (true)
 	{
 		lcd_pos(lcd, 0, 0);
-		change_val<int8_t *>(screen_brightness.min, screen_brightness.max, &screen_brightness.val);
-		lcd_backlight_dim(lcd, (float)screen_brightness.val / 100.f);
-		lcd_printf(lcd, (char *)"brightness:%d%% ", screen_brightness.val);
+		change_val<int8_t *>(screen_brightness.min, screen_brightness.max, &screen_brightness.num);
+		lcd_backlight_dim(lcd, (float)screen_brightness.num / 100.f);
+		lcd_printf(lcd, (char *)"brightness: %d%% ", screen_brightness.num);
 	}
 
 	lcd_backlight_off(lcd);
