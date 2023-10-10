@@ -11,7 +11,7 @@ char parent_char[] = {
 		0b00100,
 		0b00111,
 		0b00000,
-	};
+};
 #define PARENT_CHAR_NUM 1
 
 template <typename T>
@@ -88,7 +88,7 @@ void menu_interact(std::vector<menu_option> *menu, uint8_t *menu_selected, uint8
 			menu_interact(&(*menu)[*menu_selected].nested_menu_options, &(*menu)[*menu_selected].nest_selected, &(*menu)[*menu_selected].nest_scroll, &(*menu)[*menu_selected].nest_option_active, (*menu)[*menu_selected].style, redraw);
 			break;
 
-		case VALUE:
+			// VALUE handled elsewhere (lower in else (if(parent_menu_option_active)))
 
 			break;
 
@@ -118,14 +118,17 @@ void menu_interact(std::vector<menu_option> *menu, uint8_t *menu_selected, uint8
 			{
 				// handle button
 				// TODO: handle back button
-				if ((*menu)[*menu_selected].style == NESTED_MENU || (*menu)[*menu_selected].style == SELECTION) {
+				if ((*menu)[*menu_selected].style == NESTED_MENU || (*menu)[*menu_selected].style == SELECTION)
+				{
 					(*menu)[*menu_selected].nest_option_active = 1;
 				}
-				else if ((*menu)[*menu_selected].style == VALUE) {
+				else if ((*menu)[*menu_selected].style == VALUE)
+				{
 					change_val<decltype((*menu)[*menu_selected].value.num)>(&(*menu)[*menu_selected].value.num, (*menu)[*menu_selected].value.min, (*menu)[*menu_selected].value.max);
 				}
 			}
-			// redraw
+			// draw
+			
 		}
 	}
 }
