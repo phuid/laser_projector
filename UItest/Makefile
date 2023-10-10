@@ -1,5 +1,5 @@
 INCS=soft_i2c.c soft_lcd.c
-HEAD=soft_i2c.h soft_lcd.h
+HEAD=soft_i2c.h soft_lcd.h encoder.h
 LIBS=-lwiringPi
 CFLAGS=-Wall -Wextra -g
 
