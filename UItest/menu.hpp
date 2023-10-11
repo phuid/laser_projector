@@ -137,6 +137,11 @@ void menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
       std::cout << "reason (SCR/BTN/RE)" << selection_scrolled << encoder_btn_pressed << redraw << std::endl;
       if (selection_scrolled) // FIXME: SCROLL
       {
+
+        // TODO: overwrite leftover chars
+        // * find out name string strlen()
+        // * print x chars of name string and width-x chars of " "
+
         std::cout << (int)*menu_selected << " > " << (int)*menu_scroll << " + " << SCREEN_HEIGHT - 2 << std::endl;
         // handle scroll - prolly totally wrong :skull:
         if (*menu_selected >= *menu_scroll + SCREEN_HEIGHT - 2)
@@ -223,7 +228,8 @@ void menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
             }
           }
         }
-        else {
+        else
+        {
           lcd_printf(lcd, "%*s", SCREEN_WIDTH, "");
         }
       }
