@@ -1,16 +1,20 @@
 #include <vector>
 #include <stdint.h>
+#include "encoder.hpp"
+// debug
 #include <iostream>
+#include <stdio.h>
+#include <string>
 
 char parent_char[] = {
-    0b00000,
-    0b00100,
-    0b01110,
     0b11111,
-    0b00100,
-    0b00100,
-    0b00111,
+    0b11011,
+    0b10001,
     0b00000,
+    0b11011,
+    0b11011,
+    0b11000,
+    0b11111,
 };
 #define PARENT_CHAR_NUM 1
 
@@ -27,18 +31,25 @@ bool change_val(T *val, T val_min = 0, T val_max = 100) // return 1 if changed
 {
   if (encoder_pos > 0)
   {
-    if (encoder_pos < val_max - *val)
+    std::cout << encoder_pos << " < " << (int)val_max << " - " << (int)*val << std::endl;
+    if (encoder_pos <= val_max - *val)
       *val += encoder_pos;
     else
+    {
+      std::cout << "!" << std::endl;
       *val = val_max;
+    }
   }
   else if (encoder_pos < 0)
   {
-    std::cout << -1*encoder_pos << ">" << (int)*val << "-" << (int)val_min << std::endl;
+    std::cout << -1 * encoder_pos << " <= " << (int)*val << " - " << (int)val_min << std::endl;
     if (-1 * encoder_pos <= *val - val_min)
       *val += encoder_pos;
     else
+    {
+      std::cout << "!" << std::endl;
       *val = val_min;
+    }
   }
   else
   {
@@ -78,6 +89,8 @@ void print_test() // TODO: remove print_test
   std::cout << "print test" << std::endl;
 }
 
+std::string dbg_nests = "";
+
 void menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_selected, uint8_t *menu_scroll, bool *parent_menu_option_active, menu_option_style parent_menu_style, bool redraw = 0)
 {
   // std::cout << (*menu)[*menu_selected].name << " " << (int)*menu_scroll << " " << (int)*parent_menu_option_active << std::endl;
@@ -85,6 +98,7 @@ void menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
   uint8_t temp_menu_selected = *menu_selected + 1;
   if (*parent_menu_option_active && (*menu)[*menu_selected].style != VALUE)
   {
+    dbg_nests += (*menu)[*menu_selected].name;
     switch ((*menu)[*menu_selected].style)
     {
     // go down a layer of options
@@ -93,38 +107,53 @@ void menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
       menu_interact(lcd, &(*menu)[*menu_selected].nested_menu_options, &(*menu)[*menu_selected].nest_selected, &(*menu)[*menu_selected].nest_scroll, &(*menu)[*menu_selected].nest_option_active, (*menu)[*menu_selected].style, redraw);
       break;
 
+      // VALUE handled when drawing
+      // FUNCTION handled onclick
+
     default:
       break;
     }
   }
   else
   {
-    bool scrolled;
+    bool selection_scrolled = 0;
+    bool screen_scrolled = 0;
     if (*parent_menu_option_active && (*menu)[*menu_selected].style == VALUE)
     {
-      scrolled = 0;
+      selection_scrolled = 0;
       redraw = change_val<decltype((*menu)[*menu_selected].value.num)>(&(*menu)[*menu_selected].value.num, (*menu)[*menu_selected].value.min, (*menu)[*menu_selected].value.max);
       if (redraw)
-      std::cout << "changeval" << std::endl;
+        std::cout << "changeval" << std::endl;
     }
     else
     {
-      scrolled = change_val<uint8_t>(menu_selected, 0, (uint8_t)menu->size());
-      if (scrolled)
-      std::cout << "scroll" << std::endl;
+      selection_scrolled = change_val<uint8_t>(menu_selected, 0, (uint8_t)menu->size() - 1);
+      if (selection_scrolled)
+        std::cout << "scroll" << std::endl;
     }
-    if (scrolled || encoder_btn_pressed || redraw)
+    if (selection_scrolled || encoder_btn_pressed || redraw)
     {
-      if (scrolled && 0) //FIXME: SCROLL
+      std::cout << "nest: " << dbg_nests << std::endl;
+      std::cout << "reason (SCR/BTN/RE)" << selection_scrolled << encoder_btn_pressed << redraw << std::endl;
+      if (selection_scrolled) // FIXME: SCROLL
       {
+        std::cout << (int)*menu_selected << " > " << (int)*menu_scroll << " + " << SCREEN_HEIGHT - 2 << std::endl;
         // handle scroll - prolly totally wrong :skull:
-        if (*menu_selected > (*menu_scroll + 1) && *menu_selected - (*menu_scroll + 1) > SCREEN_HEIGHT / 2)
+        if (*menu_selected >= *menu_scroll + SCREEN_HEIGHT - 2)
         {
-          *menu_scroll += *menu_selected - (*menu_scroll + 1);
+          if (*menu_selected == menu->size() - 1)
+            *menu_scroll = *menu_selected - (SCREEN_HEIGHT - 1);
+          else
+            *menu_scroll = *menu_selected - (SCREEN_HEIGHT - 2);
+          screen_scrolled = 1;
         }
-        else if (*menu_selected < (*menu_scroll + 1) && (*menu_scroll + 1) - *menu_selected > SCREEN_HEIGHT / 2)
+        else if (*menu_selected <= *menu_scroll)
         {
-          *menu_scroll -= (*menu_scroll + 1) - *menu_selected;
+          if (*menu_selected == 0)
+            *menu_scroll = 0;
+          else
+            *menu_scroll = *menu_selected - 1;
+          screen_scrolled = 1;
         }
       }
 
@@ -140,50 +169,66 @@ void menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
         case VALUE:
           *parent_menu_option_active = 1;
           menu_interact(lcd, &(*menu)[*menu_selected].nested_menu_options, &(*menu)[*menu_selected].nest_selected, &(*menu)[*menu_selected].nest_scroll, &(*menu)[*menu_selected].nest_option_active, (*menu)[*menu_selected].style, 1);
-          return;
+          break;
 
         case FUNCTION:
           // TODO: handle function menu actions
-          return;
+          break;
 
         default:
-          return;
+          break;
         }
+        encoder_btn_pressed = 0;
       }
       // draw
-      lcd_clear(lcd);
+      // if (screen_scrolled || redraw)
+      //   lcd_clear(lcd);
       std::cout << "menu-size" << menu->size() << std::endl;
       std::cout << "menu_scroll" << (int)*menu_scroll << std::endl;
       std::cout << "menu_select" << (int)*menu_selected << std::endl;
       std::cout << "parent_menu_opti_ac" << (int)*parent_menu_option_active << std::endl;
       for (uint8_t i = *menu_scroll; i < *menu_scroll + 4; i++)
       {
-        if (i == *menu_selected)
-          lcd_print(lcd, (char *)">");
-        else
-          lcd_print(lcd, (char *)" ");
-
-        std::cout << "i" << (int)i << std::endl;
-        switch ((*menu)[i].style)
+        if (i < menu->size())
         {
-        case VALUE:
-        {
-          if (parent_menu_option_active && (*menu)[i].style == VALUE)
-          {
-            lcd_printf(lcd, "%*s>%4d", SCREEN_WIDTH - 5 - 1, (*menu)[i].name, (*menu)[i].value);
-          }
+          lcd_pos(lcd, i - *menu_scroll, 0);
+          if (i == *menu_selected)
+            lcd_print(lcd, (char *)">");
           else
+            lcd_print(lcd, (char *)" ");
+
+          if (screen_scrolled || redraw)
           {
-            lcd_printf(lcd, "%*s %4d", SCREEN_WIDTH - 5 - 1, (*menu)[i].name, (*menu)[i].value);
+            std::cout << "i" << (int)i << std::endl;
+            switch ((*menu)[i].style)
+            {
+            case VALUE:
+            {
+              if (*parent_menu_option_active)
+              {
+                lcd_printf(lcd, "%.*s>%4d", SCREEN_WIDTH - 5 - 1, (*menu)[i].name, (*menu)[i].value.num);
+                printf("%.*s>%4d", SCREEN_WIDTH - 5 - 1 - 2, (*menu)[i].name, (*menu)[i].value.num);
+              }
+              else
+              {
+                lcd_printf(lcd, "%.*s %4d", SCREEN_WIDTH - 5 - 1, (*menu)[i].name, (*menu)[i].value.num);
+                printf("%.*s %4d", SCREEN_WIDTH - 5 - 1 - 2, (*menu)[i].name, (*menu)[i].value.num);
+              }
+              break;
+            }
+            default:
+              lcd_printf(lcd, "%.*s", SCREEN_WIDTH - 1, (*menu)[i].name);
+              printf("%.*s", SCREEN_WIDTH - 1, (*menu)[i].name);
+              break;
+            }
           }
-          break;
         }
-        default:
-          lcd_printf(lcd, "%*s", SCREEN_WIDTH - 1, (*menu)[i].name);
-          break;
+        else {
+          lcd_printf(lcd, "%*s", SCREEN_WIDTH, "");
         }
-        lcd_print(lcd, (char *)"\n");
       }
+      std::cout << std::endl;
     }
   }
+  dbg_nests = "";
 }
