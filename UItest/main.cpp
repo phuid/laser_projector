@@ -83,7 +83,7 @@ int main()
             .value = {4000, INT16_MIN, INT16_MAX},
         },
         {
-            .name = (char *)"value3",
+            .name = (char *)"value4",
             .style = VALUE,
             .value = {12345, INT16_MIN, INT16_MAX},
         },

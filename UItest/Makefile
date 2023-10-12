@@ -9,6 +9,10 @@ all: main
 main: $(INCS) $(HEAD) main.cpp
 	g++ $(CFLAGS) -o UItest main.cpp $(INCS) $(LIBS)
 
+
+debug: $(INCS) $(HEAD) main.cpp
+	g++ $(CFLAGS) -D DEBUG -o UItest main.cpp $(INCS) $(LIBS) && sudo ./UItest
+
 run: $(INCS) $(HEAD) main.cpp
 	g++ $(CFLAGS) -o UItest main.cpp $(INCS) $(LIBS) && sudo ./UItest
 
