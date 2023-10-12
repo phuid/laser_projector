@@ -1,10 +1,28 @@
 #include <vector>
 #include <stdint.h>
 #include "encoder.hpp"
+// #include <string.h>
 // debug
 #include <iostream>
 #include <stdio.h>
 #include <string>
+
+template <typename T>
+uint8_t num_digits(T n)
+{
+  T r = 1;
+  if (n < 0)
+  {
+    r++;
+    n *= -1;
+  }
+  while (n > 9)
+  {
+    n /= 10;
+    r++;
+  }
+  return r;
+}
 
 char parent_char[] = {
     0b11111,
@@ -135,7 +153,7 @@ void menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
     {
       std::cout << "nest: " << dbg_nests << std::endl;
       std::cout << "reason (SCR/BTN/RE)" << selection_scrolled << encoder_btn_pressed << redraw << std::endl;
-      if (selection_scrolled) // FIXME: SCROLL
+      if (selection_scrolled) // FIXME: screen_scrolled flag 1 when menu_selected == 0/max
       {
 
         // TODO: overwrite leftover chars
@@ -209,21 +227,18 @@ void menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
             {
             case VALUE:
             {
-              if (*parent_menu_option_active)
-              {
-                lcd_printf(lcd, "%.*s>%4d", SCREEN_WIDTH - 5 - 1, (*menu)[i].name, (*menu)[i].value.num);
-                printf("%.*s>%4d", SCREEN_WIDTH - 5 - 1 - 2, (*menu)[i].name, (*menu)[i].value.num);
-              }
-              else
-              {
-                lcd_printf(lcd, "%.*s %4d", SCREEN_WIDTH - 5 - 1, (*menu)[i].name, (*menu)[i].value.num);
-                printf("%.*s %4d", SCREEN_WIDTH - 5 - 1 - 2, (*menu)[i].name, (*menu)[i].value.num);
-              }
+              uint8_t num_len = num_digits<decltype((*menu)[i].value.num)>((*menu)[i].value.num);
+              uint8_t name_len = strlen((*menu)[i].name);
+
+              lcd_printf(lcd, "%.*s%c%*d%*s", /*name_str_max_len*/ SCREEN_WIDTH - num_len - 2 /* 2 = the ">"/" " chars */, (*menu)[i].name, ((*parent_menu_option_active) ? '>' : ' '), num_len, (*menu)[i].value.num, /*fill_spaces_len*/ ((name_len > SCREEN_WIDTH - num_len - 2) ? SCREEN_WIDTH - (SCREEN_WIDTH - num_len - 2) - num_len - 2 : SCREEN_WIDTH - name_len - num_len - 2), /*fill_spaces*/ "");
+              printf("\"%.*s%c%.*d%*s\"\n", /*name_str_max_len*/ SCREEN_WIDTH - num_len - 2 /* 2 = the ">"/" " chars */, (*menu)[i].name, ((*parent_menu_option_active) ? '>' : ' '), num_len, (*menu)[i].value.num, /*fill_spaces_len*/ ((name_len > SCREEN_WIDTH - num_len - 2) ? SCREEN_WIDTH - (SCREEN_WIDTH - num_len - 2) - num_len - 2 : SCREEN_WIDTH - name_len - num_len - 2), /*fill_spaces*/ "");
               break;
             }
             default:
-              lcd_printf(lcd, "%.*s", SCREEN_WIDTH - 1, (*menu)[i].name);
-              printf("%.*s", SCREEN_WIDTH - 1, (*menu)[i].name);
+              uint8_t name_len = strlen((*menu)[i].name);
+
+              lcd_printf(lcd, "%.*s%*s", /*name_str_max_len*/ SCREEN_WIDTH - 2 /* 2 = the ">"/" " chars */, (*menu)[i].name, /*fill_spaces_len*/ (name_len > SCREEN_WIDTH - 2) ? SCREEN_WIDTH - (SCREEN_WIDTH - 2) : SCREEN_WIDTH - name_len - 1, /*fill_spaces*/ " ");
+              printf("\"%.*s%*s\"\n", /*name_str_max_len*/ SCREEN_WIDTH - 2 /* 2 = the ">"/" " chars */, (*menu)[i].name, /*fill_spaces_len*/ (name_len > SCREEN_WIDTH - 2) ? SCREEN_WIDTH - (SCREEN_WIDTH - 2) : SCREEN_WIDTH - name_len - 1, /*fill_spaces*/ " ");
               break;
             }
           }

@@ -68,9 +68,24 @@ int main()
             .style = TEXT,
         },
         {
-            .name = (char *)"val - brightness",
+            .name = (char *)"val - brightnessssssssss",
             .style = VALUE,
             .value = {50, 0, 100},
+        },
+        {
+            .name = (char *)"val2",
+            .style = VALUE,
+            .value = {50, 0, 100},
+        },
+        {
+            .name = (char *)"value3",
+            .style = VALUE,
+            .value = {4000, INT16_MIN, INT16_MAX},
+        },
+        {
+            .name = (char *)"value3",
+            .style = VALUE,
+            .value = {12345, INT16_MIN, INT16_MAX},
         },
         {
             .name = (char *)"func",
