@@ -196,17 +196,17 @@ then
     echo -e "${On_IWhite}##${Color_Off} ${Yellow}wiringpi${Color_Off} is already installed, ${UWhite}skipping${Color_Off}... ${On_IWhite}##${Color_Off}"
 else
     echo -e "${On_IWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}wiringpi${Color_Off}... ${On_IWhite}##${Color_Off}"
-    echo -e "${On_IBlack}++${Color_Off} (cd /tmp && wget https://project-downloads.drogon.net/wiringpi-latest.deb && sudo dpkg -i wiringpi-latest.deb) ${On_IBlack}++${Color_Off}"
+    echo -e "${On_IBlack}++${Color_Off} (cd && git clone https://github.com/WiringPi/WiringPi.git && cd WiringPi && ./build && cd \"$(dirname \"$0\")\") ${On_IBlack}++${Color_Off}"
     if [ $userauth == 1 ];
     then
         read -p "[y/n]: " currentauth
         if [ "$currentauth" != "${currentauth#[Yy]}" ];
         then
-            (cd /tmp && wget https://project-downloads.drogon.net/wiringpi-latest.deb && sudo dpkg -i wiringpi-latest.deb)
+            (cd && git clone https://github.com/WiringPi/WiringPi.git && cd WiringPi && ./build && cd "$(dirname "$0")")
         fi
         unset currentauth
     else
-        (cd /tmp && wget https://project-downloads.drogon.net/wiringpi-latest.deb && sudo dpkg -i wiringpi-latest.deb)
+            (cd && git clone https://github.com/WiringPi/WiringPi.git && cd WiringPi && ./build && cd "$(dirname "$0")")
     fi
 fi
 
