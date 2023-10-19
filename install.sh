@@ -251,14 +251,14 @@ fi
 echo -e "${On_IWhite}##${Color_Off} configuring AP ${On_IWhite}##${Color_Off}"
 
 # echo -e "${On_IWhite}###${Color_Off} diverting ${Yellow}dhcpcd${Color_Off} config to custom file ${On_IWhite}##${Color_Off}"
-# echo -e "${On_IBlack}++${Color_Off} dhcpcd -f \"$(dirname $0)/dhcpcd.conf\" ${On_IBlack}++${Color_Off}"
-# dhcpcd -f "$(dirname $0)/dhcpcd.conf"
+# echo -e "${On_IBlack}++${Color_Off} dhcpcd -f \"$(dirname $0)/config_templates/dhcpcd.conf\" ${On_IBlack}++${Color_Off}"
+# dhcpcd -f "$(dirname $0)/config_templates/dhcpcd.conf"
 # echo -e "${On_IBlack}++${Color_Off} sudo systemctl reload dhcpcd ${On_IBlack}++${Color_Off}"
 # sudo systemctl reload dhcpcd
 
 # echo -e "${On_IWhite}###${Color_Off} diverting ${Yellow}dnsmasq${Color_Off} config to custom file ${On_IWhite}##${Color_Off}"
-# echo -e "${On_IBlack}++${Color_Off} dnsmasq -C \"$(dirname $0)/dnsmasq.conf\" ${On_IBlack}++${Color_Off}"
-# dnsmasq -C "$(dirname $0)/dnsmasq.conf"
+# echo -e "${On_IBlack}++${Color_Off} dnsmasq -C \"$(dirname $0)/config_templates/dnsmasq.conf\" ${On_IBlack}++${Color_Off}"
+# dnsmasq -C "$(dirname $0)/config_templates/dnsmasq.conf"
 # echo -e "${On_IBlack}++${Color_Off} sudo systemctl reload dnsmasq ${On_IBlack}++${Color_Off}"
 # sudo systemctl reload dnsmasq
 
@@ -297,14 +297,14 @@ then
         if [[ "$line" == "Environment=DAEMON_CONF="* ]]
         then
             prev="$line"
-            out="${out}Environment=DAEMON_CONF=$SCRIPTPATH/hostapd.conf\n"
+            out="${out}Environment=DAEMON_CONF=$SCRIPTPATH/config_templates/hostapd.conf\n"
         else
             out="${out}${line}\n"
         fi
     done < $loc
     out=${out%??} #remove last \n
     
-    echo -e "${On_IWhite}#+${Color_Off} replace line ${UWhite}$prev${Color_Off} in file ${Yellow}$loc${Color_Off} with ${UWhite}Environment=DAEMON_CONF=$SCRIPTPATH/hostapd.conf${Color_Off} ${On_IWhite}+#${Color_Off}"
+    echo -e "${On_IWhite}#+${Color_Off} replace line ${UWhite}$prev${Color_Off} in file ${Yellow}$loc${Color_Off} with ${UWhite}Environment=DAEMON_CONF=$SCRIPTPATH/config_templates/hostapd.conf${Color_Off} ${On_IWhite}+#${Color_Off}"
     
     if [ $userauth == 1 ];
     then
@@ -424,7 +424,7 @@ echo -e "${On_IWhite}##${Color_Off} ${UWhite}saving pm2 configuration${Color_Off
 echo -e "${On_IBlack}++${Color_Off} pm2 save && sudo env PATH=$PATH:/usr/local/bin pm2 startup systemd -u pi --hp /home/pi && pm2 restart all ${On_IBlack}++${Color_Off}"
 pm2 save && sudo env PATH=$PATH:/usr/local/bin pm2 startup systemd -u pi --hp /home/pi && pm2 restart all
 
-echo -e "${Red}NEED COMMENTS${Color_Off}" #TODO:
+echo -e "${Red}NEED COMMENTS${Color_Off}" #TODO COPY FILE FROM ./config_templates???
 echo -e "[Unit]\nDescription=Service to redirect all pm2 logs to /dev/tty1 - RPI HDMI output\nAfter=pm2-pi.service\n[Service]\nUser=pi\nType=simple\nStandardOutput=tty\nTTYPath=/dev/tty1\nTimeoutStartSec=5\nEnvironment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games:/usr/local/bin:/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin\nEnvironment=PM2_HOME=/home/pi/.pm2\nRestart=on-failure\nExecStart=/bin/bash -c 'echo \$\$\$\$ > /tmp/pm2LogsToTty1.pid;exec pm2 logs'\nExecStop=/bin/bash -c 'sudo kill \$(cat /tmp/pm2LogsToTty1.pid)'\n[Install]\nWantedBy=default.target\n" | sudo tee /etc/systemd/system/pm2LogsToTty1.service
 sudo systemctl daemon-reload
 sudo systemctl enable pm2LogsToTty1 # only tested with start
