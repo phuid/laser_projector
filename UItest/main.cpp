@@ -111,23 +111,23 @@ int main()
             },
         },
         {
-            .name = (char *)"text1",
+            .name = (char *)"text1 je hustej",
             .style = TEXT,
         },
         {
-            .name = (char *)"text2",
+            .name = (char *)"text2 neni ani trochu",
             .style = TEXT,
         },
         {
-            .name = (char *)"text3",
+            .name = (char *)"text3 mozna malinko je",
             .style = TEXT,
         },
         {
-            .name = (char *)"text4",
+            .name = (char *)"text4 skoro jako tvoje mama",
             .style = TEXT,
         },
         {
-            .name = (char *)"text5",
+            .name = (char *)"text5 zkratka",
             .style = TEXT,
         },
     };
