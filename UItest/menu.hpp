@@ -179,7 +179,7 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
       else
       {
         selection_scrolled = 0;
-        redraw = (redraw || change _val<decltype((*menu)[*menu_selected].value.num)>(&(*menu)[*menu_selected].value.num, (*menu)[*menu_selected].value.min, (*menu)[*menu_selected].value.max));
+        redraw = (redraw || change_val<decltype((*menu)[*menu_selected].value.num)>(&(*menu)[*menu_selected].value.num, (*menu)[*menu_selected].value.min, (*menu)[*menu_selected].value.max));
 #ifdef DEBUG
         if (redraw)
           std::cout << "changeval" << std::endl;

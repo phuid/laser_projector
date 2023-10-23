@@ -51,7 +51,7 @@ int main()
 
     wiringPiISR(encoder_pins[0], INT_EDGE_BOTH, *handle_enc_interrupts);
     wiringPiISR(encoder_pins[1], INT_EDGE_BOTH, *handle_enc_interrupts);
-    wiringPiISR(encoder_button_pin, INT_EDGE_FALLING, *handle_enc_btn_interrupts);
+    wiringPiISR(encoder_button_pin, INT_EDGE_BOTH, *handle_enc_btn_interrupts);
 
     lcd_create_char(lcd, PARENT_CHAR_NUM, parent_char);
 

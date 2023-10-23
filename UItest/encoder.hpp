@@ -12,11 +12,16 @@ bool encoder_pins_last_state[2] /* = {0, 0}*/;
 int16_t encoder_pos = 0;
 bool encoder_btn_pressed = 0;
 
+uint16_t last_interrupt = 0;
+
 void handle_enc_btn_interrupts()
 {
-	usleep(20000); //TODO: handle debounce in a more inteligent way, like set a timer to check this instead of waiting
-	if (!digitalRead(encoder_button_pin))
+	uint16_t interrupt_time = millis();
+	if (interrupt_time - last_interrupt > 50 && !digitalRead(encoder_button_pin))
+	{
 		encoder_btn_pressed = 1;
+	}
+	last_interrupt = interrupt_time;
 }
 
 void handle_enc_interrupts()
