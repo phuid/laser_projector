@@ -120,6 +120,20 @@ std::string dbg_nests = "";
 // return 1 if back out of nest (pressed back option)
 bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_selected, uint8_t *menu_scroll, bool *parent_menu_option_active, menu_option_style parent_menu_style, bool redraw = 0)
 {
+#ifdef DEBUG
+  if (redraw)
+  {
+    std::cout << "wahoo" << std::endl;
+    std::cout << "menu-size" << menu->size() << std::endl;
+    std::cout << "menu_scroll" << (int)*menu_scroll << std::endl;
+    std::cout << "menu_select" << (int)*menu_selected << std::endl;
+    std::cout << "parent_menu_opti_ac" << (int)*parent_menu_option_active << std::endl;
+    std::cout << "encbtnpressed" << (int)encoder_btn_pressed << std::endl;
+    std::cout << "isvalue" << (int)((*menu)[*menu_selected].style == VALUE) << std::endl;
+    std::cout << "wahoo" << std::endl;
+  }
+#endif
+
   // #ifdef DEBUG
   // std::cout << (*menu)[*menu_selected].name << " " << (int)*menu_scroll << " " << (int)*parent_menu_option_active << std::endl;
   // #endif
@@ -153,22 +167,19 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
 #endif
     bool selection_scrolled = 0;
     bool screen_scrolled = 0;
-    if (parent_menu_style == VALUE && *parent_menu_option_active)
+    if ((*menu)[*menu_selected].style == VALUE && *parent_menu_option_active)
     {
       if (encoder_btn_pressed)
       {
         *parent_menu_option_active = 0;
         encoder_btn_pressed = 0;
         encoder_pos = 0;
+        menu_interact(lcd, menu, menu_selected, menu_scroll, parent_menu_option_active, parent_menu_style, true);
       }
       else
       {
-#ifdef DEBUG
-        std::cout
-            << "abouttochangeval" << std::endl;
-#endif
         selection_scrolled = 0;
-        redraw = change_val<decltype((*menu)[*menu_selected].value.num)>(&(*menu)[*menu_selected].value.num, (*menu)[*menu_selected].value.min, (*menu)[*menu_selected].value.max);
+        redraw = (redraw || change _val<decltype((*menu)[*menu_selected].value.num)>(&(*menu)[*menu_selected].value.num, (*menu)[*menu_selected].value.min, (*menu)[*menu_selected].value.max));
 #ifdef DEBUG
         if (redraw)
           std::cout << "changeval" << std::endl;
@@ -219,6 +230,7 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
 
       if (encoder_btn_pressed)
       {
+        encoder_btn_pressed = 0;
         // handle button
         // TODO: handle back button
         switch ((*menu)[*menu_selected].style)
@@ -234,7 +246,7 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
 #endif
             *parent_menu_option_active = 1;
             lcd_clear(lcd);
-            menu_interact(lcd, &(*menu)[*menu_selected].nested_menu_options, &(*menu)[*menu_selected].nest_selected, &(*menu)[*menu_selected].nest_scroll, &(*menu)[*menu_selected].nest_option_active, (*menu)[*menu_selected].style, 1);
+            menu_interact(lcd, menu, menu_selected, menu_scroll, parent_menu_option_active, parent_menu_style, true);
 #ifdef DEBUG
             std::cout << "j" << std::endl;
 #endif
@@ -244,12 +256,12 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
         case FUNCTION:
           // TODO: handle function menu actions
           (*menu)[*menu_selected].function();
+          menu_interact(lcd, menu, menu_selected, menu_scroll, parent_menu_option_active, parent_menu_style, true);
           break;
 
         default:
           break;
         }
-        encoder_btn_pressed = 0;
       }
       // draw
       // if (screen_scrolled || redraw)
@@ -260,12 +272,15 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
       std::cout << "menu_select" << (int)*menu_selected << std::endl;
       std::cout << "parent_menu_opti_ac" << (int)*parent_menu_option_active << std::endl;
 #endif
+#ifdef DEBUG
+      std::cout << "redraw:" << (int)redraw << std::endl;
+#endif
       for (uint8_t i = *menu_scroll; i < *menu_scroll + 4; i++)
       {
         if (i < menu->size())
         {
           lcd_pos(lcd, i - *menu_scroll, 0);
-          if (i == *menu_selected)
+          if (i == *menu_selected && !*parent_menu_option_active)
             lcd_print(lcd, (char *)">");
           else
             lcd_print(lcd, (char *)" ");
@@ -282,9 +297,9 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
               uint8_t num_len = num_digits<decltype((*menu)[i].value.num)>((*menu)[i].value.num);
               uint8_t name_len = strlen((*menu)[i].name);
 
-              lcd_printf(lcd, "%.*s%*s%c%*d", /*name_str_max_len*/ SCREEN_WIDTH - num_len - 2 /* 2 = the ">"/" " chars */, (*menu)[i].name, /*fill_spaces_len*/ ((name_len > SCREEN_WIDTH - num_len - 2) ? SCREEN_WIDTH - (SCREEN_WIDTH - num_len - 2) - num_len - 2 : SCREEN_WIDTH - name_len - num_len - 2), /*fill_spaces*/ "", ((*parent_menu_option_active) ? '>' : ' '), num_len, (*menu)[i].value.num);
+              lcd_printf(lcd, "%.*s%*s%c%*d", /*name_str_max_len*/ SCREEN_WIDTH - num_len - 2 /* 2 = the ">"/" " chars */, (*menu)[i].name, /*fill_spaces_len*/ ((name_len > SCREEN_WIDTH - num_len - 2) ? SCREEN_WIDTH - (SCREEN_WIDTH - num_len - 2) - num_len - 2 : SCREEN_WIDTH - name_len - num_len - 2), /*fill_spaces*/ "", ((*parent_menu_option_active && (i == *menu_selected)) ? '>' : ' '), num_len, (*menu)[i].value.num);
 #ifdef DEBUG
-              printf("\"%.*s%*s%c%.*d\"\n", /*name_str_max_len*/ SCREEN_WIDTH - num_len - 2 /* 2 = the ">"/" " chars */, (*menu)[i].name, /*fill_spaces_len*/ ((name_len > SCREEN_WIDTH - num_len - 2) ? SCREEN_WIDTH - (SCREEN_WIDTH - num_len - 2) - num_len - 2 : SCREEN_WIDTH - name_len - num_len - 2), /*fill_spaces*/ "", ((*parent_menu_option_active) ? '>' : ' '), num_len, (*menu)[i].value.num);
+              printf("\"%.*s%*s%c%.*d\"\n", /*name_str_max_len*/ SCREEN_WIDTH - num_len - 2 /* 2 = the ">"/" " chars */, (*menu)[i].name, /*fill_spaces_len*/ ((name_len > SCREEN_WIDTH - num_len - 2) ? SCREEN_WIDTH - (SCREEN_WIDTH - num_len - 2) - num_len - 2 : SCREEN_WIDTH - name_len - num_len - 2), /*fill_spaces*/ "", ((*parent_menu_option_active && (i == *menu_selected)) ? '>' : ' '), num_len, (*menu)[i].value.num);
 #endif
               break;
             }

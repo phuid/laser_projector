@@ -12,9 +12,11 @@ bool encoder_pins_last_state[2] /* = {0, 0}*/;
 int16_t encoder_pos = 0;
 bool encoder_btn_pressed = 0;
 
-void handle_btn_interrupts()
+void handle_enc_btn_interrupts()
 {
-	encoder_btn_pressed = 1;
+	usleep(20000); //TODO: handle debounce in a more inteligent way, like set a timer to check this instead of waiting
+	if (!digitalRead(encoder_button_pin))
+		encoder_btn_pressed = 1;
 }
 
 void handle_enc_interrupts()
@@ -37,7 +39,7 @@ void handle_enc_interrupts()
 		// 	dir = !dir;
 		// 	// else do nothing
 		// }
-		/*else */if (/* A_falling && */ state[1])
+		/*else */ if (/* A_falling && */ state[1])
 		{
 			dir = !dir;
 			// else do nothing
