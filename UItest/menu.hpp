@@ -112,7 +112,7 @@ struct menu_option
 
 void print_test() // TODO: remove print_test
 {
-  std::cout << "print test" << std::endl;
+  std::cout << "FUNCTION print test WAHOO WAHOO (also both rising and falling interrupts are registered)" << std::endl;
 }
 
 std::string dbg_nests = "";
@@ -149,7 +149,7 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
   else
   {
 #ifdef DEBUG
-    std::cout << "c" << std::endl;
+    // std::cout << "c" << std::endl;
 #endif
     bool selection_scrolled = 0;
     bool screen_scrolled = 0;
@@ -233,6 +233,7 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
             std::cout << "a" << std::endl;
 #endif
             *parent_menu_option_active = 1;
+            lcd_clear(lcd);
             menu_interact(lcd, &(*menu)[*menu_selected].nested_menu_options, &(*menu)[*menu_selected].nest_selected, &(*menu)[*menu_selected].nest_scroll, &(*menu)[*menu_selected].nest_option_active, (*menu)[*menu_selected].style, 1);
 #ifdef DEBUG
             std::cout << "j" << std::endl;
@@ -242,6 +243,7 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
 
         case FUNCTION:
           // TODO: handle function menu actions
+          (*menu)[*menu_selected].function();
           break;
 
         default:

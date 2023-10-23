@@ -19,6 +19,14 @@
 
 int main()
 {
+    /* WARNING: Setting PWM status as a non root user
+     * may crash some versions of Raspbian. */
+    if (geteuid() != 0)
+    {
+        puts("This program must be run as root.");
+        return 1;
+    }
+
     wiringPiSetup();
 
     /* Create a LCD given SCL, SDA and I2C address, 4 lines */

@@ -263,6 +263,12 @@ echo -e "${On_IWhite}##${Color_Off} configuring AP ${On_IWhite}##${Color_Off}"
 # sudo systemctl reload dnsmasq
 
 #locate hostapd.service
+
+#TODO: fix hostapd unit is masked when aquiring location
+sudo systemctl unmask hostapd
+sudo systemctl enable hostapd
+sudo systemctl start hostapd
+
 loc=$(systemctl cat hostapd | head -n 1)
 loc=${loc:2}
 hostapdstopped=0
@@ -364,7 +370,7 @@ fi
 
 echo -e "${On_IWhite}##${Color_Off} ${UWhite}compiling${Color_Off} lasershow executable... ${On_IWhite}##${Color_Off}"
 echo -e "${On_IBlack}++${Color_Off} (cd rpi-lasershow && make) ${On_IBlack}++${Color_Off}"
-#TODO: copy exec to root folder
+# TODO: copy exec to root folder
 if !(out="$(cd rpi-lasershow && make)")
 then
     echo -e "${Error}compilation resulted in an error${Error}${Color_Off}\ndetails:"
