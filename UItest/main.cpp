@@ -54,6 +54,9 @@ int main()
     wiringPiISR(encoder_button_pin, INT_EDGE_BOTH, *handle_enc_btn_interrupts);
 
     lcd_create_char(lcd, PARENT_CHAR_NUM, parent_char);
+    lcd_create_char(lcd, INVERTED_SPACE_CHAR_NUM, inverted_space_char);
+    lcd_create_char(lcd, INVERTED_POINTER_CHAR_NUM, inverted_pointer_char);
+
 
     std::vector<menu_option> menu = {
         {
@@ -76,14 +79,14 @@ int main()
             .style = TEXT,
         },
         {
-            .name = (char *)"val - brightnessssssssss",
+            .name = (char *)"brightness",
             .style = VALUE,
             .value = {50, 0, 100},
         },
         {
             .name = (char *)"val2",
             .style = VALUE,
-            .value = {50, 0, 100},
+            .value = {50, INT16_MIN, INT16_MAX},
         },
         {
             .name = (char *)"value3",
