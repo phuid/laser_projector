@@ -176,8 +176,7 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
       if (menu_interact(lcd, &(*menu)[*menu_selected].nested_menu_options, &(*menu)[*menu_selected].nest_selected, &(*menu)[*menu_selected].nest_scroll, &(*menu)[*menu_selected].nest_option_active, (*menu)[*menu_selected].style, redraw))
       {
         *parent_menu_option_active = 0;
-        //redraw
-        menu_interact(lcd, menu, menu_selected, menu_scroll, parent_menu_option_active, parent_menu_style, true);
+        menu_interact(lcd, menu, menu_selected, menu_scroll, parent_menu_option_active, parent_menu_style, true);//redraw
       }
       break;
 
@@ -202,8 +201,7 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
         *parent_menu_option_active = 0;
         encoder_btn_pressed = 0;
         encoder_pos = 0;
-        //redraw
-        menu_interact(lcd, menu, menu_selected, menu_scroll, parent_menu_option_active, parent_menu_style, true);
+        menu_interact(lcd, menu, menu_selected, menu_scroll, parent_menu_option_active, parent_menu_style, true);//redraw
       }
       else
       {
@@ -306,8 +304,7 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
 #endif
               *parent_menu_option_active = 1;
               lcd_clear(lcd);
-              //redraw
-              menu_interact(lcd, menu, menu_selected, menu_scroll, parent_menu_option_active, parent_menu_style, true);
+              menu_interact(lcd, menu, menu_selected, menu_scroll, parent_menu_option_active, parent_menu_style, true);//redraw
 #ifdef DEBUG
               std::cout << "j" << std::endl;
 #endif
@@ -317,8 +314,7 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
             case FUNCTION:
               // TODO: handle function menu actions
               (*menu)[*menu_selected].function();
-              //redraw
-              menu_interact(lcd, menu, menu_selected, menu_scroll, parent_menu_option_active, parent_menu_style, true);
+              menu_interact(lcd, menu, menu_selected, menu_scroll, parent_menu_option_active, parent_menu_style, true);//redraw
               break;
 
             default:
