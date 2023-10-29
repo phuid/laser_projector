@@ -6,6 +6,8 @@
 #include <iostream>
 #include "soft_lcd.h"
 
+#define DEBUG
+
 #define ENCODER_PINS \
     {                \
         25, 27       \
@@ -68,6 +70,18 @@ int main()
                     .style = TEXT,
                 },
                 {
+                    .name = (char *)"text1",
+                    .style = TEXT,
+                },
+                {
+                    .name = (char *)"text2",
+                    .style = TEXT,
+                },
+                {
+                    .name = (char *)"text3",
+                    .style = TEXT,
+                },
+                {
                     .name = (char *)"func",
                     .style = FUNCTION,
                     .function = *print_test,
@@ -108,15 +122,15 @@ int main()
             .style = SELECTION,
             .nested_menu_options = {
                 {
-                    .name = (char *)"text",
+                    .name = (char *)"option",
                     .style = TEXT,
                 },
                 {
-                    .name = (char *)"text",
+                    .name = (char *)"option",
                     .style = TEXT,
                 },
                 {
-                    .name = (char *)"text",
+                    .name = (char *)"option",
                     .style = TEXT,
                 },
             },

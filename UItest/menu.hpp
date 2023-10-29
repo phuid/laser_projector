@@ -72,7 +72,7 @@ bool change_val(T *val, T val_min = 0, T val_max = 100) // return 1 if changed
   if (encoder_pos > 0)
   {
 #ifdef DEBUG
-    std::cout << encoder_pos << " < " << (int)val_max << " - " << (int)*val << std::endl;
+    std::cout << "change_val: " << encoder_pos << " <= " << (int)val_max << " - " << (int)*val << std::endl;
 #endif
     if (encoder_pos <= val_max - *val)
       *val += encoder_pos;
@@ -87,7 +87,7 @@ bool change_val(T *val, T val_min = 0, T val_max = 100) // return 1 if changed
   else if (encoder_pos < 0)
   {
 #ifdef DEBUG
-    std::cout << -1 * encoder_pos << " <= " << (int)*val << " - " << (int)val_min << std::endl;
+    std::cout << "change_val2: " << -1 * encoder_pos << " <= " << (int)*val << " - " << (int)val_min << std::endl;
 #endif
     if (-1 * encoder_pos <= *val - val_min)
       *val += encoder_pos;
@@ -161,13 +161,13 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
   // #ifdef DEBUG
   // std::cout << (*menu)[*menu_selected].name << " " << (int)*menu_scroll << " " << (int)*parent_menu_option_active << std::endl;
   // #endif
-  if (parent_menu_style != ROOT_MENU)
-    *menu_selected -= 1; // so that back option being first in the list is possible (bare value can be used when pointing to children)
+  if (parent_menu_style == NESTED_MENU)
+    *menu_selected -= 1; // account for the back option being first in the list is possible (bare value can be used when pointing to children)
   if (*parent_menu_option_active && (*menu)[*menu_selected].style != VALUE)
   {
-    #ifdef DEBUG
+#ifdef DEBUG
     dbg_nests += (*menu)[*menu_selected].name;
-    #endif
+#endif
     switch ((*menu)[*menu_selected].style)
     {
     // go down a layer of options
@@ -176,6 +176,8 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
       if (menu_interact(lcd, &(*menu)[*menu_selected].nested_menu_options, &(*menu)[*menu_selected].nest_selected, &(*menu)[*menu_selected].nest_scroll, &(*menu)[*menu_selected].nest_option_active, (*menu)[*menu_selected].style, redraw))
       {
         *parent_menu_option_active = 0;
+        //redraw
+        menu_interact(lcd, menu, menu_selected, menu_scroll, parent_menu_option_active, parent_menu_style, true);
       }
       break;
 
@@ -186,56 +188,63 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
       break;
     }
   }
-  else
+  else // parentmenu active && style != value
   {
 #ifdef DEBUG
     // std::cout << "c" << std::endl;
 #endif
     bool selection_scrolled = 0;
     bool screen_scrolled = 0;
-    if ((*menu)[*menu_selected].style == VALUE && *parent_menu_option_active)
+    if (((*menu)[*menu_selected].style == VALUE) && *parent_menu_option_active)
     {
       if (encoder_btn_pressed)
       {
         *parent_menu_option_active = 0;
         encoder_btn_pressed = 0;
         encoder_pos = 0;
+        //redraw
         menu_interact(lcd, menu, menu_selected, menu_scroll, parent_menu_option_active, parent_menu_style, true);
       }
       else
       {
         selection_scrolled = 0;
-        redraw = (redraw || change_val<decltype((*menu)[*menu_selected].value.num)>(&(*menu)[*menu_selected].value.num, (*menu)[*menu_selected].value.min, (*menu)[*menu_selected].value.max));
+        redraw = (redraw || change_val<decltype((*menu)[*menu_selected].value.num)>(&(*menu)[*menu_selected].value.num, (*menu)[*menu_selected].value.min, (*menu)[*menu_selected].value.max)); // TODO separate value for redraw_val to not redraw the whole display, but only the number
 #ifdef DEBUG
         if (redraw)
           std::cout << "changeval" << std::endl;
 #endif
       }
     }
-    else
+    else // style == value && parentmenuactive
     {
-      if (parent_menu_style != ROOT_MENU)
+#ifdef DEBUG
+      uint8_t prev = *menu_selected;
+#endif
+      if (parent_menu_style == NESTED_MENU)
         *menu_selected += 1; // cancel accounting for back button in menu so that min/max values work
-      selection_scrolled = change_val<uint8_t>(menu_selected, 0, (uint8_t)menu->size() - 1);
-      if (parent_menu_style != ROOT_MENU)
+      selection_scrolled = change_val<uint8_t>(menu_selected, 0, (uint8_t)menu->size() - (parent_menu_style != NESTED_MENU));
+      if (parent_menu_style == NESTED_MENU)
         *menu_selected -= 1; // account for back button in menu again (bare value can be used when pointing to children)
 #ifdef DEBUG
       if (selection_scrolled)
+      {
+        std::cout << "sel" << (int)*menu_selected << "prev" << (int)prev << std::endl;
         std::cout << "scroll" << std::endl;
+      }
 #endif
     }
     if (selection_scrolled || encoder_btn_pressed || redraw)
     {
 #ifdef DEBUG
-      std::cout << "nest: " << dbg_nests << std::endl;
+      std::cout << "dgb_nests: " << dbg_nests << std::endl;
       std::cout << "reason (SCR/BTN/RE)" << selection_scrolled << encoder_btn_pressed << redraw << std::endl;
 #endif
       if (selection_scrolled || redraw) // FIXME: screen_scrolled flag 1 when menu_selected == 0/max
       {
 #ifdef DEBUG
-        std::cout << (int)*menu_selected << " > " << (int)*menu_scroll << " + " << SCREEN_HEIGHT - 2 << std::endl;
+        std::cout << "screenscroll: " << (int)*menu_selected << " > " << (int)*menu_scroll << " + " << SCREEN_HEIGHT - 2 << std::endl;
 #endif
-        if (parent_menu_style != ROOT_MENU)
+        if (parent_menu_style == NESTED_MENU)
           *menu_selected += 1; // cancel accounting for back button in menu
         // handle scroll - prolly totally wrong :skull:
         if (*menu_selected >= *menu_scroll + SCREEN_HEIGHT - 2)
@@ -254,7 +263,12 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
             *menu_scroll = *menu_selected - 1;
           screen_scrolled = 1;
         }
-        if (parent_menu_style != ROOT_MENU)
+
+#ifdef DEBUG
+        std::cout << "screen_scrolled:" << screen_scrolled << std::endl;
+#endif
+
+        if (parent_menu_style == NESTED_MENU)
           *menu_selected -= 1; // account for back button in menu again (bare value can be used when pointing to children)
       }
 
@@ -264,7 +278,7 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
         // handle button
         // TODO: handle back button
         *menu_selected += 1; // cancel accounting for back button in menu
-        if (*menu_selected == 0 && parent_menu_style != ROOT_MENU)
+        if (*menu_selected == 0 && parent_menu_style == NESTED_MENU)
         {
           *parent_menu_option_active = 0;
           return 1;
@@ -273,35 +287,43 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
         else
         {
           *menu_selected -= 1; // account for back button in menu again (bare value can be used when pointing to children)
-
-          switch ((*menu)[*menu_selected].style)
+          if (*parent_menu_option_active)
           {
-          // go down a layer of options
-          case NESTED_MENU:
-          case SELECTION:
-          case VALUE:
-            if (!*parent_menu_option_active)
+            *parent_menu_option_active = 0;
+          }
+          else
+          {
+            switch ((*menu)[*menu_selected].style)
             {
+            // go down a layer of options
+            case NESTED_MENU:
+            case SELECTION:
+
+            case VALUE:
+
 #ifdef DEBUG
               std::cout << "a" << std::endl;
 #endif
               *parent_menu_option_active = 1;
               lcd_clear(lcd);
+              //redraw
               menu_interact(lcd, menu, menu_selected, menu_scroll, parent_menu_option_active, parent_menu_style, true);
 #ifdef DEBUG
               std::cout << "j" << std::endl;
 #endif
+
+              break;
+
+            case FUNCTION:
+              // TODO: handle function menu actions
+              (*menu)[*menu_selected].function();
+              //redraw
+              menu_interact(lcd, menu, menu_selected, menu_scroll, parent_menu_option_active, parent_menu_style, true);
+              break;
+
+            default:
+              break;
             }
-            break;
-
-          case FUNCTION:
-            // TODO: handle function menu actions
-            (*menu)[*menu_selected].function();
-            menu_interact(lcd, menu, menu_selected, menu_scroll, parent_menu_option_active, parent_menu_style, true);
-            break;
-
-          default:
-            break;
           }
         }
       }
@@ -315,16 +337,16 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
       std::cout << "parent_menu_opti_ac" << (int)*parent_menu_option_active << std::endl;
 #endif
 #ifdef DEBUG
-      std::cout << "redraw:" << (int)redraw << std::endl;
+      std::cout << "redraw:" << (int)redraw << " screenscrollED:" << screen_scrolled << std::endl;
 #endif
-      if (parent_menu_style != ROOT_MENU)
+      if (parent_menu_style == NESTED_MENU)
         *menu_selected += 1; // cancel accounting for back button in menu
       for (uint8_t i = *menu_scroll; i < *menu_scroll + SCREEN_HEIGHT; i++)
       {
+        lcd_pos(lcd, i - *menu_scroll, 0);
         if (i < menu->size() + 1) //+1 for back button
         {
-          lcd_pos(lcd, i - *menu_scroll, 0);
-          if (i == *menu_selected && !*parent_menu_option_active)
+          if (i == *menu_selected && !(*parent_menu_option_active && parent_menu_style == VALUE))
             lcd_print(lcd, (char *)"\3");
           else
             lcd_print(lcd, (char *)" ");
@@ -334,7 +356,7 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
 #ifdef DEBUG
             std::cout << "i" << (int)i << std::endl;
 #endif
-            if (i == 0 && parent_menu_style != ROOT_MENU)
+            if (i == 0 && parent_menu_style == NESTED_MENU)
             {
               lcd_printf(lcd, "%*s", SCREEN_WIDTH - 1, "\1back\6\6\6\6\6\6\6\6\6\6\6\6\6\6");
 #ifdef DEBUG
@@ -343,12 +365,12 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
             }
             else
             {
+              if (parent_menu_style == NESTED_MENU)
+                i -= 1; // account for back button in menu again (bare value can be used when pointing to children)
               switch ((*menu)[i].style)
               {
               case VALUE:
               {
-                if (parent_menu_style != ROOT_MENU)
-                  i -= 1; // account for back button in menu again (bare value can be used when pointing to children)
                 uint8_t num_len = num_digits<decltype((*menu)[i].value.num)>((*menu)[i].value.num);
                 uint8_t name_len = strlen((*menu)[i].name);
 #ifdef DEBUG
@@ -358,14 +380,10 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
 #ifdef DEBUG
                 printf("\"%.*s%*s%c%.*d\"\n", /*name_str_max_len*/ SCREEN_WIDTH - num_len - 2 /* 2 = the ">"/" " chars */, (*menu)[i].name, /*fill_spaces_len*/ ((name_len > SCREEN_WIDTH - num_len - 2) ? SCREEN_WIDTH - (SCREEN_WIDTH - num_len - 2) - num_len - 2 : SCREEN_WIDTH - name_len - num_len - 2), /*fill_spaces*/ "", ((*parent_menu_option_active && (i == *menu_selected)) ? '>' : ' '), num_len, (*menu)[i].value.num);
 #endif
-                if (parent_menu_style != ROOT_MENU)
-                  i += 1; // cancel accounting for back button in menu
                 break;
               }
               default:
               {
-                if (parent_menu_style != ROOT_MENU)
-                  i -= 1; // account for back button in menu again (bare value can be used when pointing to children)
                 uint8_t name_len = strlen((*menu)[i].name);
 #ifdef DEBUG
                 std::cout << "i" << (int)i << std::endl;
@@ -374,27 +392,35 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
 #ifdef DEBUG
                 printf("\"%.*s%*s\"\n", /*name_str_max_len*/ SCREEN_WIDTH - 2 /* 2 = the ">"/" " chars */, (*menu)[i].name, /*fill_spaces_len*/ (name_len > SCREEN_WIDTH - 2) ? SCREEN_WIDTH - (SCREEN_WIDTH - 2) : SCREEN_WIDTH - name_len - 1, /*fill_spaces*/ "");
 #endif
-                if (parent_menu_style != ROOT_MENU)
-                  i += 1; // cancel accounting for back button in menu
                 break;
               }
               }
+
+              if (parent_menu_style == NESTED_MENU)
+                i += 1; // cancel accounting for back button in menu
             }
           }
         }
         else
         {
           lcd_printf(lcd, "%*s", SCREEN_WIDTH, "");
+#ifdef DEBUG
+          std::cout << "\"empty\"" << std::endl;
+#endif
         }
       }
-      // accounting for back button is done at the beginning of this function, it would execute twice in a row if the same was done at the end
+      if (parent_menu_style == NESTED_MENU)
+        *menu_selected -= 1; // account for back button in menu again (bare value can be used when pointing to children)
+
 #ifdef DEBUG
       std::cout << std::endl;
 #endif
     }
   }
-  #ifdef DEBUG
+#ifdef DEBUG
   dbg_nests = "";
-  #endif
+#endif
+  if (parent_menu_style == NESTED_MENU)
+    *menu_selected += 1; // cancel accounting for back button in menu
   return 0;
 }
