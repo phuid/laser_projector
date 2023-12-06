@@ -59,103 +59,105 @@ int main()
     lcd_create_char(lcd, INVERTED_SPACE_CHAR_NUM, inverted_space_char);
     lcd_create_char(lcd, INVERTED_POINTER_CHAR_NUM, inverted_pointer_char);
 
-
-    std::vector<menu_option> menu = {
-        {
-            .name = (char *)"nest",
-            .style = NESTED_MENU,
-            .nested_menu_options = {
-                {
-                    .name = (char *)"text",
-                    .style = TEXT,
-                },
-                {
-                    .name = (char *)"text1",
-                    .style = TEXT,
-                },
-                {
-                    .name = (char *)"text2",
-                    .style = TEXT,
-                },
-                {
-                    .name = (char *)"text3",
-                    .style = TEXT,
-                },
-                {
-                    .name = (char *)"func",
-                    .style = FUNCTION,
-                    .function = *print_test,
-                },
-            },
-        },
-        {
-            .name = (char *)"text",
-            .style = TEXT,
-        },
-        {
-            .name = (char *)"brightness",
-            .style = VALUE,
-            .value = {50, 0, 100},
-        },
-        {
-            .name = (char *)"val2",
-            .style = VALUE,
-            .value = {50, INT16_MIN, INT16_MAX},
-        },
-        {
-            .name = (char *)"value3",
-            .style = VALUE,
-            .value = {4000, INT16_MIN, INT16_MAX},
-        },
-        {
-            .name = (char *)"value4",
-            .style = VALUE,
-            .value = {12345, INT16_MIN, INT16_MAX},
-        },
-        {
-            .name = (char *)"func",
-            .style = FUNCTION,
-            .function = *print_test,
-        },
-        {
-            .name = (char *)"select",
-            .style = SELECTION,
-            .nested_menu_options = {
-                {
-                    .name = (char *)"option",
-                    .style = TEXT,
-                },
-                {
-                    .name = (char *)"option",
-                    .style = TEXT,
-                },
-                {
-                    .name = (char *)"option",
-                    .style = TEXT,
+    menu_option root = {
+        .name = "ROOT",
+        .style = ROOT_MENU,
+        .nested_menu_options = {
+            {
+                .name = (char *)"nest",
+                .style = NESTED_MENU,
+                .nested_menu_options = {
+                    {
+                        .name = (char *)"text",
+                        .style = TEXT,
+                    },
+                    {
+                        .name = (char *)"text1",
+                        .style = TEXT,
+                    },
+                    {
+                        .name = (char *)"text2",
+                        .style = TEXT,
+                    },
+                    {
+                        .name = (char *)"text3",
+                        .style = TEXT,
+                    },
+                    {
+                        .name = (char *)"func",
+                        .style = FUNCTION,
+                        .function = *print_test,
+                    },
                 },
             },
-        },
-        {
-            .name = (char *)"text1 je hustej",
-            .style = TEXT,
-        },
-        {
-            .name = (char *)"text2 neni ani trochu",
-            .style = TEXT,
-        },
-        {
-            .name = (char *)"text3 mozna malinko je",
-            .style = TEXT,
-        },
-        {
-            .name = (char *)"text4 skoro jako tvoje mama",
-            .style = TEXT,
-        },
-        {
-            .name = (char *)"text5 zkratka",
-            .style = TEXT,
-        },
-    };
+            {
+                .name = (char *)"text",
+                .style = TEXT,
+            },
+            {
+                .name = (char *)"brightness",
+                .style = VALUE,
+                .value = {50, 0, 100},
+            },
+            {
+                .name = (char *)"val2",
+                .style = VALUE,
+                .value = {50, INT16_MIN, INT16_MAX},
+            },
+            {
+                .name = (char *)"value3",
+                .style = VALUE,
+                .value = {4000, INT16_MIN, INT16_MAX},
+            },
+            {
+                .name = (char *)"value4",
+                .style = VALUE,
+                .value = {12345, INT16_MIN, INT16_MAX},
+            },
+            {
+                .name = (char *)"func",
+                .style = FUNCTION,
+                .function = *print_test,
+            },
+            {
+                .name = (char *)"select",
+                .style = SELECTION,
+                .nested_menu_options = {
+                    {
+                        .name = (char *)"option",
+                        .style = TEXT,
+                    },
+                    {
+                        .name = (char *)"option",
+                        .style = TEXT,
+                    },
+                    {
+                        .name = (char *)"option",
+                        .style = TEXT,
+                    },
+                },
+            },
+            {
+                .name = (char *)"text1 je hustej",
+                .style = TEXT,
+            },
+            {
+                .name = (char *)"text2 neni ani trochu",
+                .style = TEXT,
+            },
+            {
+                .name = (char *)"text3 mozna malinko je",
+                .style = TEXT,
+            },
+            {
+                .name = (char *)"text4 skoro jako tvoje mama",
+                .style = TEXT,
+            },
+            {
+                .name = (char *)"text5 zkratka",
+                .style = TEXT,
+            },
+        }};
     uint8_t menu_selected = 0;
     uint8_t menu_scroll = 0;
     bool menu_option_active = 0; // selected option clicked
@@ -165,7 +167,7 @@ int main()
     while (true)
     {
         //   lcd_pos(lcd, 0, 0);
-        menu_interact(lcd, &menu, &menu_selected, &menu_scroll, &menu_option_active, ROOT_MENU, redraw);
+        menu_interact(lcd, &menu, &menu_selected, &menu_scroll, &root, redraw);
         redraw = 0;
         lcd_backlight_dim(lcd, (float)menu[2].value.num / 100.f);
         // lcd_printf(lcd, (char *)"brightness: %d%% ", menu[2].value.num);
