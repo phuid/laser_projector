@@ -7,10 +7,10 @@ CFLAGS=-Wall -g
 all: main
 
 main: $(INCS) $(HEAD) main.cpp
-	g++ $(CFLAGS) -o UItest main.cpp $(INCS) $(LIBS)
+	g++ $(CFLAGS) -o UI main.cpp $(INCS) $(LIBS)
 
 run: $(INCS) $(HEAD) main.cpp
-	g++ $(CFLAGS) -o UItest main.cpp $(INCS) $(LIBS) && sudo ./UI
+	g++ $(CFLAGS) -o UI main.cpp $(INCS) $(LIBS) && sudo ./UI
 
 clean:
 	rm UItest
