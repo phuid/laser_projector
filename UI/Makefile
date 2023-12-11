@@ -10,7 +10,7 @@ main: $(INCS) $(HEAD) main.cpp
 	g++ $(CFLAGS) -o UItest main.cpp $(INCS) $(LIBS)
 
 run: $(INCS) $(HEAD) main.cpp
-	g++ $(CFLAGS) -o UItest main.cpp $(INCS) $(LIBS) && sudo ./UItest
+	g++ $(CFLAGS) -o UItest main.cpp $(INCS) $(LIBS) && sudo ./UI
 
 clean:
 	rm UItest

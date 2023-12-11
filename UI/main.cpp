@@ -140,7 +140,7 @@ int main()
                         .style = TEXT,
                     },
                     {
-                        .name = (char *)"option5", //FIXME: segfault when less than 4 options
+                        .name = (char *)"option5", // FIXME: segfault when less than 4 options
                         .style = TEXT,
                     },
                 },
@@ -170,14 +170,14 @@ int main()
     uint8_t menu_scroll = 0;
     bool menu_option_active = 0; // selected option clicked
 
-    bool redraw = 1;
+    int16_t& brightness_val = root.nested_menu_options[2].value.num;
 
+    menu_interact(lcd, &root.nested_menu_options, &menu_selected, &menu_scroll, &root, true);
     while (true)
     {
         //   lcd_pos(lcd, 0, 0);
-        menu_interact(lcd, &root.nested_menu_options, &menu_selected, &menu_scroll, &root, redraw);
-        redraw = 0;
-        lcd_backlight_dim(lcd, (float)root.nested_menu_options[2].value.num / 100.f);
+        menu_interact(lcd, &root.nested_menu_options, &menu_selected, &menu_scroll, &root);
+        lcd_backlight_dim(lcd, (float) brightness_val / 100.f);
         // lcd_printf(lcd, (char *)"brightness: %d%% ", menu[2].value.num);
     }
 
