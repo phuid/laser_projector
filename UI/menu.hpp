@@ -282,14 +282,14 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
         if (*menu_selected == 0 && parent_menu_option->style == NESTED_MENU)
         {
           parent_menu_option->nest_option_active = 0;
-          *menu_selected -= 1; // account for back button in menu again (bare value can be used when pointing to children) //FIXME: this was behind the return - wouldn't run
           return 1;
+          *menu_selected -= 1; // account for back button in menu again (bare value can be used when pointing to children) //FIXME: this was behind the return - wouldn't run
         }
         else if (parent_menu_option->style == SELECTION)
         {
           parent_menu_option->value.num = (int16_t)*menu_selected;
-          *menu_selected -= 1; // account for back button in menu again (bare value can be used when pointing to children) //FIXME: this was behind the return - wouldn't run
           return 1;
+          *menu_selected -= 1; // account for back button in menu again (bare value can be used when pointing to children) //FIXME: this was behind the return - wouldn't run
         }
 
         else
