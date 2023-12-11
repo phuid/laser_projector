@@ -115,12 +115,13 @@ enum menu_option_style
   FUNCTION,
   TEXT,
   ROOT_MENU,
+  UNDEFINED //TODO: check for undef
 };
 
 struct menu_option
 {
   char *name;
-  const menu_option_style style;
+  const menu_option_style style = UNDEFINED;
 
   std::vector<menu_option> nested_menu_options; // does this work????????
   uint8_t nest_selected = 1;                    // so that back button is possible
@@ -144,8 +145,13 @@ std::string dbg_nests = "";
 #endif
 
 // return 1 if back out of nest (pressed back option)
-bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_selected, uint8_t *menu_scroll, menu_option *parent_menu_option, bool redraw = 0)
+bool menu_interact(lcd_t *lcd, menu_option *parent_menu_option, bool redraw = 0)
 {
+std::vector<menu_option> *menu = &parent_menu_option->nested_menu_options;
+uint8_t *menu_selected = &parent_menu_option->nest_selected;
+uint8_t *menu_scroll = &parent_menu_option->nest_scroll;
+#define SELECTED_MENU_OPTION (*menu)[*menu_selected] //FIXME: better way?
+
 #ifdef DEBUG
   if (redraw)
   {
@@ -175,10 +181,10 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
     // go down a layer of options
     case NESTED_MENU:
     case SELECTION:
-      if (menu_interact(lcd, &(*menu)[*menu_selected].nested_menu_options, &(*menu)[*menu_selected].nest_selected, &(*menu)[*menu_selected].nest_scroll, &(*menu)[*menu_selected], redraw))
+      if (menu_interact(lcd, &(*menu)[*menu_selected], redraw))
       {
         parent_menu_option->nest_option_active = 0;
-        menu_interact(lcd, menu, menu_selected, menu_scroll, parent_menu_option, true); // redraw
+        menu_interact(lcd, parent_menu_option, true); // redraw
       }
       break;
 
@@ -204,7 +210,7 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
         parent_menu_option->nest_option_active = 0;
         encoder_btn_pressed = 0;
         encoder_pos = 0;
-        menu_interact(lcd, menu, menu_selected, menu_scroll, parent_menu_option, true); // redraw
+        menu_interact(lcd, parent_menu_option, true); // redraw
       }
       else
       {
@@ -313,7 +319,7 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
 #endif
               parent_menu_option->nest_option_active = 1;
               lcd_clear(lcd);
-              menu_interact(lcd, menu, menu_selected, menu_scroll, parent_menu_option, true); // redraw
+              menu_interact(lcd, parent_menu_option, true); // redraw
 #ifdef DEBUG
               std::cout << "j" << std::endl;
 #endif
@@ -323,7 +329,7 @@ bool menu_interact(lcd_t *lcd, std::vector<menu_option> *menu, uint8_t *menu_sel
             case FUNCTION:
               // TODO: handle function menu actions
               (*menu)[*menu_selected].function();
-              menu_interact(lcd, menu, menu_selected, menu_scroll, parent_menu_option, true); // redraw
+              menu_interact(lcd, parent_menu_option, true); // redraw
               break;
 
             default:

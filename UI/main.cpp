@@ -63,8 +63,6 @@ int main()
     lcd_create_char(lcd, INVERTED_POINTER_CHAR_NUM, inverted_pointer_char);
 
     menu_option root = {
-        .name = (char *)"ROOT",
-        .style = ROOT_MENU,
         .nested_menu_options = {
             {
                 .name = (char *)"nest",
@@ -169,9 +167,6 @@ int main()
                 .style = TEXT,
             },
         }};
-    uint8_t menu_selected = 0;
-    uint8_t menu_scroll = 0;
-    bool menu_option_active = 0; // selected option clicked
 
     int16_t &brightness_val = root.nested_menu_options[2].value.num;
 
@@ -179,11 +174,11 @@ int main()
     if (mkfifo("/tmp/laser_projector.fifo", S_IRWXU) != 0)
         perror("mkfifo() error");
 
-    menu_interact(lcd, &root.nested_menu_options, &menu_selected, &menu_scroll, &root, true);
+    menu_interact(lcd, &root, true);
     while (true)
     {
         // interact with user
-        menu_interact(lcd, &root.nested_menu_options, &menu_selected, &menu_scroll, &root); // TODO: rewrite with root.nest_selected
+        menu_interact(lcd, &root); // TODO: rewrite with root.nest_selected
         lcd_backlight_dim(lcd, (float)brightness_val / 100.f);
 
         // read instruction(s) from other runtimes
