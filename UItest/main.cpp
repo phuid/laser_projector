@@ -60,7 +60,7 @@ int main()
     lcd_create_char(lcd, INVERTED_POINTER_CHAR_NUM, inverted_pointer_char);
 
     menu_option root = {
-        .name = "ROOT",
+        .name = (char *)"ROOT",
         .style = ROOT_MENU,
         .nested_menu_options = {
             {
@@ -124,15 +124,23 @@ int main()
                 .style = SELECTION,
                 .nested_menu_options = {
                     {
-                        .name = (char *)"option",
+                        .name = (char *)"option1",
                         .style = TEXT,
                     },
                     {
-                        .name = (char *)"option",
+                        .name = (char *)"option2",
                         .style = TEXT,
                     },
                     {
-                        .name = (char *)"option",
+                        .name = (char *)"option3",
+                        .style = TEXT,
+                    },
+                    {
+                        .name = (char *)"option4",
+                        .style = TEXT,
+                    },
+                    {
+                        .name = (char *)"option5", //FIXME: segfault when less than 4 options
                         .style = TEXT,
                     },
                 },
@@ -167,9 +175,9 @@ int main()
     while (true)
     {
         //   lcd_pos(lcd, 0, 0);
-        menu_interact(lcd, &menu, &menu_selected, &menu_scroll, &root, redraw);
+        menu_interact(lcd, &root.nested_menu_options, &menu_selected, &menu_scroll, &root, redraw);
         redraw = 0;
-        lcd_backlight_dim(lcd, (float)menu[2].value.num / 100.f);
+        lcd_backlight_dim(lcd, (float)root.nested_menu_options[2].value.num / 100.f);
         // lcd_printf(lcd, (char *)"brightness: %d%% ", menu[2].value.num);
     }
 
