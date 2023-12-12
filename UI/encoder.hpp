@@ -9,13 +9,12 @@ uint8_t encoder_button_pin = ENCODER_BUTTON_PIN;
 
 bool encoder_pins_last_state[2] /* = {0, 0}*/;
 
-int16_t encoder_pos = 0;
+int16_t encoder_pos = 0; //TODO: static in .cpp
 bool encoder_btn_pressed = 0;
-
-uint16_t last_interrupt = 0;
 
 void handle_enc_btn_interrupts()
 {
+  static uint16_t last_interrupt = 0;
 	uint16_t interrupt_time = millis();
 	if (interrupt_time - last_interrupt > 50 && !digitalRead(encoder_button_pin))
 	{

@@ -62,10 +62,10 @@ int main()
     lcd_create_char(lcd, INVERTED_SPACE_CHAR_NUM, inverted_space_char);
     lcd_create_char(lcd, INVERTED_POINTER_CHAR_NUM, inverted_pointer_char);
 
-    menu_option root = {
+    const menu_option root = {
         .nested_menu_options = {
             {
-                .name = (char *)"nest",
+                .name = const_cast<char *> "nest",
                 .style = NESTED_MENU,
                 .nested_menu_options = {
                     {
@@ -171,7 +171,7 @@ int main()
     int16_t &brightness_val = root.nested_menu_options[2].value.num;
 
     // create fifo in temporary folder
-    if (mkfifo("/tmp/laser_projector.fifo", S_IRWXU) != 0)
+    if (mkfifo("/tmp/laser_projector.fifo", S_IRWXU) != 0) 
         perror("mkfifo() error");
 
     menu_interact(lcd, &root, true);

@@ -145,9 +145,9 @@ std::string dbg_nests = "";
 #endif
 
 // return 1 if back out of nest (pressed back option)
-bool menu_interact(lcd_t *lcd, menu_option *parent_menu_option, bool redraw = 0)
+bool menu_interact(lcd_t *lcd, menu_option *parent_menu_option, bool redraw = 0) // TODO: reference misto pointeru
 {
-std::vector<menu_option> *menu = &parent_menu_option->nested_menu_options;
+std::vector<menu_option> &menu = parent_menu_option->nested_menu_options;
 uint8_t *menu_selected = &parent_menu_option->nest_selected;
 uint8_t *menu_scroll = &parent_menu_option->nest_scroll;
 #define SELECTED_MENU_OPTION (*menu)[*menu_selected] //FIXME: better way?
