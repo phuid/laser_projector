@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-uint8_t encoder_pins[2] = ENCODER_PINS;
+uint8_t encoder_pins[2] = {ENCODER_PINS[0], ENCODER_PINS[1]};
 uint8_t encoder_button_pin = ENCODER_BUTTON_PIN;
 
 bool encoder_pins_last_state[2] /* = {0, 0}*/;
@@ -26,7 +26,7 @@ void handle_enc_btn_interrupts()
 
 void handle_enc_interrupts()
 {
-	bool state[2] = {digitalRead(encoder_pins[0]), digitalRead(encoder_pins[1])};
+	bool state[2] = {(bool)digitalRead(encoder_pins[0]), (bool)digitalRead(encoder_pins[1])};
 
 	// bool A_rising = state[0] && !encoder_pins_last_state[0];
 	// bool B_rising = state[1] && !encoder_pins_last_state[1];

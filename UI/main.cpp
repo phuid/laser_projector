@@ -4,19 +4,20 @@
 #include <vector>
 #include <wiringPi.h>
 #include <iostream>
+
+#include <sys/stat.h>
+#include <errno.h>
+
 #include "soft_lcd.h"
 
 #define DEBUG
 
-#define ENCODER_PINS \
-    {                \
-        25, 27       \
-    }
-#define ENCODER_BUTTON_PIN 23
+constexpr uint8_t ENCODER_PINS[2] = {25, 27};
+constexpr uint8_t ENCODER_BUTTON_PIN = 23;
 #include "encoder.hpp"
 
-#define SCREEN_HEIGHT 4
-#define SCREEN_WIDTH 20
+constexpr uint8_t SCREEN_HEIGHT = 4;
+constexpr uint8_t SCREEN_WIDTH = 20;
 #include "menu.hpp"
 
 int main()
@@ -28,6 +29,8 @@ int main()
         puts("This program must be run as root.");
         return 1;
     }
+
+    // TODO: add SIGINT handler + cleanup function
 
     wiringPiSetup();
 
@@ -60,8 +63,6 @@ int main()
     lcd_create_char(lcd, INVERTED_POINTER_CHAR_NUM, inverted_pointer_char);
 
     menu_option root = {
-        .name = (char *)"ROOT",
-        .style = ROOT_MENU,
         .nested_menu_options = {
             {
                 .name = (char *)"nest",
@@ -140,7 +141,7 @@ int main()
                         .style = TEXT,
                     },
                     {
-                        .name = (char *)"option5", //FIXME: segfault when less than 4 options
+                        .name = (char *)"option5", // FIXME: segfault when less than 4 options
                         .style = TEXT,
                     },
                 },
@@ -166,19 +167,44 @@ int main()
                 .style = TEXT,
             },
         }};
-    uint8_t menu_selected = 0;
-    uint8_t menu_scroll = 0;
-    bool menu_option_active = 0; // selected option clicked
 
-    bool redraw = 1;
+    int16_t &brightness_val = root.nested_menu_options[2].value.num;
 
+    // create fifo in temporary folder
+    if (mkfifo("/tmp/laser_projector.fifo", S_IRWXU) != 0)
+        perror("mkfifo() error");
+
+    menu_interact(lcd, &root, true);
     while (true)
     {
-        //   lcd_pos(lcd, 0, 0);
-        menu_interact(lcd, &root.nested_menu_options, &menu_selected, &menu_scroll, &root, redraw);
-        redraw = 0;
-        lcd_backlight_dim(lcd, (float)root.nested_menu_options[2].value.num / 100.f);
-        // lcd_printf(lcd, (char *)"brightness: %d%% ", menu[2].value.num);
+        // interact with user
+        menu_interact(lcd, &root); // TODO: rewrite with root.nest_selected
+        lcd_backlight_dim(lcd, (float)brightness_val / 100.f);
+
+        // read instruction(s) from other runtimes
+        // via FIFO
+        // else
+        // {
+        //     if ((rfd = open(fn, O_RDONLY | O_NONBLOCK)) < 0)
+        //         perror("open() error for read end");
+        //     else
+        //     {
+        //         if ((wfd = open(fn, O_WRONLY)) < 0)
+        //             perror("open() error for write end");
+        //         else
+        //         {
+        //             if (write(wfd, out, strlen(out) + 1) == -1)
+        //                 perror("write() error");
+        //             else if (read(rfd, in, sizeof(in)) == -1)
+        //                 perror("read() error");
+        //             else
+        //                 printf("read '%s' from the FIFO\n", in);
+        //             close(wfd);
+        //         }
+        //         close(rfd);
+        //     }
+        //     unlink(fn);
+        // }
     }
 
     lcd_backlight_off(lcd);
