@@ -67,43 +67,43 @@ struct menu_val
 };
 
 template <typename T>
-bool change_val(T *val, T val_min = 0, T val_max = 100) // return 1 if changed
+bool change_val(T &val, encoder &enc, T val_min = 0, T val_max = 100) // return 1 if changed
 {
-  if (encoder_pos > 0)
+  if (enc.encoder_pos > 0)
   {
 #ifdef DEBUG
-    std::cout << "change_val: " << encoder_pos << " <= " << (int)val_max << " - " << (int)*val << std::endl;
+    std::cout << "change_val: " << enc.encoder_pos << " <= " << (int)val_max << " - " << (int)val << std::endl;
 #endif
-    if (encoder_pos <= val_max - *val)
-      *val += encoder_pos;
+    if (enc.encoder_pos <= val_max - val)
+      val += enc.encoder_pos;
     else
     {
 #ifdef DEBUG
       std::cout << "!" << std::endl;
 #endif
-      *val = val_max;
+      val = val_max;
     }
   }
-  else if (encoder_pos < 0)
+  else if (enc.encoder_pos < 0)
   {
 #ifdef DEBUG
-    std::cout << "change_val2: " << -1 * encoder_pos << " <= " << (int)*val << " - " << (int)val_min << std::endl;
+    std::cout << "change_val2: " << -1 * enc. pos << " <= " << (int)val << " - " << (int)val_min << std::endl;
 #endif
-    if (-1 * encoder_pos <= *val - val_min)
-      *val += encoder_pos;
+    if (-1 * enc.encoder_pos <= val - val_min)
+      val += enc.encoder_pos;
     else
     {
 #ifdef DEBUG
       std::cout << "!" << std::endl;
 #endif
-      *val = val_min;
+      val = val_min;
     }
   }
   else
   {
     return 0;
   }
-  encoder_pos = 0;
+  enc.encoder_pos = 0;
   return 1;
 }
 
@@ -115,7 +115,7 @@ enum menu_option_style
   FUNCTION,
   TEXT,
   ROOT_MENU,
-  UNDEFINED //TODO: check for undef
+  UNDEFINED // TODO: check for undef
 };
 
 struct menu_option
@@ -145,11 +145,11 @@ std::string dbg_nests = "";
 #endif
 
 // return 1 if back out of nest (pressed back option)
-bool menu_interact(lcd_t *lcd, menu_option &parent_menu_option, bool redraw = 0) // TODO: reference misto pointeru
+bool menu_interact(lcd_t *lcd, encoder& enc, menu_option &parent_menu_option, bool redraw = 0) // TODO: reference misto pointeru
 {
-std::vector<menu_option> &menu = parent_menu_option.nested_menu_options;
-uint8_t &menu_selected = parent_menu_option.nest_selected;
-uint8_t &menu_scroll = parent_menu_option.nest_scroll;
+  std::vector<menu_option> &menu = parent_menu_option.nested_menu_options;
+  uint8_t &menu_selected = parent_menu_option.nest_selected;
+  uint8_t &menu_scroll = parent_menu_option.nest_scroll;
 
 #ifdef DEBUG
   if (redraw)
@@ -159,7 +159,7 @@ uint8_t &menu_scroll = parent_menu_option.nest_scroll;
     std::cout << "menu_scroll" << (int)menu_scroll << std::endl;
     std::cout << "menu_select" << (int)menu_selected << std::endl;
     std::cout << "parent_menu_opti_ac" << (int)parent_menu_option.nest_option_active << std::endl;
-    std::cout << "encbtnpressed" << (int)encoder_btn_pressed << std::endl;
+    std::cout << "encbtnpressed" << (int)enc.encoder_btn_pressed << std::endl;
     std::cout << "isvalue" << (int)(menu[menu_selected].style == VALUE) << std::endl;
     std::cout << "wahoo" << std::endl;
   }
@@ -180,10 +180,10 @@ uint8_t &menu_scroll = parent_menu_option.nest_scroll;
     // go down a layer of options
     case NESTED_MENU:
     case SELECTION:
-      if (menu_interact(lcd, &menu[menu_selected], redraw))
+      if (menu_interact(lcd, enc, &menu[menu_selected], redraw))
       {
         parent_menu_option.nest_option_active = 0;
-        menu_interact(lcd, parent_menu_option, true); // redraw
+        menu_interact(lcd, enc, parent_menu_option, true); // redraw
       }
       break;
 
@@ -204,17 +204,17 @@ uint8_t &menu_scroll = parent_menu_option.nest_scroll;
     bool screen_scrolled = 0;
     if (menu[menu_selected].style == VALUE && parent_menu_option.nest_option_active)
     {
-      if (encoder_btn_pressed)
+      if (enc.encoder_btn_pressed)
       {
         parent_menu_option.nest_option_active = 0;
-        encoder_btn_pressed = 0;
-        encoder_pos = 0;
-        menu_interact(lcd, parent_menu_option, true); // redraw
+        enc.encoder_btn_pressed = 0;
+        enc.encoder_pos = 0;
+        menu_interact(lcd, enc, parent_menu_option, true); // redraw
       }
       else
       {
         selection_scrolled = 0;
-        redraw = (redraw || change_val<decltype(menu[menu_selected].value.num)>(&menu[menu_selected].value.num, menu[menu_selected].value.min, menu[menu_selected].value.max)); // TODO separate value for redraw_val to not redraw the whole display, but only the number
+        redraw = (redraw || change_val<decltype(menu[menu_selected].value.num)>(menu[menu_selected].value.num, menu[menu_selected].value.min, menu[menu_selected].value.max)); // TODO separate value for redraw_val to not redraw the whole display, but only the number
 #ifdef DEBUG
         if (redraw)
           std::cout << "changeval" << std::endl;
@@ -239,11 +239,11 @@ uint8_t &menu_scroll = parent_menu_option.nest_scroll;
       }
 #endif
     }
-    if (selection_scrolled || encoder_btn_pressed || redraw)
+    if (selection_scrolled || enc.encoder_btn_pressed || redraw)
     {
 #ifdef DEBUG
       std::cout << "dgb_nests: " << dbg_nests << std::endl;
-      std::cout << "reason (SCR/BTN/RE)" << selection_scrolled << encoder_btn_pressed << redraw << std::endl;
+      std::cout << "reason (SCR/BTN/RE)" << selection_scrolled << enc.encoder_btn_pressed << redraw << std::endl;
 #endif
       if (selection_scrolled || redraw) // FIXME: screen_scrolled flag 1 when menu_selected == 0/max
       {
@@ -278,9 +278,9 @@ uint8_t &menu_scroll = parent_menu_option.nest_scroll;
           menu_selected -= 1; // account for back button in menu again (bare value can be used when pointing to children)
       }
 
-      if (encoder_btn_pressed)
+      if (enc.encoder_btn_pressed)
       {
-        encoder_btn_pressed = 0;
+        enc.encoder_btn_pressed = 0;
         // handle button
         // TODO: handle back button
         menu_selected += 1; // cancel accounting for back button in menu
@@ -318,7 +318,7 @@ uint8_t &menu_scroll = parent_menu_option.nest_scroll;
 #endif
               parent_menu_option.nest_option_active = 1;
               lcd_clear(lcd);
-              menu_interact(lcd, parent_menu_option, true); // redraw
+              menu_interact(lcd, enc, parent_menu_option, true); // redraw
 #ifdef DEBUG
               std::cout << "j" << std::endl;
 #endif
@@ -328,7 +328,7 @@ uint8_t &menu_scroll = parent_menu_option.nest_scroll;
             case FUNCTION:
               // TODO: handle function menu actions
               menu[menu_selected].function();
-              menu_interact(lcd, parent_menu_option, true); // redraw
+              menu_interact(lcd, enc, parent_menu_option, true); // redraw
               break;
 
             default:

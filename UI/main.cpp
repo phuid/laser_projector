@@ -46,17 +46,19 @@ int main()
 
     lcd_init(lcd);
 
-    pinMode(encoder_pins[0], INPUT);
-    pinMode(encoder_pins[1], INPUT);
-    pinMode(encoder_button_pin, INPUT);
+    pinMode(ENCODER_PINS[0], INPUT);
+    pinMode(ENCODER_PINS[1], INPUT);
+    pinMode(ENCODER_BUTTON_PIN, INPUT);
 
-    pullUpDnControl(encoder_pins[0], PUD_UP);
-    pullUpDnControl(encoder_pins[1], PUD_UP);
-    pullUpDnControl(encoder_button_pin, PUD_UP);
+    pullUpDnControl(ENCODER_PINS[0], PUD_UP);
+    pullUpDnControl(ENCODER_PINS[1], PUD_UP);
+    pullUpDnControl(ENCODER_BUTTON_PIN, PUD_UP);
+    
+    encoder enc(ENCODER_PINS[0], ENCODER_PINS[1], ENCODER_BUTTON_PIN);
 
-    wiringPiISR(encoder_pins[0], INT_EDGE_BOTH, *handle_enc_interrupts);
-    wiringPiISR(encoder_pins[1], INT_EDGE_BOTH, *handle_enc_interrupts);
-    wiringPiISR(encoder_button_pin, INT_EDGE_BOTH, *handle_enc_btn_interrupts);
+    wiringPiISR(ENCODER_PINS[0], INT_EDGE_BOTH, *enc.handle_enc_interrupts(enc));
+    wiringPiISR(ENCODER_PINS[1], INT_EDGE_BOTH, *enc.handle_enc_interrupts(enc));
+    wiringPiISR(ENCODER_BUTTON_PIN, INT_EDGE_BOTH, *enc.handle_enc_btn_interrupts(enc));
 
     lcd_create_char(lcd, PARENT_CHAR_NUM, parent_char);
     lcd_create_char(lcd, INVERTED_SPACE_CHAR_NUM, inverted_space_char);
@@ -65,105 +67,105 @@ int main()
     const menu_option root = {
         .nested_menu_options = {
             {
-                .name = const_cast<char *> "nest",
+                .name = const_cast<const char *>"nest",
                 .style = NESTED_MENU,
                 .nested_menu_options = {
                     {
-                        .name = (char *)"text",
+                        .name = const_cast<const char *>"text",
                         .style = TEXT,
                     },
                     {
-                        .name = (char *)"text1",
+                        .name = const_cast<const char *>"text1",
                         .style = TEXT,
                     },
                     {
-                        .name = (char *)"text2",
+                        .name = const_cast<const char *>"text2",
                         .style = TEXT,
                     },
                     {
-                        .name = (char *)"text3",
+                        .name = const_cast<const char *>"text3",
                         .style = TEXT,
                     },
                     {
-                        .name = (char *)"func",
+                        .name = const_cast<const char *>"func",
                         .style = FUNCTION,
                         .function = *print_test,
                     },
                 },
             },
             {
-                .name = (char *)"text",
+                .name = const_cast<const char *>"text",
                 .style = TEXT,
             },
             {
-                .name = (char *)"brightness",
+                .name = const_cast<const char *>"brightness",
                 .style = VALUE,
                 .value = {50, 0, 100},
             },
             {
-                .name = (char *)"val2",
+                .name = const_cast<const char *>"val2",
                 .style = VALUE,
                 .value = {50, INT16_MIN, INT16_MAX},
             },
             {
-                .name = (char *)"value3",
+                .name = const_cast<const char *>"value3",
                 .style = VALUE,
                 .value = {4000, INT16_MIN, INT16_MAX},
             },
             {
-                .name = (char *)"value4",
+                .name = const_cast<const char *>"value4",
                 .style = VALUE,
                 .value = {12345, INT16_MIN, INT16_MAX},
             },
             {
-                .name = (char *)"func",
+                .name = const_cast<const char *>"func",
                 .style = FUNCTION,
                 .function = *print_test,
             },
             {
-                .name = (char *)"select",
+                .name = const_cast<const char *>"select",
                 .style = SELECTION,
                 .nested_menu_options = {
                     {
-                        .name = (char *)"option1",
+                        .name = const_cast<const char *>"option1",
                         .style = TEXT,
                     },
                     {
-                        .name = (char *)"option2",
+                        .name = const_cast<const char *>"option2",
                         .style = TEXT,
                     },
                     {
-                        .name = (char *)"option3",
+                        .name = const_cast<const char *>"option3",
                         .style = TEXT,
                     },
                     {
-                        .name = (char *)"option4",
+                        .name = const_cast<const char *>"option4",
                         .style = TEXT,
                     },
                     {
-                        .name = (char *)"option5", // FIXME: segfault when less than 4 options
+                        .name = const_cast<const char *>"option5", // FIXME: segfault when less than 4 options
                         .style = TEXT,
                     },
                 },
             },
             {
-                .name = (char *)"text1 je hustej",
+                .name = const_cast<const char *>"text1 je hustej",
                 .style = TEXT,
             },
             {
-                .name = (char *)"text2 neni ani trochu",
+                .name = const_cast<const char *>"text2 neni ani trochu",
                 .style = TEXT,
             },
             {
-                .name = (char *)"text3 mozna malinko je",
+                .name = const_cast<const char *>"text3 mozna malinko je",
                 .style = TEXT,
             },
             {
-                .name = (char *)"text4 skoro jako tvoje mama",
+                .name = const_cast<const char *>"text4 skoro jako tvoje mama",
                 .style = TEXT,
             },
             {
-                .name = (char *)"text5 zkratka",
+                .name = const_cast<const char *>"text5 zkratka",
                 .style = TEXT,
             },
         }};
@@ -178,7 +180,7 @@ int main()
     while (true)
     {
         // interact with user via OLED LCD and a rotary encoder
-        menu_interact(lcd, root);
+        menu_interact(lcd, enc, root);
         lcd_backlight_dim(lcd, (float)brightness_val / 100.f);
 
         // read instruction(s) from other runtimes
