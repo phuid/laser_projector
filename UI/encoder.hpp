@@ -19,27 +19,45 @@ private:
   bool encoder_pins_last_state[2] = {0, 0};
 
 public:
-  encoder(uin8_t pin_a, uint8_t pin_b, uint8_t btn_pin);
+  encoder(uint8_t pin_a, uint8_t pin_b, uint8_t btn_pin);
   ~encoder();
 
-  static void handle_enc_btn_interrupts(encoder &this)
+  int16_t get_pos()
   {
-    uint16_t interrupt_time = millis();
-    if (interrupt_time - last_interrupt > 50 && !digitalRead(this.encoder_button_pin))
-    {
-      this.encoder_btn_pressed = 1;
-    }
-    this.last_interrupt = interrupt_time;
+    return encoder_pos;
+  }
+  void set_pos(int16_t pos)
+  {
+    encoder_pos = pos;
   }
 
-  static void handle_enc_interrupts(encoder &this) // TODO: rewrite, register less interrupts
+  int16_t get_btn_pressed()
   {
-    bool state[2] = {(bool)digitalRead(this.encoder_pins[0]), (bool)digitalRead(this.encoder_pins[1])};
+    return encoder_btn_pressed;
+  }
+  void clear_btn()
+  {
+    encoder_btn_pressed = 0;
+  }
+
+  void handle_enc_btn_interrupts()
+  {
+    uint16_t interrupt_time = millis();
+    if (interrupt_time - this->last_interrupt > 50 && !digitalRead(this->encoder_button_pin))
+    {
+      this->encoder_btn_pressed = 1;
+    }
+    this->last_interrupt = interrupt_time;
+  }
+
+  void handle_enc_interrupts() // TODO: rewrite, register less interrupts
+  {
+    bool state[2] = {(bool)digitalRead(this->encoder_pins[0]), (bool)digitalRead(this->encoder_pins[1])};
 
     // bool A_rising = state[0] && !encoder_pins_last_state[0];
     // bool B_rising = state[1] && !encoder_pins_last_state[1];
 
-    bool A_falling = !state[0] && this.encoder_pins_last_state[0];
+    bool A_falling = !state[0] && this->encoder_pins_last_state[0];
     // bool B_falling = !state[1] && encoder_pins_last_state[1];
 
     if (/*A_rising  || B_rising ||*/ A_falling /* || B_falling*/) // dont need high precision, my encoder has feelable steps and 4 interrupts in each
@@ -71,10 +89,10 @@ public:
       // std::cout << "state: " << state[0] << state[1];
       // std::cout << ", dir: " << dir << std::endl;
 
-      this.encoder_pos += (dir ? 1 : -1);
+      this->encoder_pos += (dir ? 1 : -1);
     }
-    this.encoder_pins_last_state[0] = state[0];
-    this.encoder_pins_last_state[1] = state[1];
+    this->encoder_pins_last_state[0] = state[0];
+    this->encoder_pins_last_state[1] = state[1];
   }
 };
 
