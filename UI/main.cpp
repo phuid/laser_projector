@@ -177,8 +177,8 @@ int main()
     menu_interact(lcd, &root, true);
     while (true)
     {
-        // interact with user
-        menu_interact(lcd, &root); // TODO: rewrite with root.nest_selected
+        // interact with user via OLED LCD and a rotary encoder
+        menu_interact(lcd, root);
         lcd_backlight_dim(lcd, (float)brightness_val / 100.f);
 
         // read instruction(s) from other runtimes
