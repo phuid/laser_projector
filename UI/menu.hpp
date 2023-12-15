@@ -68,7 +68,7 @@ struct menu_val
 };
 
 template <typename T>
-bool change_val(encoder &enc, T &val, T val_min = 0, T val_max = 100) // return 1 if changed
+bool change_val(T &val, T val_min = 0, T val_max = 100) // return 1 if changed
 {
   if (enc.get_pos() > 0)
   {

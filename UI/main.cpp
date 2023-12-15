@@ -56,9 +56,9 @@ int main()
     
     encoder enc(ENCODER_PINS[0], ENCODER_PINS[1], ENCODER_BUTTON_PIN);
 
-    wiringPiISR(ENCODER_PINS[0], INT_EDGE_BOTH, enc::handle_enc_interrupts(enc));
-    wiringPiISR(ENCODER_PINS[1], INT_EDGE_BOTH, enc::handle_enc_interrupts(enc));
-    wiringPiISR(ENCODER_BUTTON_PIN, INT_EDGE_BOTH, enc::handle_enc_btn_interrupts(enc));
+    wiringPiISR(ENCODER_PINS[0], INT_EDGE_BOTH, encoder::handle_enc_interrupts(enc));
+    wiringPiISR(ENCODER_PINS[1], INT_EDGE_BOTH, encoder::handle_enc_interrupts(enc));
+    wiringPiISR(ENCODER_BUTTON_PIN, INT_EDGE_BOTH, encoder::handle_enc_btn_interrupts(enc));
 
     lcd_create_char(lcd, PARENT_CHAR_NUM, parent_char);
     lcd_create_char(lcd, INVERTED_SPACE_CHAR_NUM, inverted_space_char);

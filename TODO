@@ -2,7 +2,7 @@ REWRITE WIFI_MANAGER TO CHANGE WHAT CONFIGS SERVICES USE INSTEAD OF CHANGING CON
 
 add stoping of previous projection - implement to lasershow.cpp?
 
-menu.hpp
+### menu.hpp
   // prusa style ui with oled display and rotary encoder - use FIFOs for communication with lasershow.cpp https://www.youtube.com/watch?v=2hba3etpoJg
 
 
@@ -10,22 +10,22 @@ menu.hpp
 //DONE check if exec() doesnt have smth like .on('stdout') that would b emitted when the process outputs some stdout
   -> check reding stdout
 
-README.md
+### README.md
   isntalling system dependencies and WiringPi and pm2
   pm2 status outputs
 
-discord help command
+### discord help command
 
-wifi manager
+### wifi manager
   //DONE only run, if some pin is connected to prevent wlan0 down without a switch attached
   //DONE project last updated file when stealth is on stop when switched?
 
-web-ui
+### web-ui
   make a selectmenu of ILDA files instead of typing the name
 
 
-//WATCH-OUT
-hostapd
+## WATCH-OUT
+### hostapd
   - The previously supported configuration setting DAEMON_CONF in
   /etc/default/hostapd is deprecated and its support will be removed.
 
@@ -40,3 +40,8 @@ hostapd
   are supported and how to install it.
   https://github.com/nodesource/distributions
   https://github.com/nodesource/distributions#debian-versions
+
+
+## next version todos:
+### menu
+- wiringpi -> pigpiow
