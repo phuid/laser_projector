@@ -7,10 +7,13 @@ CFLAGS=-Wall -g
 all: main
 
 main: $(SRCS) $(HEAD) main.cpp
-	g++ $(CFLAGS) $(SRCS) $(LIBS) -o UI main.cpp
+	g++ $(CFLAGS) $(SRCS) $(LIBS) -o build/UI main.cpp
+
+&run: $(SRCS) $(HEAD) main.cpp
+	g++ $(CFLAGS) $(SRCS) $(LIBS) -o build/UI main.cpp && sudo ./UI
 
 run: $(SRCS) $(HEAD) main.cpp
-	g++ $(CFLAGS) $(SRCS) $(LIBS) -o UI main.cpp && sudo ./UI
+	sudo ./UI
 
 clean:
 	rm UI

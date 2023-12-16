@@ -112,12 +112,12 @@ then
     echo -e "${IWhite}do you wish to review every step of instalation that could change your system settings? (if you answer no the installer will complete all its steps without asking for permission)(answer q to quit)"
     while true
     do
-        read -p "[y/n/q]: " userauth
+        read -p "[y/n/q] (y): " userauth
         case $userauth in
             [Yy]* ) userauth=1; break;;
             [Nn]* ) userauth=0; break;;
             [Qq]* ) exit;;
-            * ) echo "Please answer Y/y or N/n or Q/q to quit.";;
+            * ) userauth=1; break;;
         esac
     done
 fi
@@ -445,10 +445,14 @@ fi
 
 echo ""
 echo -e "${On_IWhite}##${Color_Off} ${UYellow}reboot${Color_Off} is required to ${Green}finish instalation${Color_Off}\n${UWhite}do you want to reboot system now?${Color_Off} [Y/n] ${On_IWhite}##${Color_Off}"
-read reb
 
-if [ "$reb" != "${reb#[Yy]}" ];
-then
-    echo -e "${On_IBlack}++${Color_Off} sudo reboot ${On_IBlack}++${Color_Off}"
-    sudo reboot
-fi
+while true
+    do
+        read -p "[y/n]: " reb
+        case $reb in
+            [Yy]* ) echo -e "${On_IBlack}++${Color_Off} sudo reboot ${On_IBlack}++${Color_Off}";sudo reboot;break;;
+            [Nn]* ) echo "exiting without reboot"; break;;
+            * ) echo "please answer y/n";;
+        esac
+    done
+
