@@ -21,3 +21,6 @@ Robutek-rewrite-2022
 **/.vscode
 
 bin
+
+UI/build
+rpi-lasershow/build

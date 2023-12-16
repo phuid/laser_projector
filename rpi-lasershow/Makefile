@@ -7,12 +7,15 @@ CC = g++
 CFLAGS  = -Wall
 
 # the build target executable:
-TARGET = lasershow
+TARGET = build/lasershow
 
-all: $(TARGET)
+SRCS = lasershow.cpp mcp4822.c IldaReader.cpp Frame.cpp FrameData.cpp Points.cpp
+LIBS = -lwiringPi
 
-$(TARGET): $(TARGET).cpp
-	$(CC) $(CFLAGS) -o $(TARGET) $(TARGET).cpp mcp4822.c IldaReader.cpp Frame.cpp FrameData.cpp Points.cpp -lwiringPi
+all: main
+
+main: lasershow.cpp
+	$(CC) $(CFLAGS) -o $(TARGET) $(SRCS) $(LIBS)
 
 clean:
 	$(RM) $(TARGET)
