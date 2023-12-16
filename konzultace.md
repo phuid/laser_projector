@@ -1,5 +1,4 @@
-lasershow.cpp
-
+#konzult
 
 ## hw
 - rpi
@@ -14,7 +13,11 @@ lasershow.cpp
 github haberturdeur /tet
 
 ## todo
- - socket misto pipe (2.p.)
- - static encoder.hpp + cpp
- - main menu def - constcast / std::string.c_str()
- - reference misto pointeru v menu_interract
+
+- socket misto pipe (2.p.)
+
+### done
+
+- static encoder.hpp + cpp
+- reference misto pointeru v menu_interract
+- main menu def - constcast / std::string.c_str()
