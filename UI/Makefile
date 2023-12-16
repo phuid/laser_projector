@@ -1,5 +1,5 @@
-SRCS=soft_i2c.c soft_lcd.c
-HEAD=soft_i2c.h soft_lcd.h encoder.hpp menu.hpp
+SRCS=soft_i2c.c soft_lcd.c encoder.cpp
+HEAD=soft_i2c.h soft_lcd.h config.hpp encoder.hpp menu.hpp
 LIBS=-lwiringPi
 CFLAGS=-Wall -g
 # -Wextra

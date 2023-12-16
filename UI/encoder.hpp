@@ -2,68 +2,18 @@
 
 #include <wiringPi.h>
 #include <stdint.h>
-#include <stdbool.h>
+#include <stdbool.h> //TODO: lol why include stdbool in c++?  
+#include "config.hpp"
 
-uint8_t encoder_pins[2] = {ENCODER_PINS[0], ENCODER_PINS[1]};
-uint8_t encoder_button_pin = ENCODER_BUTTON_PIN;
+const uint8_t encoder_pins[2] = {ENCODER_PINS[0], ENCODER_PINS[1]};
+const uint8_t encoder_button_pin = ENCODER_BUTTON_PIN;
 
-bool encoder_pins_last_state[2] /* = {0, 0}*/;
+void handle_enc_btn_interrupts();
 
-int16_t encoder_pos = 0; //TODO: static in .cpp
-bool encoder_btn_pressed = 0;
+void handle_enc_interrupts();
 
-void handle_enc_btn_interrupts()
-{
-  static uint16_t last_interrupt = 0;
-	uint16_t interrupt_time = millis();
-	if (interrupt_time - last_interrupt > 50 && !digitalRead(encoder_button_pin))
-	{
-		encoder_btn_pressed = 1;
-	}
-	last_interrupt = interrupt_time;
-}
+bool get_encoder_btn_pressed();
+int16_t get_encoder_pos();
 
-void handle_enc_interrupts()
-{
-	bool state[2] = {(bool)digitalRead(encoder_pins[0]), (bool)digitalRead(encoder_pins[1])};
-
-	// bool A_rising = state[0] && !encoder_pins_last_state[0];
-	// bool B_rising = state[1] && !encoder_pins_last_state[1];
-
-	bool A_falling = !state[0] && encoder_pins_last_state[0];
-	// bool B_falling = !state[1] && encoder_pins_last_state[1];
-
-	if (/*A_rising  || B_rising ||*/ A_falling /* || B_falling*/) // dont need high precision, my encoder has feelable steps and 4 interrupts in each
-	{
-
-		bool dir = 0;
-
-		// if (A_rising && !state[1])
-		// {
-		// 	dir = !dir;
-		// 	// else do nothing
-		// }
-		/*else */ if (/* A_falling && */ state[1])
-		{
-			dir = !dir;
-			// else do nothing
-		}
-		// if (B_rising && state[0])
-		// {
-		// 	dir = !dir;
-		// 	// else do nothing
-		// }
-		// else if (B_falling && !state[0])
-		// {
-		// 	dir = !dir;
-		// 	// else do nothing
-		// }
-
-		// std::cout << "state: " << state[0] << state[1];
-		// std::cout << ", dir: " << dir << std::endl;
-
-		encoder_pos += (dir ? 1 : -1);
-	}
-	encoder_pins_last_state[0] = state[0];
-	encoder_pins_last_state[1] = state[1];
-}
+void clear_encoder_btn_pressed(bool set = 0);
+void set_encoder_pos(int16_t set);

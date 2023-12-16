@@ -10,14 +10,7 @@
 
 #include "soft_lcd.h"
 
-#define DEBUG
-
-constexpr uint8_t ENCODER_PINS[2] = {25, 27};
-constexpr uint8_t ENCODER_BUTTON_PIN = 23;
 #include "encoder.hpp"
-
-constexpr uint8_t SCREEN_HEIGHT = 4;
-constexpr uint8_t SCREEN_WIDTH = 20;
 #include "menu.hpp"
 
 int main()
@@ -62,108 +55,108 @@ int main()
     lcd_create_char(lcd, INVERTED_SPACE_CHAR_NUM, inverted_space_char);
     lcd_create_char(lcd, INVERTED_POINTER_CHAR_NUM, inverted_pointer_char);
 
-    const menu_option root = {
+    menu_option root = {
         .nested_menu_options = {
             {
-                .name = const_cast<char *> "nest",
+                .name = const_cast<char *>(std::string("text").c_str()),
                 .style = NESTED_MENU,
                 .nested_menu_options = {
                     {
-                        .name = (char *)"text",
+                        .name = const_cast<char *>(std::string("text").c_str()),
                         .style = TEXT,
                     },
                     {
-                        .name = (char *)"text1",
+                        .name = const_cast<char *>(std::string("text1").c_str()),
                         .style = TEXT,
                     },
                     {
-                        .name = (char *)"text2",
+                        .name = const_cast<char *>(std::string("text2").c_str()),
                         .style = TEXT,
                     },
                     {
-                        .name = (char *)"text3",
+                        .name = const_cast<char *>(std::string("text3").c_str()),
                         .style = TEXT,
                     },
                     {
-                        .name = (char *)"func",
+                        .name = const_cast<char *>(std::string("func").c_str()),
                         .style = FUNCTION,
                         .function = *print_test,
                     },
                 },
             },
             {
-                .name = (char *)"text",
+                .name = const_cast<char *>(std::string("text").c_str()),
                 .style = TEXT,
             },
             {
-                .name = (char *)"brightness",
+                .name = const_cast<char *>(std::string("brightness").c_str()),
                 .style = VALUE,
                 .value = {50, 0, 100},
             },
             {
-                .name = (char *)"val2",
+                .name = const_cast<char *>(std::string("val2").c_str()),
                 .style = VALUE,
                 .value = {50, INT16_MIN, INT16_MAX},
             },
             {
-                .name = (char *)"value3",
+                .name = const_cast<char *>(std::string("value3").c_str()),
                 .style = VALUE,
                 .value = {4000, INT16_MIN, INT16_MAX},
             },
             {
-                .name = (char *)"value4",
+                .name = const_cast<char *>(std::string("value4").c_str()),
                 .style = VALUE,
                 .value = {12345, INT16_MIN, INT16_MAX},
             },
             {
-                .name = (char *)"func",
+                .name = const_cast<char *>(std::string("func").c_str()),
                 .style = FUNCTION,
                 .function = *print_test,
             },
             {
-                .name = (char *)"select",
+                .name = const_cast<char *>(std::string("select").c_str()),
                 .style = SELECTION,
                 .nested_menu_options = {
                     {
-                        .name = (char *)"option1",
+                        .name = const_cast<char *>(std::string("option1").c_str()),
                         .style = TEXT,
                     },
                     {
-                        .name = (char *)"option2",
+                        .name = const_cast<char *>(std::string("option2").c_str()),
                         .style = TEXT,
                     },
                     {
-                        .name = (char *)"option3",
+                        .name = const_cast<char *>(std::string("option3").c_str()),
                         .style = TEXT,
                     },
                     {
-                        .name = (char *)"option4",
+                        .name = const_cast<char *>(std::string("option4").c_str()),
                         .style = TEXT,
                     },
                     {
-                        .name = (char *)"option5", // FIXME: segfault when less than 4 options
+                        .name = const_cast<char *>(std::string("option5").c_str()), // FIXME: segfault when less than 4 option
                         .style = TEXT,
                     },
                 },
             },
             {
-                .name = (char *)"text1 je hustej",
+                .name = const_cast<char *>(std::string("text1 je hustej").c_str()),
                 .style = TEXT,
             },
             {
-                .name = (char *)"text2 neni ani trochu",
+                .name = const_cast<char *>(std::string("text2 neni ani trochu").c_str()),
                 .style = TEXT,
             },
             {
-                .name = (char *)"text3 mozna malinko je",
+                .name = const_cast<char *>(std::string("text3 mozna malinko je").c_str()),
                 .style = TEXT,
             },
             {
-                .name = (char *)"text4 skoro jako tvoje mama",
+                .name = const_cast<char *>(std::string("text4 skoro jako tvoje mama").c_str()),
                 .style = TEXT,
             },
             {
-                .name = (char *)"text5 zkratka",
+                .name = const_cast<char *>(std::string("text5 zkratka").c_str()),
                 .style = TEXT,
             },
         }};
@@ -174,7 +167,7 @@ int main()
     if (mkfifo("/tmp/laser_projector.fifo", S_IRWXU) != 0) 
         perror("mkfifo() error");
 
-    menu_interact(lcd, &root, true);
+    menu_interact(lcd, root, true);
     while (true)
     {
         // interact with user via OLED LCD and a rotary encoder
