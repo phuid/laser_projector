@@ -116,7 +116,7 @@ enum menu_option_style
   FUNCTION,
   TEXT,
   ROOT_MENU,
-  UNDEFINED // TODO: check for undef
+  UNDEFINED //TODO: check for undef
 };
 
 struct menu_option
@@ -146,11 +146,11 @@ std::string dbg_nests = "";
 #endif
 
 // return 1 if back out of nest (pressed back option)
-bool menu_interact(lcd_t *lcd, encoder& enc, menu_option &parent_menu_option, bool redraw = 0) // TODO: reference misto pointeru
+bool menu_interact(lcd_t *lcd, menu_option &parent_menu_option, bool redraw = 0) // TODO: reference misto pointeru
 {
-  std::vector<menu_option> &menu = parent_menu_option.nested_menu_options;
-  uint8_t &menu_selected = parent_menu_option.nest_selected;
-  uint8_t &menu_scroll = parent_menu_option.nest_scroll;
+std::vector<menu_option> &menu = parent_menu_option.nested_menu_options;
+uint8_t &menu_selected = parent_menu_option.nest_selected;
+uint8_t &menu_scroll = parent_menu_option.nest_scroll;
 
 #ifdef DEBUG
   if (redraw)
@@ -184,7 +184,7 @@ bool menu_interact(lcd_t *lcd, encoder& enc, menu_option &parent_menu_option, bo
       if (menu_interact(lcd, menu[menu_selected], redraw))
       {
         parent_menu_option.nest_option_active = 0;
-        menu_interact(lcd, enc, parent_menu_option, true); // redraw
+        menu_interact(lcd, parent_menu_option, true); // redraw
       }
       break;
 
@@ -319,7 +319,7 @@ bool menu_interact(lcd_t *lcd, encoder& enc, menu_option &parent_menu_option, bo
 #endif
               parent_menu_option.nest_option_active = 1;
               lcd_clear(lcd);
-              menu_interact(lcd, enc, parent_menu_option, true); // redraw
+              menu_interact(lcd, parent_menu_option, true); // redraw
 #ifdef DEBUG
               std::cout << "j" << std::endl;
 #endif
@@ -329,7 +329,7 @@ bool menu_interact(lcd_t *lcd, encoder& enc, menu_option &parent_menu_option, bo
             case FUNCTION:
               // TODO: handle function menu actions
               menu[menu_selected].function();
-              menu_interact(lcd, enc, parent_menu_option, true); // redraw
+              menu_interact(lcd, parent_menu_option, true); // redraw
               break;
 
             default:

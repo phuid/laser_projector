@@ -39,19 +39,17 @@ int main()
 
     lcd_init(lcd);
 
-    pinMode(ENCODER_PINS[0], INPUT);
-    pinMode(ENCODER_PINS[1], INPUT);
-    pinMode(ENCODER_BUTTON_PIN, INPUT);
+    pinMode(encoder_pins[0], INPUT);
+    pinMode(encoder_pins[1], INPUT);
+    pinMode(encoder_button_pin, INPUT);
 
-    pullUpDnControl(ENCODER_PINS[0], PUD_UP);
-    pullUpDnControl(ENCODER_PINS[1], PUD_UP);
-    pullUpDnControl(ENCODER_BUTTON_PIN, PUD_UP);
-    
-    encoder enc(ENCODER_PINS[0], ENCODER_PINS[1], ENCODER_BUTTON_PIN);
+    pullUpDnControl(encoder_pins[0], PUD_UP);
+    pullUpDnControl(encoder_pins[1], PUD_UP);
+    pullUpDnControl(encoder_button_pin, PUD_UP);
 
-    wiringPiISR(ENCODER_PINS[0], INT_EDGE_BOTH, *enc.handle_enc_interrupts(enc));
-    wiringPiISR(ENCODER_PINS[1], INT_EDGE_BOTH, *enc.handle_enc_interrupts(enc));
-    wiringPiISR(ENCODER_BUTTON_PIN, INT_EDGE_BOTH, *enc.handle_enc_btn_interrupts(enc));
+    wiringPiISR(encoder_pins[0], INT_EDGE_BOTH, *handle_enc_interrupts);
+    wiringPiISR(encoder_pins[1], INT_EDGE_BOTH, *handle_enc_interrupts);
+    wiringPiISR(encoder_button_pin, INT_EDGE_BOTH, *handle_enc_btn_interrupts);
 
     lcd_create_char(lcd, PARENT_CHAR_NUM, parent_char);
     lcd_create_char(lcd, INVERTED_SPACE_CHAR_NUM, inverted_space_char);
@@ -173,7 +171,7 @@ int main()
     while (true)
     {
         // interact with user via OLED LCD and a rotary encoder
-        menu_interact(lcd, enc, root);
+        menu_interact(lcd, root);
         lcd_backlight_dim(lcd, (float)brightness_val / 100.f);
 
         // read instruction(s) from other runtimes
