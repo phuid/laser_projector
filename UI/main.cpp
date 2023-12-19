@@ -58,7 +58,7 @@ int main()
     menu_option root = {
         .nested_menu_options = {
             {
-                .name = const_cast<char *>(std::string("text").c_str()),
+                .name = const_cast<char *>(std::string("nest").c_str()),
                 .style = NESTED_MENU,
                 .nested_menu_options = {
                     {

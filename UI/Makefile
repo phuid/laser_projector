@@ -9,11 +9,11 @@ all: main
 main: $(SRCS) $(HEAD) main.cpp
 	g++ $(CFLAGS) $(SRCS) $(LIBS) -o build/UI main.cpp
 
-&run: $(SRCS) $(HEAD) main.cpp
-	g++ $(CFLAGS) $(SRCS) $(LIBS) -o build/UI main.cpp && sudo ./UI
+nrun: main
+	sudo ./build/UI
 
 run: $(SRCS) $(HEAD) main.cpp
-	sudo ./UI
+	sudo ./build/UI
 
 clean:
 	rm UI

@@ -294,8 +294,8 @@ uint8_t &menu_scroll = parent_menu_option.nest_scroll;
         else if (parent_menu_option.style == SELECTION)
         {
           parent_menu_option.value.num = (int16_t)menu_selected;
-          return 1;
           menu_selected -= 1; // account for back button in menu again (bare value can be used when pointing to children) //FIXME: this was behind the return - wouldn't run
+          return 1; //FIXME: temporary solution for crash, actual problem is somewhere in scroll calculation / drawing trying to view empty slots
         }
 
         else
