@@ -21,12 +21,14 @@
 ### sw
 
 #### lasershow
+- takes socket commands
 - min: project ild file on exec()
 
 #### UI
 - file select from dir
   - future: fs tree
 - start and stop lasershow file projection
+- wifi_manager comm
 
 #### web_ui
 - ssh console
@@ -35,6 +37,10 @@
 
 #### discord_bot
 idk whatever there is time for
+
+#### wifi_manager
+- takes socket commands
+- AP / wifi / wifi_off
 
 #### communication
 ##### lasershow <- pipe
