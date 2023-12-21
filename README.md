@@ -1,5 +1,10 @@
 # RaspberryPi laser projector
 
+## install
+TODO: add sources to install script
+[zeromq install](https://github.com/MonsieurV/ZeroMQ-RPi)
+
+
 
 ## how it works
 

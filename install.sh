@@ -368,6 +368,40 @@ else
     echo -e "dtparam=spi=on" | sudo tee -a "$loc"
 fi
 
+#TODO: userauth isntalling zeromq
+echo -e "${On_IWhite}##${Color_Off} ${UWhite}installing${Color_Off} ZeroMQ library ${On_IWhite}##${Color_Off}"
+
+sudo apt-get install cmake -y
+
+cd ~
+
+# https://gist.github.com/steinwaywhw/a4cd19cda655b8249d908261a62687f8 (onliner do download latest release)
+# libzmq
+url=$(curl -s https://api.github.com/repos/zeromq/libzmq/releases/latest | grep "browser_download_url.*tar.gz" | cut -d : -f 2,3 | tr -d \")
+wget $url -O - | tar -zxvf -
+foldername="zeromq-${url#*zeromq-}"
+foldername="${foldername%.tar.gz}"
+(cd $foldername 
+mkdir build
+cd build
+cmake ..
+sudo make -j4 install
+)
+# cppzmq
+version=$(curl -s https://api.github.com/repos/zeromq/cppzmq/releases/latest | grep "\"tag_name\": \"v*" | cut -d : -f 2,3 | tr -d \")
+version=${version:2:-1}
+url="https://github.com/zeromq/cppzmq/archive/refs/tags/v${version}.tar.gz"
+wget $url -O - | tar -zxvf -
+foldername="cppzmq-${version}"
+cd $foldername
+(cd $foldername 
+mkdir build
+cd build
+cmake ..
+sudo make -j4 install
+)
+
+
 echo -e "${On_IWhite}##${Color_Off} ${UWhite}compiling${Color_Off} lasershow executable... ${On_IWhite}##${Color_Off}"
 echo -e "${On_IBlack}++${Color_Off} (cd rpi-lasershow && make) ${On_IBlack}++${Color_Off}"
 # TODO: copy exec to root folder
