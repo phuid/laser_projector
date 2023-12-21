@@ -18,45 +18,8 @@ using namespace std;
 
 void onInterrupt(int);
 
-int main(int argc, char **argv)
+int lasershow_init(int pointDelay, string fileName)
 {
-
-    // Validate arguments.
-    if (argc < 3)
-    {
-        cout << "ERROR: Arguments missing." << endl;
-        cout << "Required: [pointDelay] [fileName]" << endl;
-        return 1;
-    }
-
-    // kill previous instance
-    ifstream pid_in("/tmp/lasershow.pid");
-    if (!pid_in.is_open())
-    {
-        cerr << "failed to open pid file /tmp/lasershow.pid for reading" << endl;
-        cout << "continuing without killing previous instance" << endl;
-    }
-    else
-    {
-        string pidstr;
-        getline(pid_in, pidstr);
-        pid_in.close();
-        kill(stoi(pidstr), SIGINT);
-    }
-
-    ofstream pid_out("/tmp/lasershow.pid");
-    if (!pid_out.is_open())
-    {
-        cerr << "failed to open pid file /tmp/lasershow.pid for writing" << endl;
-        exit(1);
-    }
-    int pid = getpid();
-    pid_out << pid << std::endl;
-    pid_out.close();
-
-    // Read arguments.
-    int pointDelay = atoi(argv[1]);
-    string fileName = argv[2];
     double frameDuration = 0.033; // ~30fps (1/30=0.033..).
 
     // Setup hardware communication stuff.
