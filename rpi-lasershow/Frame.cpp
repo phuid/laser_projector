@@ -3,6 +3,7 @@
 #include "Points.h"
 
 #include <fstream>
+#include <stdio.h>
 using namespace std;
 
 // Format spec: https://www.ilda.com/resources/StandardsDocs/ILDA_IDTF14_rev011.pdf
@@ -20,12 +21,13 @@ bool Frame::getNext(std::ifstream& file, Points* points) {
     file.seekg(0, file.end);
     int fileSize = file.tellg();
     file.seekg(position);
+    printf("position \t%d of \t%d\n", position, fileSize);
 
     // End of file...
     if (fileSize - (position + Frame::NUMBER_OF_HEADER_BYTES) < Frame::NUMBER_OF_HEADER_BYTES + FrameData::NUMBER_OF_DATA_BYTES) {
-        // return false to nofity end of file but jump to begining of the file in case we will loop the file again. 
+        // return 1 to nofity end of file but jump to begining of the file in case we will loop the file again. 
         file.seekg(0);
-        return false;
+        return 1;
     }
 
     // Skip header data.
@@ -56,8 +58,8 @@ bool Frame::getNext(std::ifstream& file, Points* points) {
     // Read next if current not last.
     } while (!isLastPoint(bytes));
 
-    // true = no more points in current frame to read.
-    return true;
+    // success = no more points in current frame to read.
+    return 0;
 }
 
 // Get the last-point-bit-flag from status byte x.

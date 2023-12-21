@@ -1,3 +1,4 @@
+#pragma once
 #include "Points.h"
 
 #include <fstream>

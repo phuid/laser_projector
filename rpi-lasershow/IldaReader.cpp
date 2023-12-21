@@ -15,6 +15,7 @@ bool IldaReader::readFile(string fileName) {
     if (!this->file) {
         return false;
     }
+    this->file.seekg(0);
 
     // Read first 32 header bytes from the file and check if the first 4 bytes in ASCII are "ILDA".
     return checkHeader();

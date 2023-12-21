@@ -9,8 +9,8 @@ CFLAGS  = -Wall
 # the build target executable:
 TARGET = build/lasershow
 
-SRCS = lasershow.cpp mcp4822.c IldaReader.cpp Frame.cpp FrameData.cpp Points.cpp
-LIBS = -lwiringPi
+SRCS = main.cpp lasershow.cpp mcp4822.c IldaReader.cpp Frame.cpp FrameData.cpp Points.cpp
+LIBS = -lwiringPi -lzmq
 
 all: main
 

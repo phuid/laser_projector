@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Points.h"
 
 #include <string>

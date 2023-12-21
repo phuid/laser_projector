@@ -13,15 +13,14 @@
 #include "mcp4822.h"
 #include "Points.h"
 #include "IldaReader.h"
+#include "lasershow.hpp"
 
 using namespace std;
 
-void onInterrupt(int);
+void lasershow_cleanup(int);
 
-int lasershow_init(int pointDelay, string fileName)
+int lasershow_init(string fileName, Points &points, IldaReader &ildaReader, std::chrono::time_point<std::chrono::system_clock> &start)
 {
-    double frameDuration = 0.033; // ~30fps (1/30=0.033..).
-
     // Setup hardware communication stuff.
     wiringPiSetup();
     pinMode(0, OUTPUT);
@@ -32,9 +31,6 @@ int lasershow_init(int pointDelay, string fileName)
         return -1;
     }
 
-    // Setup ILDA reader.
-    Points points;
-    IldaReader ildaReader;
     if (ildaReader.readFile(fileName))
     {
         printf("Provided file is a valid ILDA file.\n\r");
@@ -48,19 +44,27 @@ int lasershow_init(int pointDelay, string fileName)
     }
 
     // Subscribe program to exit/interrupt signal.
-    signal(SIGINT, onInterrupt);
+    signal(SIGINT, lasershow_cleanup);
 
     // Start the scanner loop with the current time.
-    std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
-    while (true)
-    {
-        // Exit if no points found.
-        if (points.size == 0)
-            break;
+    start = std::chrono::system_clock::now();
 
-        // Move galvos to x,y position. (4096 is to invert horizontally)
-        mcp4822_set_voltage(MCP_4822_CHANNEL_A, points.store[points.index * 3]);
-        mcp4822_set_voltage(MCP_4822_CHANNEL_B, 4096 - points.store[(points.index * 3) + 1]);
+    return 0;
+}
+
+// return 1 == break;
+bool lasershow_loop(Points &points, IldaReader &ildaReader, std::chrono::time_point<std::chrono::system_clock> &start, int pointDelay, double frameDuration)
+{
+    // In case there's no more points in the current frame check if it's time to load next frame.
+    while (points.next())
+    {
+        // // Exit if no points found.
+        // if (points.size == 0)
+        //     return 1;
+
+        // Move galvos to x,y position.
+        mcp4822_set_voltage(MCP_4822_CHANNEL_A, 4096 - points.store[points.index * 3]);
+        mcp4822_set_voltage(MCP_4822_CHANNEL_B, points.store[(points.index * 3) + 1]);
 
         // Turn on/off laser diode.
         if (points.store[(points.index * 3) + 2] == 1)
@@ -71,32 +75,24 @@ int lasershow_init(int pointDelay, string fileName)
         // Maybe wait a while there.
         if (pointDelay > 0)
             usleep(pointDelay);
-
-        // In case there's no more points in the current frame check if it's time to load next frame.
-        if (!points.next())
-        {
-            std::chrono::duration<double> elapsedSeconds = std::chrono::system_clock::now() - start;
-            if (elapsedSeconds.count() > frameDuration)
-            {
-                start = std::chrono::system_clock::now();
-                digitalWrite(0, LOW);
-                ildaReader.getNextFrame(&points);
-            }
-        }
     }
-
-    // Cleanup and exit.
-    ildaReader.closeFile();
-    mcp4822_deinitialize();
-    return (0);
+    std::chrono::duration<double> elapsedSeconds = std::chrono::system_clock::now() - start;
+    if (elapsedSeconds.count() > frameDuration)
+    {
+        start = std::chrono::system_clock::now();
+        digitalWrite(0, LOW);
+        if (ildaReader.getNextFrame(&points))
+            return 1;
+    }
+    return 0;
 }
 
 // Function that is called when program needs to be terminated.
-void onInterrupt(int)
+void lasershow_cleanup(int)
 {
     printf("Turn off laser diode.\n\r");
     digitalWrite(0, LOW);
     mcp4822_deinitialize();
-    printf("Program was interrupted.\n\r");
+    printf("lasershow cleanup done.\n\r");
     exit(1);
 }
