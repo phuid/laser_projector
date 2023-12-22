@@ -25,21 +25,49 @@ int main()
   IldaReader ildaReader;
   std::chrono::time_point<std::chrono::system_clock> start;
 
+  zmq::message_t received;
+
+  bool repeat = 1;
+
   while (true)
   {
-    // if (got_something_to_project?)
-    if (!lasershow_init("../ild/clock.ild", points, ildaReader, start))
+    bool current_repeat = repeat;
+    std::string current_filename = "";
+
+    command_receiver.recv(received, zmq::recv_flags::none);
+    std::string received_string = received.to_string();
+    if (received_string.rfind("PROJECT:", 0) == 0)
     {
-      while (!lasershow_loop(points, ildaReader, start))
-      {
-        // maybe receive messages here, then youd need atleast the ildareader(filename) here in main..
-      }
-      ildaReader.closeFile();
-      lasershow_cleanup(0);
+      current_filename = received_string.substr(8);
     }
     else
     {
-      std::cout << "failed to init lasershow" << std::endl;
+      std::cout << "invalid command : \"" << received_string << "\"" << std::endl;
+      continue;
+    }
+
+    while (current_repeat)
+    {
+      int init_val = lasershow_init(current_filename, points, ildaReader, start);
+      if (!init_val)
+      {
+        while (!lasershow_loop(points, ildaReader, start))
+        {
+          // maybe receive messages here, then youd need atleast the ildareader(filename) here in main..
+          // - no,, just exit the loop lol
+          // command_receiver.recv(received, zmq::recv_flags::dontwait);
+          // if (received.to_string().length() > 0) // or some other message_t function
+        }
+        ildaReader.closeFile();
+        lasershow_cleanup(0);
+      }
+      else
+      {
+        std::cout << "failed to init lasershow" << std::endl;
+        ildaReader.closeFile();
+        lasershow_cleanup(0);
+        current_repeat = 0;
+      }
     }
   }
 }

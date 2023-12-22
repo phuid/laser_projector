@@ -39,7 +39,7 @@ int lasershow_init(string fileName, Points &points, IldaReader &ildaReader, std:
     }
     else
     {
-        printf("Error opening ILDA file.\n\r");
+        printf("Error opening ILDA file.\n\rfilename: %s", fileName.c_str());
         return (1);
     }
 
@@ -58,9 +58,9 @@ bool lasershow_loop(Points &points, IldaReader &ildaReader, std::chrono::time_po
     // In case there's no more points in the current frame check if it's time to load next frame.
     while (points.next())
     {
-        // // Exit if no points found.
-        // if (points.size == 0)
-        //     return 1;
+        // Exit if no points found.
+        if (points.size == 0)
+            break;
 
         // Move galvos to x,y position.
         mcp4822_set_voltage(MCP_4822_CHANNEL_A, 4096 - points.store[points.index * 3]);
@@ -75,14 +75,15 @@ bool lasershow_loop(Points &points, IldaReader &ildaReader, std::chrono::time_po
         // Maybe wait a while there.
         if (pointDelay > 0)
             usleep(pointDelay);
-    }
-    std::chrono::duration<double> elapsedSeconds = std::chrono::system_clock::now() - start;
-    if (elapsedSeconds.count() > frameDuration)
-    {
-        start = std::chrono::system_clock::now();
-        digitalWrite(0, LOW);
-        if (ildaReader.getNextFrame(&points))
-            return 1;
+        if (frameDuration < static_cast<std::chrono::duration<double>>(std::chrono::system_clock::now() - start).count())
+        {
+            start = std::chrono::system_clock::now();
+            digitalWrite(0, LOW);
+            if (ildaReader.getNextFrame(&points))
+            {
+                return 1;
+            }
+        }
     }
     return 0;
 }
