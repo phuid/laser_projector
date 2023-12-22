@@ -2,7 +2,6 @@
 
 #include <wiringPi.h>
 #include <stdint.h>
-#include <stdbool.h> //TODO: lol why include stdbool in c++?  
 #include "config.hpp"
 
 const uint8_t encoder_pins[2] = {ENCODER_PINS[0], ENCODER_PINS[1]};

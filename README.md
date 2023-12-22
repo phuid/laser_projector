@@ -57,15 +57,16 @@ command format
 
 ###### basic commands:
 any process can send a command into the socket and all processes will read responses from lasershow executable
-- `project` args: `<filename>`
+- `PROJECT` args: `<filename>`
   - `<filename>` must have extension `.ild`<!-- or `.lpc`(laserprojector_custom) --> otherwise error `INVALID_ARG`
-- `stop` (no args)
-- `game` args: `<game_name>`
+- `STOP` (no args)
+- `GAME` args: `<game_name>`
   - `game_name` is any of the following ``//TODO: game names
-- `press` (no args), only handled if game is running
-- `release` (no args), only handled if game is running
-- `option` args: `<option_name>` `<mode>` `<value>`
+- `PRESS` (no args), only handled if game is running
+- `RELEASE` (no args), only handled if game is running
+- `OPTION` args: `<mode>` `<option_name>` `<value>`
   - `mode`: any of `write`/`read`/`reset`
+  - `option_name`: any of `pointDelay`/`targetFrameTime`/`repeat`/...<!-- TODO: options -->
   - `value` only read when using `write` parameter, message won't be processed and `INVALID_CMD` error will be set back through the socket if other modes are used and value is specified
 
 ###### responses:
@@ -78,4 +79,4 @@ responses immediately on command reception
     - `ENOENT`: file doesn't exist
     - `INVALID_CMD`: probably typo in a command
   - `details`: if error type supports it, details will be included
-- `SUCCESS`: returned if command was parsed correctly, lasershow will begin projecting
+- `SUCCESS`: returned if command was parsed correctly, lasershow will execute it

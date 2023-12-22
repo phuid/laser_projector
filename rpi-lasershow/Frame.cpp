@@ -23,12 +23,15 @@ bool Frame::getNext(std::ifstream &file, Points *points)
     int fileSize = file.tellg();
     file.seekg(position);
     printf("position \t%d of \t%d\n", position, fileSize);
+    // TODO: zmq send pos
 
     // End of file...
-    if (fileSize - (position + Frame::NUMBER_OF_HEADER_BYTES) < Frame::NUMBER_OF_HEADER_BYTES + FrameData::NUMBER_OF_DATA_BYTES)
+    if (static_cast<unsigned>(fileSize) < Frame::NUMBER_OF_HEADER_BYTES + FrameData::NUMBER_OF_DATA_BYTES + position + Frame::NUMBER_OF_HEADER_BYTES)
     {
         // return 1 to nofity end of file but jump to begining of the file in case we will loop the file again.
         file.seekg(0);
+        //TODO: zmq send stop
+        printf("end of file reached\n\r");
         return 1;
     }
 
@@ -58,7 +61,7 @@ bool Frame::getNext(std::ifstream &file, Points *points)
         {
             // TODO: zmq send error
             file.seekg(0);
-            printf("ERROR: max points reached");
+            printf("ERROR: max points reached\n\r");
             return 1;
         }
 

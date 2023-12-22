@@ -10,26 +10,39 @@
 #include <string>
 #include <chrono>
 #include <wiringPi.h>
-#include "mcp4822.h"
+#include "ABE_ADCDACPi.h"
 #include "Points.h"
 #include "IldaReader.h"
 #include "lasershow.hpp"
 
 using namespace std;
 
-void lasershow_cleanup(int);
+void lasershow_cleanup(int sig);
 
-int lasershow_init(string fileName, Points &points, IldaReader &ildaReader, std::chrono::time_point<std::chrono::system_clock> &start)
+constexpr uint8_t laser_pins[3] = {0, 2, 3};
+static uint8_t pin_index = 0;
+
+static ABElectronics_CPP_Libraries::ADCDACPi adcdac;
+static IldaReader ildaReader;
+static Points points;
+static std::chrono::time_point<std::chrono::system_clock> start;
+
+int lasershow_init(string fileName)
 {
     // Setup hardware communication stuff.
     wiringPiSetup();
-    pinMode(0, OUTPUT);
 
-    if (!mcp4822_initialize())
+    for (size_t i = 0; i < 3; i++)
+    {
+        pinMode(laser_pins[i], OUTPUT); // laser
+    }
+
+    if (adcdac.open_dac() == -1)
     {
         printf("Failed to initialize MCP4822.\n\r");
         return -1;
     }
+    adcdac.set_dac_gain(2);
 
     if (ildaReader.readFile(fileName))
     {
@@ -53,35 +66,43 @@ int lasershow_init(string fileName, Points &points, IldaReader &ildaReader, std:
 }
 
 // return 1 == break;
-bool lasershow_loop(Points &points, IldaReader &ildaReader, std::chrono::time_point<std::chrono::system_clock> &start, int pointDelay, double frameDuration)
+bool lasershow_loop(int pointDelay, double frameDuration)
 {
     // In case there's no more points in the current frame check if it's time to load next frame.
     while (points.next())
     {
         // Exit if no points found.
-        if (points.size == 0)
-            break;
-
-        // Move galvos to x,y position.
-        mcp4822_set_voltage(MCP_4822_CHANNEL_A, 4096 - points.store[points.index * 3]);
-        mcp4822_set_voltage(MCP_4822_CHANNEL_B, points.store[(points.index * 3) + 1]);
-
-        // Turn on/off laser diode.
-        if (points.store[(points.index * 3) + 2] == 1)
-            digitalWrite(0, HIGH);
-        else
-            digitalWrite(0, LOW);
-
-        // Maybe wait a while there.
-        if (pointDelay > 0)
-            usleep(pointDelay);
-        if (frameDuration < static_cast<std::chrono::duration<double>>(std::chrono::system_clock::now() - start).count())
+        if (points.size != 0)
         {
-            start = std::chrono::system_clock::now();
-            digitalWrite(0, LOW);
-            if (ildaReader.getNextFrame(&points))
+            // Move galvos to x,y position.
+            adcdac.set_dac_raw(4096 - points.store[points.index * 3], 1);
+            adcdac.set_dac_raw(points.store[(points.index * 3) + 1], 2);
+
+            // Turn on/off laser diode.
+            if (points.store[(points.index * 3) + 2] == 1)
             {
-                return 1;
+                digitalWrite(laser_pins[pin_index], 0);
+                digitalWrite(laser_pins[++pin_index % 3], 1);
+                pin_index = pin_index % 3;
+                // printf("pin: %u", laser_pins[pin_index]);
+            }
+            else
+                digitalWrite(laser_pins[pin_index], 0);
+
+            // Maybe wait a while there.
+            if (pointDelay > 0)
+                usleep(pointDelay);
+            if (frameDuration < static_cast<std::chrono::duration<double>>(std::chrono::system_clock::now() - start).count())
+            {
+                start = std::chrono::system_clock::now();
+                for (size_t i = 0; i < 3; i++)
+                {
+                    digitalWrite(laser_pins[i], 0);
+                }
+                if (ildaReader.getNextFrame(&points))
+                {
+                    return 1;
+                }
             }
         }
     }
@@ -89,11 +110,18 @@ bool lasershow_loop(Points &points, IldaReader &ildaReader, std::chrono::time_po
 }
 
 // Function that is called when program needs to be terminated.
-void lasershow_cleanup(int)
+void lasershow_cleanup(int sig)
 {
     printf("Turn off laser diode.\n\r");
-    digitalWrite(0, LOW);
-    mcp4822_deinitialize();
+    for (size_t i = 0; i < 3; i++)
+    {
+        digitalWrite(laser_pins[i], 0);
+    }
+    adcdac.close_dac();
+    ildaReader.closeFile();
     printf("lasershow cleanup done.\n\r");
-    exit(1);
+    if (sig != 0) {
+        printf("stopped on interrupt\n\r");
+        exit(1);
+    }
 }

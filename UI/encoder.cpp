@@ -13,7 +13,7 @@ void handle_enc_btn_interrupts()
 	last_interrupt = interrupt_time;
 }
 
-static int16_t encoder_pos = 0; // TODO: static in .cpp
+static int16_t encoder_pos = 0;
 
 void handle_enc_interrupts() // TODO: rewrite, register less interrupts
 {
