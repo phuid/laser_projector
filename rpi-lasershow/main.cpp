@@ -65,7 +65,7 @@ Command::Command(std::string string)
       this->args.push_back(string.substr(init_pos, space_pos - init_pos));
       init_pos = space_pos + 1;
 
-      space_pos = string.find(" ");
+      space_pos = string.find(" ", init_pos);
     }
     this->args.push_back(string.substr(init_pos, std::min(space_pos, string.size()) - init_pos + 1));
   }
@@ -104,16 +104,21 @@ int main()
 
     command_receiver.recv(received, zmq::recv_flags::none);
     std::string received_string = received.to_string();
-    std::cout << "received_string: " << received_string << std::endl;
     Command command(received_string);
-    if (command.type == PROJECT)
+    if (command.type == PROJECT && command.args.size() > 0)
     {
-      current_filename = received_string.substr(8);
+      current_filename = command.args[0];
     }
-    else
+    else if (command.type == INVALID_CMD)
     {
       std::cout << "invalid command: \"" << received_string << "\"" << std::endl;
       msg_to_send.rebuild("ERROR: INVALID_CMD \"" + received_string + "\"");
+      publisher.send(msg_to_send, zmq::send_flags::none);
+      continue;
+    }
+    else {
+      std::cout << "invalid args: \"" << received_string << "\"" << std::endl;
+      msg_to_send.rebuild("ERROR: INVALID_ARGS \"" + received_string + "\"");
       publisher.send(msg_to_send, zmq::send_flags::none);
       continue;
     }
