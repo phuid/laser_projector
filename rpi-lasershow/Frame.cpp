@@ -2,6 +2,10 @@
 #include "FrameData.h"
 #include "Points.h"
 
+#include <string>
+#include "zmq.hpp"
+#include "my_zmq_helper.hpp"
+
 #include <fstream>
 #include <stdio.h>
 using namespace std;
@@ -10,7 +14,7 @@ using namespace std;
 
 Frame::Frame() {}
 
-bool Frame::getNext(std::ifstream &file, Points *points)
+int Frame::getNext(zmq::socket_t &publisher, std::ifstream &file, Points *points)
 {
 
     FrameData data;
@@ -22,17 +26,19 @@ bool Frame::getNext(std::ifstream &file, Points *points)
     file.seekg(0, file.end);
     int fileSize = file.tellg();
     file.seekg(position);
+    
     printf("position \t%d of \t%d\n", position, fileSize);
-    // TODO: zmq send pos
+    publish_message(publisher, "INFO: POS " + to_string(position)+ " OF " + to_string(fileSize));
 
     // End of file...
     if (static_cast<unsigned>(fileSize) < Frame::NUMBER_OF_HEADER_BYTES + FrameData::NUMBER_OF_DATA_BYTES + position + Frame::NUMBER_OF_HEADER_BYTES)
     {
         // return 1 to nofity end of file but jump to begining of the file in case we will loop the file again.
         file.seekg(0);
-        //TODO: zmq send stop
+        // TODO: zmq send stop
         printf("end of file reached\n\r");
-        return 1;
+        publish_message(publisher, "INFO: end of file reached");
+        return 2;
     }
 
     // Skip header data.
@@ -62,6 +68,7 @@ bool Frame::getNext(std::ifstream &file, Points *points)
             // TODO: zmq send error
             file.seekg(0);
             printf("ERROR: max points reached\n\r");
+    publish_message(publisher, "ERROR: OTHER max points reached");
             return 1;
         }
 

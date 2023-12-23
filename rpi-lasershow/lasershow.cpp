@@ -15,6 +15,9 @@
 #include "IldaReader.h"
 #include "lasershow.hpp"
 
+#include "zmq.hpp"
+#include "my_zmq_helper.hpp"
+
 using namespace std;
 
 void lasershow_cleanup(int sig);
@@ -27,7 +30,7 @@ static IldaReader ildaReader;
 static Points points;
 static std::chrono::time_point<std::chrono::system_clock> start;
 
-int lasershow_init(string fileName)
+int lasershow_init(zmq::socket_t &publisher, string fileName)
 {
     // Setup hardware communication stuff.
     wiringPiSetup();
@@ -40,6 +43,7 @@ int lasershow_init(string fileName)
     if (adcdac.open_dac() == -1)
     {
         printf("Failed to initialize MCP4822.\n\r");
+        publish_message(publisher, "ERROR: OTHER MCP4822 init fail");
         return -1;
     }
     adcdac.set_dac_gain(2);
@@ -47,12 +51,14 @@ int lasershow_init(string fileName)
     if (ildaReader.readFile(fileName))
     {
         printf("Provided file is a valid ILDA file.\n\r");
-        ildaReader.getNextFrame(&points);
+        publish_message(publisher, "INFO: valid ILDA file");
+        ildaReader.getNextFrame(publisher, &points);
         printf("Points loaded in first frame: %d\n\r", points.size);
     }
     else
     {
         printf("Error opening ILDA file.\n\rfilename: %s", fileName.c_str());
+        publish_message(publisher, "ERR: EINVAL error opening ILDA filename: \"" + fileName + "\"");
         return (1);
     }
 
@@ -66,7 +72,7 @@ int lasershow_init(string fileName)
 }
 
 // return 1 == break;
-bool lasershow_loop(int pointDelay, double frameDuration)
+int lasershow_loop(zmq::socket_t &publisher, bool paused, int pointDelay, double frameDuration)
 {
     // In case there's no more points in the current frame check if it's time to load next frame.
     while (points.next())
@@ -76,7 +82,7 @@ bool lasershow_loop(int pointDelay, double frameDuration)
         {
             // Move galvos to x,y position.
             adcdac.set_dac_raw(4096 - points.store[points.index * 3], 1);
-            adcdac.set_dac_raw(points.store[(points.index * 3) + 1], 2);
+            adcdac.set_dac_raw(4096 - points.store[(points.index * 3) + 1], 2);
 
             // Turn on/off laser diode.
             if (points.store[(points.index * 3) + 2] == 1)
@@ -99,9 +105,17 @@ bool lasershow_loop(int pointDelay, double frameDuration)
                 {
                     digitalWrite(laser_pins[i], 0);
                 }
-                if (ildaReader.getNextFrame(&points))
+                if (paused)
                 {
-                    return 1;
+                    points.index = 0;
+                }
+                else
+                {
+                    int getnext_val = ildaReader.getNextFrame(publisher, &points);
+                    if (getnext_val)
+                    {
+                        return getnext_val;
+                    }
                 }
             }
         }
@@ -120,7 +134,8 @@ void lasershow_cleanup(int sig)
     adcdac.close_dac();
     ildaReader.closeFile();
     printf("lasershow cleanup done.\n\r");
-    if (sig != 0) {
+    if (sig != 0)
+    {
         printf("stopped on interrupt\n\r");
         exit(1);
     }

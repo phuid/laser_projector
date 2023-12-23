@@ -67,18 +67,21 @@ any process can send a command into the socket and all processes will read respo
 - `RELEASE` (no args), only handled if game is running
 - `OPTION` args: `<mode>` `<option_name>` `<value>`
   - `mode`: any of `write`/`read`/`reset`
-  - `option_name`: any of `pointDelay`/`targetFrameTime`/`repeat`/...<!-- TODO: options -->
+  - `option_name`: any of `point_delay`/`target_frame_time`/`repeat`/ `trapeziod_horizontal` / `trapeziod_vertical` /...<!-- TODO: options -->
   - `value` only read when using `write` parameter, message won't be processed and `INVALID_CMD` error will be set back through the socket if other modes are used and value is specified
 
 ###### responses:
 lasershow exec can write to the socket immediately after the command is received or at any moment during the execution
 responses immediately on command reception
-- `ERROR <e> <details>`:
+- `ERR: <e> <details>`:
   - `e`: any of the following; returned if received command couldn't be parsed correctly
     - `E2BIG`: too many arguments (option read/reset command probably includes value argument)
     - `EINVAL`: invalid argument (typo in argument or project filename probably has wrong extension)
     - `ENOENT`: file doesn't exist
     - `INVALID_CMD`: probably typo in a command
+    - `OTHER`
   - `details`: if error type supports it, details will be included
 - there is no success message
 
+messages can come at any moment:
+- `INFO: <details>`

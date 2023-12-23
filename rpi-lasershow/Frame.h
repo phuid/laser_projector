@@ -1,6 +1,9 @@
 #pragma once
 #include "Points.h"
 
+#include "zmq.hpp"
+#include "my_zmq_helper.hpp"
+
 #include <fstream>
 using namespace std;
 
@@ -10,7 +13,7 @@ class Frame {
 
     public:
         Frame();
-        bool getNext(std::ifstream& file, Points* points);
+        int getNext(zmq::socket_t &publisher, std::ifstream& file, Points* points);
 
     private:
         bool isLastPoint(char* bytes);

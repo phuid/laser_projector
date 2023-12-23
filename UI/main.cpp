@@ -174,30 +174,11 @@ int main()
         menu_interact(lcd, root);
         lcd_backlight_dim(lcd, (float)brightness_val / 100.f);
 
-        // read instruction(s) from other runtimes
-        // via FIFO
-        // else
-        // {
-        //     if ((rfd = open(fn, O_RDONLY | O_NONBLOCK)) < 0)
-        //         perror("open() error for read end");
-        //     else
-        //     {
-        //         if ((wfd = open(fn, O_WRONLY)) < 0)
-        //             perror("open() error for write end");
-        //         else
-        //         {
-        //             if (write(wfd, out, strlen(out) + 1) == -1)
-        //                 perror("write() error");
-        //             else if (read(rfd, in, sizeof(in)) == -1)
-        //                 perror("read() error");
-        //             else
-        //                 printf("read '%s' from the FIFO\n", in);
-        //             close(wfd);
-        //         }
-        //         close(rfd);
-        //     }
-        //     unlink(fn);
-        // }
+        // separate root menu element for drawing
+        // maybe some placeholders to be replaced in the definition
+        // .name = "%name%"
+        // 
+        // menu_interact(lcd, playing_root);
     }
 
     lcd_backlight_off(lcd);

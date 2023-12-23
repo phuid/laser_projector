@@ -42,10 +42,10 @@ bool IldaReader::checkHeader() {
     return true;
 }
 
-bool IldaReader::getNextFrame(Points* points) {
+int IldaReader::getNextFrame(zmq::socket_t &publisher, Points* points) {
     // Read all points from next frame.
     Frame frame;
-    return frame.getNext(this->file, points);
+    return frame.getNext(publisher, this->file, points);
 }
 
 void IldaReader::closeFile() {

@@ -16,8 +16,11 @@
 #include "Points.h"
 #include "IldaReader.h"
 
+#include "zmq.hpp"
+#include "my_zmq_helper.hpp"
+
 void lasershow_cleanup(int);
 
-int lasershow_init(string fileName);
+int lasershow_init(zmq::socket_t &publisher, string fileName);
 
-bool lasershow_loop(int pointDelay = 0, double frameDuration = 0.033);
+int lasershow_loop(zmq::socket_t &publisher, bool paused, int pointDelay = 0, double frameDuration = 0.033);
