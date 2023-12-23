@@ -72,7 +72,7 @@ int lasershow_init(zmq::socket_t &publisher, string fileName)
 }
 
 // return 1 == break;
-int lasershow_loop(zmq::socket_t &publisher, bool paused, int pointDelay, double frameDuration)
+int lasershow_loop(zmq::socket_t &publisher, options_struct options)
 {
     // In case there's no more points in the current frame check if it's time to load next frame.
     while (points.next())
@@ -81,8 +81,8 @@ int lasershow_loop(zmq::socket_t &publisher, bool paused, int pointDelay, double
         if (points.size != 0)
         {
             // Move galvos to x,y position.
-            adcdac.set_dac_raw(4096 - points.store[points.index * 3], 1);
-            adcdac.set_dac_raw(4096 - points.store[(points.index * 3) + 1], 2);
+            adcdac.set_dac_raw(((static_cast<float>(points.store[(points.index * 3) + 1]) / 32767.f) * options.trapezoid_vertical + 1.f) * points.store[points.index * 3], 1);
+            adcdac.set_dac_raw(((static_cast<float>(points.store[points.index * 3]) / 32767.f) * options.trapezoid_horizontal + 1.f) * points.store[(points.index * 3) + 1], 2);
 
             // Turn on/off laser diode.
             if (points.store[(points.index * 3) + 2] == 1)
@@ -96,16 +96,16 @@ int lasershow_loop(zmq::socket_t &publisher, bool paused, int pointDelay, double
                 digitalWrite(laser_pins[pin_index], 0);
 
             // Maybe wait a while there.
-            if (pointDelay > 0)
-                usleep(pointDelay);
-            if (frameDuration < static_cast<std::chrono::duration<double>>(std::chrono::system_clock::now() - start).count())
+            if (options.pointDelay > 0)
+                usleep(options.pointDelay);
+            if (options.targetFrameTime < std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start).count())
             {
                 start = std::chrono::system_clock::now();
                 for (size_t i = 0; i < 3; i++)
                 {
                     digitalWrite(laser_pins[i], 0);
                 }
-                if (paused)
+                if (options.paused)
                 {
                     points.index = 0;
                 }

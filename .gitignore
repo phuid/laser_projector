@@ -24,3 +24,5 @@ bin
 
 UI/build
 rpi-lasershow/build
+rpi-lasershow/bin
+rpi-lasershow/CMakeFiles

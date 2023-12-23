@@ -24,16 +24,6 @@ enum command_type
   INVALID_CMD
 };
 
-std::map<command_type, std::string> dict{
-    {PROJECT, "PROJECT"},
-    {STOP, "STOP"},
-    {PAUSE, "PAUSE"},
-    {GAME, "GAME"},
-    {PRESS, "PRESS"},
-    {RELEASE, "RELEASE"},
-    {OPTION, "OPTION"},
-};
-
 command_type find_key(std::map<command_type, std::string> dict, std::string value)
 {
   for (auto &i : dict)
@@ -46,23 +36,6 @@ command_type find_key(std::map<command_type, std::string> dict, std::string valu
   return INVALID_CMD;
 }
 
-struct options_struct
-{
-  bool repeat = 1;
-  int pointDelay = 0;
-  double targetFrameTime = 0.033;
-  int trapezoid_horizontal = 0;
-  int trapezoid_vertical = 0;
-
-  std::string project_filename;
-  bool paused = 0;
-
-  int loadFromFile(std::string filename)
-  {
-    return 1; // fail
-  }
-};
-
 class Command
 {
 public:
@@ -70,11 +43,11 @@ public:
   command_type type;
   std::vector<std::string> args;
 
-  void parse(std::string string);
+  void parse(const std::map<command_type, std::string> &command_dict, std::string string);
   int execute(std::string string, zmq::socket_t &publisher, options_struct &options);
 };
 
-void Command::parse(std::string string)
+void Command::parse(const std::map<command_type, std::string> &command_dict, std::string string)
 {
   args.clear();
   this->received_string = string;
@@ -89,7 +62,7 @@ void Command::parse(std::string string)
     string = string.substr(space_pos + 1);
   }
 
-  this->type = find_key(dict, first_word);
+  this->type = find_key(command_dict, first_word);
 
   if (space_pos != std::string::npos)
   {
@@ -116,7 +89,16 @@ void Command::parse(std::string string)
 
 int Command::execute(std::string string, zmq::socket_t &publisher, options_struct &options)
 {
-  this->parse(string);
+  std::map<command_type, std::string> command_dict{
+      {PROJECT, "PROJECT"},
+      {STOP, "STOP"},
+      {PAUSE, "PAUSE"},
+      {GAME, "GAME"},
+      {PRESS, "PRESS"},
+      {RELEASE, "RELEASE"},
+      {OPTION, "OPTION"},
+  };
+  this->parse(command_dict, string);
 
   zmq::message_t msg;
   switch (this->type)
@@ -155,17 +137,99 @@ int Command::execute(std::string string, zmq::socket_t &publisher, options_struc
         if (this->args[1] == "point_delay")
         {
           options.pointDelay = tmp_options.pointDelay;
+          publish_message(publisher, "INFO: OPTION point_delay " + options.pointDelay);
         }
-        ... publish_message(publisher, "INFO: OPTION point_delay")
+        else if (this->args[1] == "repeat")
+        {
+          options.repeat = tmp_options.repeat;
+          publish_message(publisher, "INFO: OPTION repeat " + options.repeat);
+        }
+        else if (this->args[1] == "target_frame_time")
+        {
+          options.targetFrameTime = tmp_options.targetFrameTime;
+          publish_message(publisher, "INFO: OPTION target_frame_time " + std::to_string(options.targetFrameTime));
+        }
+        else if (this->args[1] == "trapezoid_horizontal")
+        {
+          options.trapezoid_horizontal = tmp_options.trapezoid_horizontal;
+          publish_message(publisher, "INFO: OPTION trapezoid_horizontal " + std::to_string(options.trapezoid_horizontal));
+        }
+        else if (this->args[1] == "trapezoid_vertical")
+        {
+          options.trapezoid_vertical = tmp_options.trapezoid_vertical;
+          publish_message(publisher, "INFO: OPTION trapezoid_vertical " + std::to_string(options.trapezoid_vertical));
+        }
+        else
+        {
+          std::cout << "invalid args: \"" << received_string << "\"" << std::endl;
+          publish_message(publisher, "ERROR: EINVAL \"" + received_string + "\"");
+          return -1;
+        }
       }
       else if (this->args[0] == "read")
       {
-        if
+        if (this->args[1] == "point_delay")
+        {
+          publish_message(publisher, "INFO: OPTION point_delay " + options.pointDelay);
+        }
+        else if (this->args[1] == "repeat")
+        {
+          publish_message(publisher, "INFO: OPTION repeat " + options.repeat);
+        }
+        else if (this->args[1] == "target_frame_time")
+        {
+          publish_message(publisher, "INFO: OPTION target_frame_time " + std::to_string(options.targetFrameTime));
+        }
+        else if (this->args[1] == "trapezoid_horizontal")
+        {
+          publish_message(publisher, "INFO: OPTION trapezoid_horizontal " + std::to_string(options.trapezoid_horizontal));
+        }
+        else if (this->args[1] == "trapezoid_vertical")
+        {
+          publish_message(publisher, "INFO: OPTION trapezoid_vertical " + std::to_string(options.trapezoid_vertical));
+        }
+        else
+        {
+          std::cout << "invalid args: \"" << received_string << "\"" << std::endl;
+          publish_message(publisher, "ERROR: EINVAL \"" + received_string + "\"");
+          return -1;
+        }
       }
       else if (this->args[0] == "write")
       {
         if (this->args.size() >= 3)
         {
+          if (this->args[1] == "point_delay")
+        {
+          options.pointDelay = stoi(this->args[2]);
+          publish_message(publisher, "INFO: OPTION point_delay " + options.pointDelay);
+        }
+        else if (this->args[1] == "repeat")
+        {
+          options.repeat = stoi(this->args[2]);
+          publish_message(publisher, "INFO: OPTION repeat " + options.repeat);
+        }
+        else if (this->args[1] == "target_frame_time")
+        {
+          options.targetFrameTime = stoul(this->args[2]);
+          publish_message(publisher, "INFO: OPTION target_frame_time " + std::to_string(options.targetFrameTime));
+        }
+        else if (this->args[1] == "trapezoid_horizontal")
+        {
+          options.trapezoid_horizontal = stof(this->args[2]);
+          publish_message(publisher, "INFO: OPTION trapezoid_horizontal " + std::to_string(options.trapezoid_horizontal));
+        }
+        else if (this->args[1] == "trapezoid_vertical")
+        {
+          options.trapezoid_vertical = stof(this->args[2]);
+          publish_message(publisher, "INFO: OPTION trapezoid_vertical " + std::to_string(options.trapezoid_vertical));
+        }
+        else
+        {
+          std::cout << "invalid args: \"" << received_string << "\"" << std::endl;
+          publish_message(publisher, "ERROR: EINVAL \"" + received_string + "\"");
+          return -1;
+        }
         }
       }
     }
@@ -235,11 +299,12 @@ int main()
             int exec_val = command.execute(received.to_string(), publisher, options);
             if (exec_val == 1)
             {
+              options.repeat = 0;
               break;
             }
           }
           // draw, if an error or end of file is reached, break
-          int loop_val = lasershow_loop(publisher, options.paused, options.pointDelay, options.targetFrameTime);
+          int loop_val = lasershow_loop(publisher, options);
           if (loop_val == 2)
             break;
           else if (loop_val == 1)
