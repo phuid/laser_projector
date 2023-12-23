@@ -60,6 +60,7 @@ any process can send a command into the socket and all processes will read respo
 - `PROJECT` args: `<filename>`
   - `<filename>` must have extension `.ild`<!-- or `.lpc`(laserprojector_custom) --> otherwise error `INVALID_ARG`
 - `STOP` (no args)
+- `PAUSE` (no args)
 - `GAME` args: `<game_name>`
   - `game_name` is any of the following ``//TODO: game names
 - `PRESS` (no args), only handled if game is running
@@ -79,4 +80,5 @@ responses immediately on command reception
     - `ENOENT`: file doesn't exist
     - `INVALID_CMD`: probably typo in a command
   - `details`: if error type supports it, details will be included
-- `SUCCESS`: returned if command was parsed correctly, lasershow will execute it
+- there is no success message
+

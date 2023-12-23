@@ -14,6 +14,7 @@ enum command_type
 {
   PROJECT = 0,
   STOP,
+  PAUSE,
   GAME,
   PRESS,
   RELEASE,
@@ -21,16 +22,36 @@ enum command_type
   INVALID_CMD
 };
 
+struct options_struct
+{
+  bool repeat = 0;
+  int pointDelay = 0;
+  double targetFrameTime = 0.033;
+
+  std::string project_filename;
+  bool paused = 0;
+
+  int loadFromFile(std::string filename)
+  {
+  }
+};
+
 class Command
 {
 public:
+  std::string received_string;
   command_type type;
   std::vector<std::string> args;
-  Command(std::string string);
+
+  void parse(std::string string);
+  int execute(std::string string, zmq::socket_t &publisher, options_struct &options);
 };
 
-Command::Command(std::string string)
+void Command::parse(std::string string)
 {
+  args.clear();
+  this->received_string = string;
+
   size_t space_pos = string.find(" ");
   std::string first_word;
   if (space_pos == std::string::npos)
@@ -45,6 +66,8 @@ Command::Command(std::string string)
     this->type = PROJECT;
   else if (first_word == "STOP")
     this->type = STOP;
+  else if (first_word == "PAUSE")
+    this->type = PAUSE;
   else if (first_word == "GAME")
     this->type = GAME;
   else if (first_word == "PRESS")
@@ -80,6 +103,41 @@ Command::Command(std::string string)
   std::cout << std::endl;
 }
 
+int Command::execute(std::string string, zmq::socket_t &publisher, options_struct &options)
+{
+  this->parse(string);
+
+  zmq::message_t msg;
+  if (this->type == PROJECT && this->args.size() > 0)
+  {
+    options.project_filename = this->args[0];
+  }
+  else if (this->type == STOP)
+  {
+    return 1;
+  }
+  else if (this->type == PAUSE)
+  {
+    options.paused = !options.paused;
+  }
+  else if (this->type == INVALID_CMD)
+  {
+    std::cout << "invalid command: \"" << received_string << "\"" << std::endl;
+    msg.rebuild("ERROR: INVALID_CMD \"" + received_string + "\"");
+    publisher.send(msg, zmq::send_flags::none);
+    return -1;
+  }
+  else
+  {
+    std::cout << "invalid args: \"" << received_string << "\"" << std::endl;
+    msg.rebuild("ERROR: INVALID_ARGS \"" + received_string + "\"");
+    publisher.send(msg, zmq::send_flags::none);
+    return -1;
+  }
+
+  return 0;
+}
+
 int main()
 {
   // Setup ipc communication
@@ -95,51 +153,46 @@ int main()
   zmq::message_t received;
   zmq::message_t msg_to_send;
 
-  bool repeat = 0;
+  options_struct options;
+  options.loadFromFile("lasershow.cfg");
 
   while (true)
   {
-    bool current_repeat = repeat;
-    std::string current_filename = "";
-
-    command_receiver.recv(received, zmq::recv_flags::none);
-    std::string received_string = received.to_string();
-    Command command(received_string);
-    if (command.type == PROJECT && command.args.size() > 0)
+    command_receiver.recv(received, zmq::recv_flags::none); // blocking
+    Command command;
+    if (command.execute(received.to_string(), publisher, options))
     {
-      current_filename = command.args[0];
-    }
-    else if (command.type == INVALID_CMD)
-    {
-      std::cout << "invalid command: \"" << received_string << "\"" << std::endl;
-      msg_to_send.rebuild("ERROR: INVALID_CMD \"" + received_string + "\"");
-      publisher.send(msg_to_send, zmq::send_flags::none);
-      continue;
-    }
-    else {
-      std::cout << "invalid args: \"" << received_string << "\"" << std::endl;
-      msg_to_send.rebuild("ERROR: INVALID_ARGS \"" + received_string + "\"");
-      publisher.send(msg_to_send, zmq::send_flags::none);
       continue;
     }
 
-    while (current_repeat)
+    while (options.repeat)
     {
-      int init_val = lasershow_init(current_filename);
+      int init_val = lasershow_init(options.project_filename);
       if (!init_val)
       {
-        while (!lasershow_loop())
+        while (true)
         {
           // maybe receive messages here, then youd need atleast the ildareader(filename) here in main..
           // - no,, just exit the loop lol
-          // command_receiver.recv(received, zmq::recv_flags::dontwait);
-          // if (received.to_string().length() > 0) // or some other message_t function
+          command_receiver.recv(received, zmq::recv_flags::dontwait);
+          if (received.size() > 0) 
+          {
+            if (command.execute(received.to_string(), publisher, options) == 1)
+            {
+              break;
+            }
+          }
+          if (!options.paused)
+          {
+            if (lasershow_loop()) // draw, if an error or end of file is reached, break
+              break;
+          }
         }
       }
       else
       {
         std::cout << "failed to init lasershow" << std::endl;
-        current_repeat = 0;
+        options.repeat = 0;
       }
       lasershow_cleanup(0);
     }
