@@ -13,15 +13,21 @@
 
 #include <filesystem>
 
-void print_test(menu_option &nest)
+void print_test(zmq::socket_t &command_sender, menu_option &parent)
 {
-    std::cout << "print test: " << nest.name << std::endl;
+    std::string path = std::filesystem::current_path().generic_string() + "/../ild" + parent.nested_menu_options[parent.nest_selected].name;
+#ifdef DEBUG
+    std::cout << "PROJECT " << path << std::endl;
+#endif
+    send_command(command_sender, "PROJECT " + path);
+    parent.nest_option_active = 0;
 }
 
-void fill_with_files(menu_option &nest)
+void fill_with_files(zmq::socket_t &command_sender, menu_option &parent)
 {
     std::cout << "searching for files" << std::endl;
     std::string dirpath = "../ild";
+    parent.nested_menu_options[parent.nest_selected].nested_menu_options.clear();
     for (const auto &entry : std::filesystem::directory_iterator(dirpath))
     {
         std::string path = entry.path();
@@ -34,7 +40,7 @@ void fill_with_files(menu_option &nest)
         std::cout << path << std::endl;
 #endif
         menu_option tmp = {.name = path, .style = TEXT, .has_function = 1, .function = print_test};
-        nest.nested_menu_options.push_back(tmp);
+        parent.nested_menu_options[parent.nest_selected].nested_menu_options.push_back(tmp);
     }
 }
 
@@ -94,7 +100,7 @@ int main()
         .nested_menu_options = {
             {
                 .name = "project",
-                .style = NESTED_MENU,
+                .style = NESTED_MENU, //TODO: SELECTION - add back button to selection asw
                 .has_function = 1,
                 .function = fill_with_files,
             },

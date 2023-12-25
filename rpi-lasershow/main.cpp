@@ -109,7 +109,7 @@ int Command::execute(std::string string, zmq::socket_t &publisher, options_struc
       options.project_filename = this->args[0];
       options.paused = 0;
       publish_message(publisher, "INFO: PROJECT " + options.project_filename);
-      return 1;
+      return 2;
     }
     else
     {
@@ -300,6 +300,10 @@ int main()
             if (exec_val == 1)
             {
               options.repeat = 0;
+              break;
+            }
+            else if (exec_val == 2) {
+              first_repeat = 1;
               break;
             }
           }

@@ -260,9 +260,6 @@ CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 //pkg-config executable
 PKG_CONFIG_EXECUTABLE:FILEPATH=/usr/bin/pkg-config
 
-//The directory containing a CMake configuration file for WiringPi.
-WiringPi_DIR:PATH=WiringPi_DIR-NOTFOUND
-
 //The directory containing a CMake configuration file for ZeroMQ.
 ZeroMQ_DIR:PATH=ZeroMQ_DIR-NOTFOUND
 

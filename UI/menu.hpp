@@ -140,7 +140,7 @@ struct menu_option
   menu_val<float> value;
 
   bool has_function = 0;
-  void (*function)(menu_option &);
+  void (*function)(zmq::socket_t &, menu_option &);
 };
 
 using menu_t = std::vector<menu_option>;
@@ -266,12 +266,12 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
         // handle scroll - prolly totally wrong :skull:
         if (menu.size() + ((parent_menu_option.style == NESTED_MENU) ? 1 : 0) > SCREEN_HEIGHT)
         {
-          if (menu_selected >= menu_scroll + SCREEN_HEIGHT - 2)
+          if (menu_selected > menu_scroll + SCREEN_HEIGHT - 2)
           {
             if (menu_selected >= menu.size() - 1)
-              menu_scroll = menu.size() - 1 - (SCREEN_HEIGHT - 1);
+              menu_scroll = menu.size() - (SCREEN_HEIGHT - 1);
             else
-              menu_scroll = menu.size() - 1 - (SCREEN_HEIGHT - 2);
+              menu_scroll = menu_selected - (SCREEN_HEIGHT - 2);
             screen_scrolled = 1;
           }
           else if (menu_selected <= menu_scroll)
@@ -342,7 +342,8 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
               if (menu[menu_selected].has_function)
               {
                 // TODO: handle function menu actions
-                menu[menu_selected].function(menu[menu_selected]);
+                menu[menu_selected].function(command_sender, parent_menu_option);
+                return 0;
               }
               lcd_clear(lcd);
               menu_interact(lcd, command_sender, parent_menu_option, true); // redraw
@@ -384,7 +385,7 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
             {
               lcd_printf(lcd, "%*s", SCREEN_WIDTH - 1, "\1back\6\6\6\6\6\6\6\6\6\6\6\6\6\6");
 #ifdef DEBUG
-              printf("\"%*s\"\n", SCREEN_WIDTH - 1, "BAAAAAAAAAAADHFASDHKCK");
+              printf("-%*s-\n", SCREEN_WIDTH - 1, "BAAAAAAAAAAADHFASDHKCK");
 #endif
             }
             else
@@ -401,9 +402,9 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
 #ifdef DEBUG
                 std::cout << "i" << (int)i << std::endl;
 #endif
-                lcd_printf(lcd, "%.*s%*s%c%.*f", /*name_str_max_len*/ SCREEN_WIDTH - num_len - 3 /* 2 = the ">"/" "/"." chars */, menu[i].name, /*fill_spaces_len*/ ((name_len > SCREEN_WIDTH - num_len - 3) ? SCREEN_WIDTH - (SCREEN_WIDTH - num_len - 3) - num_len - 3 : SCREEN_WIDTH - name_len - num_len - 3), /*fill_spaces*/ "", ((parent_menu_option.nest_option_active && (i == menu_selected)) ? '\3' : ' '), num_len - 2, menu[i].value.num);
+                lcd_printf(lcd, "%.*s%*s%c%.*f", /*name_str_max_len*/ SCREEN_WIDTH - num_len - 3 /* 2 = the ">"/" "/"." chars */, menu[i].name.c_str(), /*fill_spaces_len*/ ((name_len > SCREEN_WIDTH - num_len - 3) ? SCREEN_WIDTH - (SCREEN_WIDTH - num_len - 3) - num_len - 3 : SCREEN_WIDTH - name_len - num_len - 3), /*fill_spaces*/ "", ((parent_menu_option.nest_option_active && (i == menu_selected)) ? '\3' : ' '), num_len - 2, menu[i].value.num);
 #ifdef DEBUG
-                printf("\"%.*s%*s%c%.*f\"\n", /*name_str_max_len*/ SCREEN_WIDTH - num_len - 3 /* 2 = the ">"/" "/"." chars */, menu[i].name, /*fill_spaces_len*/ ((name_len > SCREEN_WIDTH - num_len - 3) ? SCREEN_WIDTH - (SCREEN_WIDTH - num_len - 3) - num_len - 3 : SCREEN_WIDTH - name_len - num_len - 3), /*fill_spaces*/ "", ((parent_menu_option.nest_option_active && (i == menu_selected)) ? '>' : ' '), num_len - 2, menu[i].value.num);
+                printf("\"%.*s%*s%c%.*f\"\n", /*name_str_max_len*/ SCREEN_WIDTH - num_len - 3 /* 2 = the ">"/" "/"." chars */, menu[i].name.c_str(), /*fill_spaces_len*/ ((name_len > SCREEN_WIDTH - num_len - 3) ? SCREEN_WIDTH - (SCREEN_WIDTH - num_len - 3) - num_len - 3 : SCREEN_WIDTH - name_len - num_len - 3), /*fill_spaces*/ "", ((parent_menu_option.nest_option_active && (i == menu_selected)) ? '>' : ' '), num_len - 2, menu[i].value.num);
 #endif
                 break;
               }
@@ -413,9 +414,9 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
 #ifdef DEBUG
                 std::cout << "i" << (int)i << std::endl;
 #endif
-                lcd_printf(lcd, "%.*s%*s", /*name_str_max_len*/ SCREEN_WIDTH - 2 /* 2 = the ">"/" " chars */, menu[i].name, /*fill_spaces_len*/ (name_len > SCREEN_WIDTH - 2) ? SCREEN_WIDTH - (SCREEN_WIDTH - 2) : SCREEN_WIDTH - name_len - 1, /*fill_spaces*/ "");
+                lcd_printf(lcd, "%.*s%*s", /*name_str_max_len*/ SCREEN_WIDTH - 2 /* 2 = the ">"/" " chars */, menu[i].name.c_str(), /*fill_spaces_len*/ (name_len > SCREEN_WIDTH - 2) ? SCREEN_WIDTH - (SCREEN_WIDTH - 2) : SCREEN_WIDTH - name_len - 1, /*fill_spaces*/ "");
 #ifdef DEBUG
-                printf("\"%.*s%*s\"\n", /*name_str_max_len*/ SCREEN_WIDTH - 2 /* 2 = the ">"/" " chars */, menu[i].name, /*fill_spaces_len*/ (name_len > SCREEN_WIDTH - 2) ? SCREEN_WIDTH - (SCREEN_WIDTH - 2) : SCREEN_WIDTH - name_len - 1, /*fill_spaces*/ "");
+                printf("\"%.*s%*s\"\n", /*name_str_max_len*/ SCREEN_WIDTH - 2 /* 2 = the ">"/" " chars */, menu[i].name.c_str(), /*fill_spaces_len*/ (name_len > SCREEN_WIDTH - 2) ? SCREEN_WIDTH - (SCREEN_WIDTH - 2) : SCREEN_WIDTH - name_len - 1, /*fill_spaces*/ "");
 #endif
                 break;
               }
