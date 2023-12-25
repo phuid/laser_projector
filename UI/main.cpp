@@ -5,23 +5,48 @@
 #include <wiringPi.h>
 #include <iostream>
 
-#include <sys/stat.h>
-#include <errno.h>
-
+#include "zmq.hpp"
 #include "soft_lcd.h"
 
 #include "encoder.hpp"
 #include "menu.hpp"
 
+#include <filesystem>
+
+void print_test(menu_option &nest)
+{
+    std::cout << "print test: " << nest.name << std::endl;
+}
+
+void fill_with_files(menu_option &nest)
+{
+    std::cout << "searching for files" << std::endl;
+    std::string dirpath = "../ild";
+    for (const auto &entry : std::filesystem::directory_iterator(dirpath))
+    {
+        std::string path = entry.path();
+        std::size_t found = path.find_last_of("/\\");
+        if (found != std::string::npos)
+        {
+            path = path.substr(found);
+        }
+#ifdef DEBUG
+        std::cout << path << std::endl;
+#endif
+        menu_option tmp = {.name = path, .style = TEXT, .has_function = 1, .function = print_test};
+        nest.nested_menu_options.push_back(tmp);
+    }
+}
+
 int main()
 {
     /* WARNING: Setting PWM status as a non root user
      * may crash some versions of Raspbian. */
-    if (geteuid() != 0)
-    {
-        puts("This program must be run as root.");
-        return 1;
-    }
+    // if (geteuid() != 0)
+    // {
+    //     puts("This program must be run as root.");
+    //     return 1;
+    // }
 
     // TODO: add SIGINT handler + cleanup function
 
@@ -55,129 +80,54 @@ int main()
     lcd_create_char(lcd, INVERTED_SPACE_CHAR_NUM, inverted_space_char);
     lcd_create_char(lcd, INVERTED_POINTER_CHAR_NUM, inverted_pointer_char);
 
+    zmq::context_t ctx(1);
+
+    zmq::socket_t subscriber(ctx, zmq::socket_type::sub);
+    subscriber.connect("tcp://localhost:5556");
+    subscriber.set(zmq::sockopt::subscribe, "");
+
+    zmq::socket_t command_sender(ctx, zmq::socket_type::pub);
+    command_sender.connect("tcp://localhost:5557");
+
     menu_option root = {
+        .style = ROOT_MENU,
         .nested_menu_options = {
             {
-                .name = const_cast<char *>(std::string("nest").c_str()),
+                .name = "project",
                 .style = NESTED_MENU,
-                .nested_menu_options = {
-                    {
-                        .name = const_cast<char *>(std::string("text").c_str()),
-                        .style = TEXT,
-                    },
-                    {
-                        .name = const_cast<char *>(std::string("text1").c_str()),
-                        .style = TEXT,
-                    },
-                    {
-                        .name = const_cast<char *>(std::string("text2").c_str()),
-                        .style = TEXT,
-                    },
-                    {
-                        .name = const_cast<char *>(std::string("text3").c_str()),
-                        .style = TEXT,
-                    },
-                    {
-                        .name = const_cast<char *>(std::string("func").c_str()),
-                        .style = FUNCTION,
-                        .function = *print_test,
-                    },
-                },
+                .has_function = 1,
+                .function = fill_with_files,
             },
-            {
-                .name = const_cast<char *>(std::string("text").c_str()),
-                .style = TEXT,
-            },
-            {
-                .name = const_cast<char *>(std::string("brightness").c_str()),
-                .style = VALUE,
-                .value = {50, 0, 100},
-            },
-            {
-                .name = const_cast<char *>(std::string("val2").c_str()),
-                .style = VALUE,
-                .value = {50, INT16_MIN, INT16_MAX},
-            },
-            {
-                .name = const_cast<char *>(std::string("value3").c_str()),
-                .style = VALUE,
-                .value = {4000, INT16_MIN, INT16_MAX},
-            },
-            {
-                .name = const_cast<char *>(std::string("value4").c_str()),
-                .style = VALUE,
-                .value = {12345, INT16_MIN, INT16_MAX},
-            },
-            {
-                .name = const_cast<char *>(std::string("func").c_str()),
-                .style = FUNCTION,
-                .function = *print_test,
-            },
-            {
-                .name = const_cast<char *>(std::string("select").c_str()),
-                .style = SELECTION,
-                .nested_menu_options = {
-                    {
-                        .name = const_cast<char *>(std::string("option1").c_str()),
-                        .style = TEXT,
-                    },
-                    {
-                        .name = const_cast<char *>(std::string("option2").c_str()),
-                        .style = TEXT,
-                    },
-                    {
-                        .name = const_cast<char *>(std::string("option3").c_str()),
-                        .style = TEXT,
-                    },
-                    {
-                        .name = const_cast<char *>(std::string("option4").c_str()),
-                        .style = TEXT,
-                    },
-                    {
-                        .name = const_cast<char *>(std::string("option5").c_str()), // FIXME: segfault when less than 4 option
-                        .style = TEXT,
-                    },
-                },
-            },
-            {
-                .name = const_cast<char *>(std::string("text1 je hustej").c_str()),
-                .style = TEXT,
-            },
-            {
-                .name = const_cast<char *>(std::string("text2 neni ani trochu").c_str()),
-                .style = TEXT,
-            },
-            {
-                .name = const_cast<char *>(std::string("text3 mozna malinko je").c_str()),
-                .style = TEXT,
-            },
-            {
-                .name = const_cast<char *>(std::string("text4 skoro jako tvoje mama").c_str()),
-                .style = TEXT,
-            },
-            {
-                .name = const_cast<char *>(std::string("text5 zkratka").c_str()),
-                .style = TEXT,
-            },
+            {.name = "options",
+             .style = NESTED_MENU,
+             .nested_menu_options = {
+                 {
+                     .name = "screen brightness",
+                     .style = VALUE,
+                     .value = {50, 0, 100},
+                 },
+                 {
+                     .name = "trapezoid_horizontal",
+                     .style = VALUE,
+                     .value = {0, -1.f, 1.f},
+                 },
+             }},
         }};
 
-    int16_t &brightness_val = root.nested_menu_options[2].value.num;
+    float &brightness_val = root.nested_menu_options[1].nested_menu_options[0].value.num;
 
-    // create fifo in temporary folder
-    if (mkfifo("/tmp/laser_projector.fifo", S_IRWXU) != 0) 
-        perror("mkfifo() error");
-
-    menu_interact(lcd, root, true);
+    menu_interact(lcd, command_sender, root, true);
     while (true)
     {
         // interact with user via OLED LCD and a rotary encoder
-        menu_interact(lcd, root);
-        lcd_backlight_dim(lcd, (float)brightness_val / 100.f);
+        menu_interact(lcd, command_sender, root);
+
+        // lcd_backlight_dim(lcd, brightness_val);
 
         // separate root menu element for drawing
         // maybe some placeholders to be replaced in the definition
         // .name = "%name%"
-        // 
+        //
         // menu_interact(lcd, playing_root);
     }
 

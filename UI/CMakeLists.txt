@@ -19,17 +19,20 @@ include_directories(${WIRINGPI_INCLUDE_DIRS})
 
 
 add_executable(
-    lasershow
+    UI
     main.cpp
-    lasershow.cpp
-    ABE_ADCDACPi.cpp
-    IldaReader.cpp
-    Frame.cpp
-    FrameData.cpp
-    Points.cpp
+    encoder.cpp
+    soft_i2c.c
+    soft_lcd.c
 )
+
+target_compile_features(
+    UI
+    PRIVATE cxx_std_17
+)
+
 target_link_libraries(
-    lasershow
+    UI
     PRIVATE cppzmq ${CMAKE_THREAD_LIBS_INIT}
     wiringPi ${WIRINGPI_LIBRARIES}
 )

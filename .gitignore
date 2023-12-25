@@ -22,7 +22,7 @@ Robutek-rewrite-2022
 
 bin
 
-UI/build
-rpi-lasershow/build
 rpi-lasershow/bin
 rpi-lasershow/CMakeFiles
+UI/bin
+UI/CMakeFiles

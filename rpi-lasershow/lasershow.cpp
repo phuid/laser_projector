@@ -81,8 +81,8 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options)
         if (points.size != 0)
         {
             // Move galvos to x,y position.
-            adcdac.set_dac_raw(((static_cast<float>(points.store[(points.index * 3) + 1]) / 32767.f) * options.trapezoid_vertical + 1.f) * points.store[points.index * 3], 1);
-            adcdac.set_dac_raw(((static_cast<float>(points.store[points.index * 3]) / 32767.f) * options.trapezoid_horizontal + 1.f) * points.store[(points.index * 3) + 1], 2);
+            adcdac.set_dac_raw(((static_cast<float>(points.store[(points.index * 3) + 1]) / 32767.f) * options.trapezoid_horizontal + 1.f) * points.store[points.index * 3], 1);
+            adcdac.set_dac_raw(((static_cast<float>(points.store[points.index * 3]) / 32767.f) * options.trapezoid_vertical + 1.f) * points.store[(points.index * 3) + 1], 2);
 
             // Turn on/off laser diode.
             if (points.store[(points.index * 3) + 2] == 1)
@@ -117,6 +117,7 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options)
                         return getnext_val;
                     }
                 }
+                break;
             }
         }
     }
