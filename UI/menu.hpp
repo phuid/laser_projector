@@ -74,18 +74,19 @@ struct menu_val
   T num;
   T min;
   T max;
+  T change_by = 1;
 };
 
 template <typename T>
-bool change_val(T &val, T val_min = 0, T val_max = 100) // return 1 if changed
+bool change_val(T &val, T val_min = 0, T val_max = 100, T change_by = 1) // return 1 if changed
 {
   if (get_encoder_pos() > 0)
   {
 #ifdef DEBUG
-    std::cout << "change_val: " << get_encoder_pos() << " <= " << (int)val_max << " - " << (int)val << std::endl;
+    std::cout << "change_val: " << get_encoder_pos() * change_by << " <= " << (int)val_max << " - " << (int)val << std::endl;
 #endif
-    if (get_encoder_pos() <= val_max - val)
-      val += get_encoder_pos();
+    if (get_encoder_pos() * change_by <= val_max - val)
+      val += get_encoder_pos() * change_by;
     else
     {
 #ifdef DEBUG
@@ -97,10 +98,10 @@ bool change_val(T &val, T val_min = 0, T val_max = 100) // return 1 if changed
   else if (get_encoder_pos() < 0)
   {
 #ifdef DEBUG
-    std::cout << "change_val2: " << -1 * get_encoder_pos() << " <= " << (int)val << " - " << (int)val_min << std::endl;
+    std::cout << "change_val2: " << -1 * get_encoder_pos() * change_by << " <= " << (int)val << " - " << (int)val_min << std::endl;
 #endif
-    if (-1 * get_encoder_pos() <= val - val_min)
-      val += get_encoder_pos();
+    if (-1 * get_encoder_pos() * change_by <= val - val_min)
+      val += get_encoder_pos() * change_by;
     else
     {
 #ifdef DEBUG
@@ -130,10 +131,10 @@ enum menu_option_style
 struct menu_option
 {
   std::string name;
-  const menu_option_style style = UNDEFINED;
+  menu_option_style style = UNDEFINED;
 
   std::vector<menu_option> nested_menu_options = {}; // does this work????????
-  uint8_t nest_selected = 1;                         // so that back button is possible
+  uint8_t nest_selected = 0;                         // so that back button is possible
   uint8_t nest_scroll = 0;
   bool nest_option_active = 0;
 
@@ -157,9 +158,6 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
   uint8_t &menu_selected = parent_menu_option.nest_selected;
   uint8_t &menu_scroll = parent_menu_option.nest_scroll;
 
-  bool selection_scrolled = 0;
-  bool screen_scrolled = 0;
-
 #ifdef DEBUG
   if (redraw)
   {
@@ -177,9 +175,7 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
   // #ifdef DEBUG
   // std::cout << menu[menu_selected].name << " " << (int)menu_scroll << " " << (int)parent_menu_option.nest_option_active << std::endl;
   // #endif
-  // if (parent_menu_option.style == NESTED_MENU)
-  //   menu_selected -= 1; // account for the back option being first in the list is possible (bare value can be used when pointing to children)
-  if (parent_menu_option.nest_option_active)
+  if (parent_menu_option.nest_option_active && menu[menu_selected].style != VALUE)
   {
     switch (menu[menu_selected].style)
     {
@@ -195,7 +191,22 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
         menu_interact(lcd, command_sender, parent_menu_option, true); // redraw
       }
       break;
-    case VALUE:
+
+      // VALUE needs to redraw the screen even whe nselected
+      // FUNCTION handled onclick
+
+    default:
+      std::cerr << "ERR: Option which cannot be active is active. dbg_nests: \"" << dbg_nests << "\", style: " << menu[menu_selected].style << std::endl;
+      break;
+    }
+  }
+  else // parentmenu active && style != value
+  {
+    bool selection_scrolled = 0;
+    bool screen_scrolled = 0;
+
+    if (menu[menu_selected].style == VALUE && parent_menu_option.nest_option_active)
+    {
       if (get_encoder_btn_pressed())
       {
         parent_menu_option.nest_option_active = 0;
@@ -207,48 +218,38 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
       else
       {
         selection_scrolled = 0;
-        val_redraw = change_val<decltype(menu[menu_selected].value.num)>(menu[menu_selected].value.num, menu[menu_selected].value.min, menu[menu_selected].value.max); // TODO separate value for redraw_val to not redraw the whole display, but only the number
+        val_redraw = change_val<decltype(menu[menu_selected].value.num)>(menu[menu_selected].value.num, menu[menu_selected].value.min, menu[menu_selected].value.max, menu[menu_selected].value.change_by); // TODO separate value for redraw_val to not redraw the whole display, but only the number
         if (val_redraw)
         {
 #ifdef DEBUG
           std::cout << "changeval" << std::endl;
 #endif
-          send_command(command_sender, "OPTION write " + std::string(menu[menu_selected].name) + std::to_string(menu[menu_selected].value.num));
+          send_command(command_sender, "OPTION write " + std::string(menu[menu_selected].name) + " " + std::to_string(menu[menu_selected].value.num));
         }
         redraw = (redraw || val_redraw);
       }
-      break;
-
-      // VALUE handled when drawing
-      // FUNCTION handled onclick
-
-    default:
-      std::cerr << "ERR: Option which cannot be active is active. dbg_nests: \"" << dbg_nests << "\", style: " << menu[menu_selected].style << std::endl;
-      break;
     }
-  }
-  else // parentmenu active && style != value
-  {
 #ifdef DEBUG
     // std::cout << "c" << std::endl;
 #endif
-
-#ifdef DEBUG
-    uint8_t prev = menu_selected;
-#endif
-    if (parent_menu_option.style == NESTED_MENU)
-      menu_selected += 1; // cancel accounting for back button in menu so that min/max values work
-    selection_scrolled = change_val<uint8_t>(menu_selected, 0, (uint8_t)menu.size() - (parent_menu_option.style != NESTED_MENU));
-    if (parent_menu_option.style == NESTED_MENU)
-      menu_selected -= 1; // account for back button in menu again (bare value can be used when pointing to children)
-#ifdef DEBUG
-    if (selection_scrolled)
+    else
     {
-      std::cout << "sel" << (int)menu_selected << "prev" << (int)prev << std::endl;
-      std::cout << "scroll" << std::endl;
-    }
+#ifdef DEBUG
+      uint8_t prev = menu_selected;
 #endif
-
+      if (parent_menu_option.style == NESTED_MENU)
+        menu_selected += 1; // cancel accounting for back button in menu so that min/max values work
+      selection_scrolled = change_val<uint8_t>(menu_selected, 0, (uint8_t)menu.size() - (parent_menu_option.style != NESTED_MENU));
+      if (parent_menu_option.style == NESTED_MENU)
+        menu_selected -= 1; // account for back button in menu again (bare value can be used when pointing to children)
+#ifdef DEBUG
+      if (selection_scrolled)
+      {
+        std::cout << "sel" << (int)menu_selected << "prev" << (int)prev << std::endl;
+        std::cout << "selScrollED" << std::endl;
+      }
+#endif
+    }
     if (selection_scrolled || get_encoder_btn_pressed() || redraw)
     {
 #ifdef DEBUG
@@ -333,7 +334,7 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
               std::cout << "a" << std::endl;
 #endif
               parent_menu_option.nest_option_active = 1;
-              menu[menu_selected].nest_selected = 1;
+              menu[menu_selected].nest_selected = 0;
 #ifdef DEBUG
               std::cout << "j" << std::endl;
 #endif
@@ -343,10 +344,10 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
               {
                 // TODO: handle function menu actions
                 menu[menu_selected].function(command_sender, parent_menu_option);
-                return 0;
               }
               lcd_clear(lcd);
               menu_interact(lcd, command_sender, parent_menu_option, true); // redraw
+              return 0;
               break;
             }
           }
@@ -397,14 +398,14 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
               case SELECTION:
               case VALUE:
               {
-                uint8_t num_len = 4;// num_digits<decltype(menu[i].value.num)>(menu[i].value.num);
+                uint8_t num_len = 4;                      // num_digits<decltype(menu[i].value.num)>(menu[i].value.num);
                 uint8_t name_len = menu[i].name.length(); // TODO: rewrite names into std::String and only convert them to cstrings here
 #ifdef DEBUG
                 std::cout << "i" << (int)i << std::endl;
 #endif
-                lcd_printf(lcd, "%.*s%*s%c%.*f", /*name_str_max_len*/ SCREEN_WIDTH - num_len - 3 /* 2 = the ">"/" "/"." chars */, menu[i].name.c_str(), /*fill_spaces_len*/ ((name_len > SCREEN_WIDTH - num_len - 3) ? SCREEN_WIDTH - (SCREEN_WIDTH - num_len - 3) - num_len - 3 : SCREEN_WIDTH - name_len - num_len - 3), /*fill_spaces*/ "", ((parent_menu_option.nest_option_active && (i == menu_selected)) ? '\3' : ' '), num_len - 2, menu[i].value.num);
+                lcd_printf(lcd, "%.*s%*s%c%.*f", /*name_str_max_len*/ SCREEN_WIDTH - num_len - 3 /* 2 = the ">"/" "/"." chars */, menu[i].name.c_str(), /*fill_spaces_len*/ ((name_len > SCREEN_WIDTH - num_len - 3) ? SCREEN_WIDTH - (SCREEN_WIDTH - num_len - 3) - num_len - 3 : SCREEN_WIDTH - name_len - num_len - 3), /*fill_spaces*/ "", ((parent_menu_option.nest_option_active && (i + 1 == menu_selected)) ? '\3' : ' '), num_len - 2, menu[i].value.num);
 #ifdef DEBUG
-                printf("\"%.*s%*s%c%.*f\"\n", /*name_str_max_len*/ SCREEN_WIDTH - num_len - 3 /* 2 = the ">"/" "/"." chars */, menu[i].name.c_str(), /*fill_spaces_len*/ ((name_len > SCREEN_WIDTH - num_len - 3) ? SCREEN_WIDTH - (SCREEN_WIDTH - num_len - 3) - num_len - 3 : SCREEN_WIDTH - name_len - num_len - 3), /*fill_spaces*/ "", ((parent_menu_option.nest_option_active && (i == menu_selected)) ? '>' : ' '), num_len - 2, menu[i].value.num);
+                printf("\"%.*s%*s%c%.*f\"\n", /*name_str_max_len*/ SCREEN_WIDTH - num_len - 3 /* 2 = the ">"/" "/"." chars */, menu[i].name.c_str(), /*fill_spaces_len*/ ((name_len > SCREEN_WIDTH - num_len - 3) ? SCREEN_WIDTH - (SCREEN_WIDTH - num_len - 3) - num_len - 3 : SCREEN_WIDTH - name_len - num_len - 3), /*fill_spaces*/ "", ((parent_menu_option.nest_option_active && (i + 1 == menu_selected)) ? '>' : ' '), num_len - 2, menu[i].value.num);
 #endif
                 break;
               }
@@ -429,13 +430,16 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
         }
         else
         {
+          if (screen_scrolled || redraw)
+          {
 #ifdef DEBUG
-          std::cout << "i" << (int)i << std::endl;
+            std::cout << "i" << (int)i << std::endl;
 #endif
-          lcd_printf(lcd, "%*s", SCREEN_WIDTH, "");
+            lcd_printf(lcd, "%*s", SCREEN_WIDTH, "");
 #ifdef DEBUG
-          std::cout << "-empty-" << std::endl;
+            std::cout << "-empty-" << std::endl;
 #endif
+          }
         }
       }
       if (parent_menu_option.style == NESTED_MENU)
@@ -449,7 +453,5 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
 #ifdef DEBUG
   dbg_nests = "";
 #endif
-  // if (parent_menu_option.style == NESTED_MENU)
-  //   menu_selected += 1; // cancel accounting for back button in menu
   return 0;
 }

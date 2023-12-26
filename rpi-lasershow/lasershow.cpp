@@ -58,7 +58,7 @@ int lasershow_init(zmq::socket_t &publisher, string fileName)
     else
     {
         printf("Error opening ILDA file.\n\rfilename: %s", fileName.c_str());
-        publish_message(publisher, "ERR: EINVAL error opening ILDA filename: \"" + fileName + "\"");
+        publish_message(publisher, "ERROR: EINVAL error opening ILDA filename: \"" + fileName + "\"");
         return (1);
     }
 

@@ -65,9 +65,11 @@ any process can send a command into the socket and all processes will read respo
   - `game_name` is any of the following ``//TODO: game names
 - `PRESS` (no args), only handled if game is running
 - `RELEASE` (no args), only handled if game is running
+- `SEEK` args `<percentage>`
+  - `percentage`: float, percentage of file size to go to //TODO: seek
 - `OPTION` args: `<mode>` `<option_name>` `<value>`
   - `mode`: any of `write`/`read`/`reset`
-  - `option_name`: any of `point_delay`/`target_frame_time`/`repeat`/ `trapeziod_horizontal` / `trapeziod_vertical` /...<!-- TODO: options -->
+  - `option_name`: any of `point_delay`/`target_frame_time`/`repeat`/ `trapeziod_horizontal` / `trapeziod_vertical`
   - `value` only read when using `write` parameter, message won't be processed and `INVALID_CMD` error will be set back through the socket if other modes are used and value is specified
 
 ###### responses:

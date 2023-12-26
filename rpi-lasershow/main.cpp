@@ -125,7 +125,7 @@ int Command::execute(std::string string, zmq::socket_t &publisher, options_struc
     break;
   case PAUSE:
     options.paused = !options.paused;
-    publish_message(publisher, "INFO: PAUSE" + options.paused);
+    publish_message(publisher, "INFO: PAUSE " + static_cast<int>(options.paused));
     return 0;
     break;
   case OPTION:
@@ -200,36 +200,36 @@ int Command::execute(std::string string, zmq::socket_t &publisher, options_struc
         if (this->args.size() >= 3)
         {
           if (this->args[1] == "point_delay")
-        {
-          options.pointDelay = stoi(this->args[2]);
-          publish_message(publisher, "INFO: OPTION point_delay " + options.pointDelay);
-        }
-        else if (this->args[1] == "repeat")
-        {
-          options.repeat = stoi(this->args[2]);
-          publish_message(publisher, "INFO: OPTION repeat " + options.repeat);
-        }
-        else if (this->args[1] == "target_frame_time")
-        {
-          options.targetFrameTime = stoul(this->args[2]);
-          publish_message(publisher, "INFO: OPTION target_frame_time " + std::to_string(options.targetFrameTime));
-        }
-        else if (this->args[1] == "trapezoid_horizontal")
-        {
-          options.trapezoid_horizontal = stof(this->args[2]);
-          publish_message(publisher, "INFO: OPTION trapezoid_horizontal " + std::to_string(options.trapezoid_horizontal));
-        }
-        else if (this->args[1] == "trapezoid_vertical")
-        {
-          options.trapezoid_vertical = stof(this->args[2]);
-          publish_message(publisher, "INFO: OPTION trapezoid_vertical " + std::to_string(options.trapezoid_vertical));
-        }
-        else
-        {
-          std::cout << "invalid args: \"" << received_string << "\"" << std::endl;
-          publish_message(publisher, "ERROR: EINVAL \"" + received_string + "\"");
-          return -1;
-        }
+          {
+            options.pointDelay = stoi(this->args[2]);
+            publish_message(publisher, "INFO: OPTION point_delay " + options.pointDelay);
+          }
+          else if (this->args[1] == "repeat")
+          {
+            options.repeat = stoi(this->args[2]);
+            publish_message(publisher, "INFO: OPTION repeat " + options.repeat);
+          }
+          else if (this->args[1] == "target_frame_time")
+          {
+            options.targetFrameTime = stoul(this->args[2]);
+            publish_message(publisher, "INFO: OPTION target_frame_time " + std::to_string(options.targetFrameTime));
+          }
+          else if (this->args[1] == "trapezoid_horizontal")
+          {
+            options.trapezoid_horizontal = stof(this->args[2]);
+            publish_message(publisher, "INFO: OPTION trapezoid_horizontal " + std::to_string(options.trapezoid_horizontal));
+          }
+          else if (this->args[1] == "trapezoid_vertical")
+          {
+            options.trapezoid_vertical = stof(this->args[2]);
+            publish_message(publisher, "INFO: OPTION trapezoid_vertical " + std::to_string(options.trapezoid_vertical));
+          }
+          else
+          {
+            std::cout << "invalid args: \"" << received_string << "\"" << std::endl;
+            publish_message(publisher, "ERROR: EINVAL \"" + received_string + "\"");
+            return -1;
+          }
         }
       }
     }
@@ -289,39 +289,45 @@ int main()
       int init_val = lasershow_init(publisher, options.project_filename);
       if (!init_val)
       {
-        while (true)
+        while (first_repeat == 0) // also used just as a break flag (if 1 break)
         {
           // maybe receive messages here, then youd need atleast the ildareader(filename) here in main..
           // - no,, just exit the loop lol
           command_receiver.recv(received, zmq::recv_flags::dontwait);
-          if (received.size() > 0)
+          while (received.size() > 0)
           {
             int exec_val = command.execute(received.to_string(), publisher, options);
             if (exec_val == 1)
             {
               options.repeat = 0;
-              break;
-            }
-            else if (exec_val == 2) {
               first_repeat = 1;
               break;
             }
+            else if (exec_val == 2)
+            {
+              first_repeat = 1;
+              break;
+            }
+            command_receiver.recv(received, zmq::recv_flags::dontwait);
           }
-          // draw, if an error or end of file is reached, break
-          int loop_val = lasershow_loop(publisher, options);
-          if (loop_val == 2)
-            break;
-          else if (loop_val == 1)
+          if (first_repeat == 0)
           {
-            options.repeat = 0;
-            break;
+            // draw, if an error or end of file is reached, break
+            int loop_val = lasershow_loop(publisher, options);
+            if (loop_val == 2)
+              break;
+            else if (loop_val == 1)
+            {
+              options.repeat = 0;
+              break;
+            }
           }
         }
       }
       else
       {
         std::cout << "failed to init lasershow" << std::endl;
-        publish_message(publisher, "ERR: failed to init lasershow");
+        publish_message(publisher, "ERROR: failed to init lasershow");
         break;
       }
 
