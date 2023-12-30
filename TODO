@@ -1,26 +1,23 @@
 REWRITE WIFI_MANAGER TO CHANGE WHAT CONFIGS SERVICES USE INSTEAD OF CHANGING CONFIGS THEMSELVES
 
-add stoping of previous projection - implement to lasershow.cpp?
+SOCKETS USE ENVELOPES TO SEPARATE WIFIMAN AND LASERSHOW
 
-menu.hpp
+
+## menu.hpp
+
+### DONE
+
   // prusa style ui with oled display and rotary encoder - use FIFOs for communication with lasershow.cpp https://www.youtube.com/watch?v=2hba3etpoJg
 
 
+## discord help command
 
-//DONE check if exec() doesnt have smth like .on('stdout') that would b emitted when the process outputs some stdout
-  -> check reding stdout
+## wifi manager
+### DONE
+- only run, if some pin is connected to prevent wlan0 down without a switch attached
 
-README.md
-  isntalling system dependencies and WiringPi and pm2
-  pm2 status outputs
+## web-ui
 
-discord help command
-
-wifi manager
-  //DONE only run, if some pin is connected to prevent wlan0 down without a switch attached
-  //DONE project last updated file when stealth is on stop when switched?
-
-web-ui
   make a selectmenu of ILDA files instead of typing the name
 
 
