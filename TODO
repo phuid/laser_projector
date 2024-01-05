@@ -1,39 +1,3 @@
-REWRITE WIFI_MANAGER TO CHANGE WHAT CONFIGS SERVICES USE INSTEAD OF CHANGING CONFIGS THEMSELVES
-
-SOCKETS USE ENVELOPES TO SEPARATE WIFIMAN AND LASERSHOW
 
 
-## menu.hpp
 
-### DONE
-
-  // prusa style ui with oled display and rotary encoder - use FIFOs for communication with lasershow.cpp https://www.youtube.com/watch?v=2hba3etpoJg
-
-
-## discord help command
-
-## wifi manager
-### DONE
-- only run, if some pin is connected to prevent wlan0 down without a switch attached
-
-## web-ui
-
-  make a selectmenu of ILDA files instead of typing the name
-
-
-//WATCH-OUT
-hostapd
-  - The previously supported configuration setting DAEMON_CONF in
-  /etc/default/hostapd is deprecated and its support will be removed.
-
-  - SCRIPT DEPRECATION WARNING                    
-  This script, located at https://deb.nodesource.com/setup_X, used to
-  install Node.js is deprecated now and will eventually be made inactive.
-  Please visit the NodeSource distributions Github and follow the
-  instructions to migrate your repo.
-  https://github.com/nodesource/distributions
-  The NodeSource Node.js Linux distributions GitHub repository contains
-  information about which versions of Node.js and which Linux distributions
-  are supported and how to install it.
-  https://github.com/nodesource/distributions
-  https://github.com/nodesource/distributions#debian-versions

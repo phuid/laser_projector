@@ -1,3 +1,0 @@
-lasershow receives shutdown message and cleans up laser - turn off relay
-
-//how do i debounce well??
