@@ -3,6 +3,9 @@ nabijeni usb-c https://www.laskakit.cz/nabijecka-li-ion-clanku-tp4056-s-ochranou
 
 z baterek:
 	symetricky stepup +-15v signal galva https://www.laskakit.cz/step-up-boost-menic-s-xl6007-15v-zdroj-symetrickeho-napeti/
-	5v stepup RPI, cipy, OLED,...
-	15v stepup zdroj galva
-	12v stepup zdroj laser
+	5v stepup RPI, cipy, OLED, ...
+	15v 1A stepup zdroj galva
+	snad nebude potřeba -15v, na puvodnim zdroji je +15 1A a -15 0.5A
+	12v 1A stepup zdroj lase
+
+jak undervoltage protection?

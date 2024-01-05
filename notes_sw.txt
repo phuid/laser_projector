@@ -1,4 +1,3 @@
-oled exe receives isntructions via fifos from js runtimes
-oled exe run lasershow exes as new processes, stops them with signals / kills them and changes settings
+lasershow receives shutdown message and cleans up laser - turn off relay
 
 //how do i debounce well??
