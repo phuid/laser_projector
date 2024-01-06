@@ -140,9 +140,9 @@ int Command::execute(std::string string, menu_option &root)
                 std::cout << "progress::" << static_cast<float>(stoi(this->args[1]) / stoi(this->args[3])) * 100.f << std::endl;
                 #endif
             }
-            else if (this->args[0] == ) {
+            // else if (this->args[0] == ) {
 
-            }
+            // }
             else {
                 exit(0); //FIXME: only for debug, REMOVE
             }
@@ -218,7 +218,7 @@ int main()
                 .style = VALUE,
                 .value = {0, 0, 100, 0.5},
             },
-            {.name = "%no output received%",
+            {.name = "-no out received-",
              .style = TEXT},
             {.name = "STOP",
              .style = TEXT},

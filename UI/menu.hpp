@@ -370,7 +370,7 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
         lcd_pos(lcd, i - menu_scroll, 0);
         if (i < menu.size() + ((parent_menu_option.style == NESTED_MENU) ? 1 : 0)) //+1 for back button
         {
-          if (i == menu_selected && !(parent_menu_option.nest_option_active && parent_menu_option.style == VALUE))
+          if (i == menu_selected && !(parent_menu_option.nest_option_active && menu[i - ((parent_menu_option.style == NESTED_MENU) ? 1 : 0)].style == VALUE))
             lcd_print(lcd, (char *)"\3");
           else
             lcd_print(lcd, (char *)" ");
