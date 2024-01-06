@@ -128,7 +128,16 @@ int Command::execute(std::string string, menu_option &root)
         if (this->args.size() >= 1) {
             if (this->args[0] == "POS") {
                 if (this-> args.size() >= 4)
-                root.nested_menu_options[0].value.num = static_cast<float>(stoi(this->args[1]) / stoi(this->args[3])) * 100.f;
+                if (!(root.nest_option_active && root.nest_selected == 0)) {
+                root.nested_menu_options[0].value.num = (stof(this->args[1]) / stof(this->args[3])) * 100.f;
+                root.nested_menu_options[0].redraw = 1;
+                #ifdef DEBUG
+                std::cout << "set-";
+                #endif
+                }
+                #ifdef DEBUG
+                std::cout << "progress::" << static_cast<float>(stoi(this->args[1]) / stoi(this->args[3])) * 100.f << std::endl;
+                #endif
             }
         }
     }
@@ -199,7 +208,7 @@ int main()
                 .style = VALUE,
                 .value = {0, 0, 100, 0.5},
             },
-            {.name = "%out%",
+            {.name = "%no output received%",
              .style = TEXT},
             {.name = "STOP",
              .style = TEXT},
