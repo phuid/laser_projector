@@ -362,6 +362,7 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
 #endif
 #ifdef DEBUG
       std::cout << "redraw:" << (int)redraw << " parent_redraw:" << (int)parent_menu_option.redraw<< " selected_redraw:" << (int)menu[menu_selected].redraw << " screenscrollED:" << screen_scrolled << std::endl;
+      printf("|%.*s|", SCREEN_WIDTH, "-");
 #endif
       if (parent_menu_option.style == NESTED_MENU)
         menu_selected += 1; // cancel accounting for back button in menu
