@@ -140,6 +140,13 @@ int Command::execute(std::string string, menu_option &root)
                 #endif
             }
         }
+        else {
+            std::cout << first_word;
+            for (auto &&i : this->args) {
+                std::cout << args << ", ";
+            }
+            std::cout << std::endl
+        }
     }
     else {
         std::cout << "first word: \"" << this->first_word << "\"" << std::endl; 

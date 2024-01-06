@@ -87,3 +87,12 @@ responses immediately on command reception
 
 messages can come at any moment:
 - `INFO: <details>`
+  - details - one of following:
+    - `OPTION <name> <val>`
+      - name: name of option being changed
+      - val: numeric (float) value of the option 
+    - `STOP`
+    - `PAUSE <val>`
+      - val: 1 - paused, 0 - not paused
+    - `PROJECT <filename>`
+      - filename: filename of the file being projected
