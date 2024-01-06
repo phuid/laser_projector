@@ -75,84 +75,126 @@ void fill_with_files(zmq::socket_t &command_sender, menu_option &parent)
 class Command
 {
 public:
-  std::string received_string;
-  std::string first_word;
-  std::vector<std::string> args;
+    std::string received_string;
+    std::string first_word;
+    std::vector<std::string> args;
 
-  void parse(std::string string);
-  int execute(std::string string, menu_option &root);
+    void parse(std::string string);
+    int execute(std::string string, menu_option &root);
 };
 
 void Command::parse(std::string string)
 {
-  args.clear();
-  this->received_string = string;
+    args.clear();
+    this->received_string = string;
 
-  size_t space_pos = string.find(" ");
-  if (space_pos == std::string::npos)
-    this->first_word = string;
-  else
-  {
-    this->first_word = string.substr(0, space_pos);
-    string = string.substr(space_pos + 1);
-  }
-
-  if (space_pos != std::string::npos)
-  {
-    space_pos = string.find(" ");
-    size_t init_pos = 0;
-    while (space_pos != std::string::npos)
+    size_t space_pos = string.find(" ");
+    if (space_pos == std::string::npos)
+        this->first_word = string;
+    else
     {
-      this->args.push_back(string.substr(init_pos, space_pos - init_pos));
-      init_pos = space_pos + 1;
-
-      space_pos = string.find(" ", init_pos);
+        this->first_word = string.substr(0, space_pos);
+        string = string.substr(space_pos + 1);
     }
-    this->args.push_back(string.substr(init_pos, std::min(space_pos, string.size()) - init_pos + 1));
-  }
 
-  std::cout << "parsed - firstWord: " << this->first_word << "; "
-            << "args: ";
-  for (auto &&i : args)
-  {
-    std::cout << i << ", ";
-  }
-  std::cout << std::endl;
+    if (space_pos != std::string::npos)
+    {
+        space_pos = string.find(" ");
+        size_t init_pos = 0;
+        while (space_pos != std::string::npos)
+        {
+            this->args.push_back(string.substr(init_pos, space_pos - init_pos));
+            init_pos = space_pos + 1;
 
+            space_pos = string.find(" ", init_pos);
+        }
+        this->args.push_back(string.substr(init_pos, std::min(space_pos, string.size()) - init_pos + 1));
+    }
+
+    std::cout << "parsed - firstWord: " << this->first_word << "; "
+              << "args: ";
+    for (auto &&i : args)
+    {
+        std::cout << i << ", ";
+    }
+    std::cout << std::endl;
 }
 
 int Command::execute(std::string string, menu_option &root)
 {
     this->parse(string);
 
-    if (this->first_word == "INFO:") {
-        if (this->args.size() >= 1) {
-            if (this->args[0] == "POS") {
-                if (this-> args.size() >= 4)
-                if (!(root.nest_option_active && root.nest_selected == 0)) {
-                root.nested_menu_options[0].value.num = (stof(this->args[1]) / stof(this->args[3])) * 100.f;
-                root.nested_menu_options[0].redraw = 1;
-                #ifdef DEBUG
-                std::cout << "set-";
-                #endif
-                }
-                #ifdef DEBUG
+    if (this->first_word == "INFO:")
+    {
+        if (this->args.size() >= 1)
+        {
+            if (this->args[0] == "POS")
+            {
+                if (this->args.size() >= 4)
+                    if (!(root.nest_option_active && root.nest_selected == 0))
+                    {
+                        root.nested_menu_options[0].value.num = (stof(this->args[1]) / stof(this->args[3])) * 100.f;
+                        root.nested_menu_options[0].redraw = 1;
+#ifdef DEBUG
+                        std::cout << "set-";
+#endif
+                    }
+#ifdef DEBUG
                 std::cout << "progress::" << static_cast<float>(stoi(this->args[1]) / stoi(this->args[3])) * 100.f << std::endl;
-                #endif
+#endif
             }
-            // else if (this->args[0] == ) {
+            else if (this->args[0] == "STOP")
+            {
+            }
+            else if (this->args[0] == "PAUSE")
+            {
+                if (this->args.size() >= 2) {
+                    (this->args[1] ? "||" : ">")
+                }
+            }
+            else if (this->args[0] == "PROJECT")
+            {
+                if (this->args.size() >= 2) {
+                    this->args[1]
+                }
+            }
+            else if (this->args[0] == "OPTION")
+            {
+                if (this->args.size() >= 3) {
+                    if (this->args[2] == "point_delay") {
 
-            // }
-            else {
-                exit(0); //FIXME: only for debug, REMOVE
+                    }
+                    else if (this->args[2] == "repeat") {
+
+                    }
+                    else if (this->args[2] == "target_frame_time") {
+
+                    }
+                    else if (this->args[2] == "trapezoid_horizontal") {
+
+                    }
+                    else if (this->args[2] == "trapezoid vertical") {
+
+                    }
+                    else {
+                        exit(0); // FIXME: only for debug, REMOVE
+                    }
+                }
+            }
+            else
+            {
+                exit(0); // FIXME: only for debug, REMOVE
             }
         }
-        else {
-            exit(0); //FIXME: only for debug, REMOVE
+        else
+        {
+            exit(0); // FIXME: only for debug, REMOVE
         }
     }
-    else {
-        std::cout << "first word: \"" << this->first_word << "\"" << std::endl; 
+    else
+    {
+        std::cout << "first word: \"" << this->first_word << "\"" << std::endl;
+        exit(0); // FIXME: only for debug, REMOVE
     }
 }
 

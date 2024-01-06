@@ -101,3 +101,6 @@ messages can come at any moment:
       - val: 1 - paused, 0 - not paused
     - `PROJECT <filename>`
       - filename: filename of the file being projected
+    - `POS <pos> OF <max>`
+      - pos: position of coursor in projected file
+      - max: size of projected file
