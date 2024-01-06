@@ -48,7 +48,7 @@ idk whatever there is time for
 - AP / wifi / wifi_off
 
 #### communication
-##### lasershow <- pipe
+##### lasershow <- socket
 
 lasershow executable takes commands **from all UI processes** through an **IPC socket**
 command format
