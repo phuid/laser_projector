@@ -89,7 +89,12 @@ messages can come at any moment:
 - `INFO: <details>`
   - details - one of following:
     - `OPTION <name> <val>`
-      - name: name of option being changed
+      - name: name of option being changed; *any of*:
+        - `point_delay`
+        - `repeat`
+        - `target_frame_time`
+        - `trapezoid_horizontal`
+        - `trapezoid_vertical`
       - val: numeric (float) value of the option 
     - `STOP`
     - `PAUSE <val>`

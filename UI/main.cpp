@@ -118,6 +118,7 @@ void Command::parse(std::string string)
     std::cout << i << ", ";
   }
   std::cout << std::endl;
+
 }
 
 int Command::execute(std::string string, menu_option &root)
@@ -139,13 +140,15 @@ int Command::execute(std::string string, menu_option &root)
                 std::cout << "progress::" << static_cast<float>(stoi(this->args[1]) / stoi(this->args[3])) * 100.f << std::endl;
                 #endif
             }
+            else if (this->args[0] == ) {
+
+            }
+            else {
+                exit(0); //FIXME: only for debug, REMOVE
+            }
         }
         else {
-            std::cout << first_word;
-            for (auto &&i : this->args) {
-                std::cout << args << ", ";
-            }
-            std::cout << std::endl
+            exit(0); //FIXME: only for debug, REMOVE
         }
     }
     else {
