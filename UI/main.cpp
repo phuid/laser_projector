@@ -8,6 +8,7 @@
 #include "zmq.hpp"
 #include "soft_lcd.h"
 
+#include "config.hpp"
 #include "encoder.hpp"
 #include "menu.hpp"
 
@@ -219,7 +220,7 @@ int main()
 
     /* Create a LCD given SCL, SDA and I2C address, 4 lines */
     /* PCF8574 has default address 0x27 */
-    lcd_t *lcd = lcd_create(9, 8, 0x27, SCREEN_HEIGHT);
+    lcd_t *lcd = lcd_create(LCD_SCL_PIN, LCD_SDA_PIN, 0x27, SCREEN_HEIGHT);
 
     if (lcd == NULL)
     {
