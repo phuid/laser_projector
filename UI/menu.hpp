@@ -195,7 +195,8 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
       // FUNCTION handled onclick
 
     default:
-      std::cerr << "ERR: Option which cannot be active is active. dbg_nests: \"" << dbg_nests << "\", style: " << menu[menu_selected].style << std::endl;
+      std::cerr << "ERR: Option which cannot be active is active.";
+      std::cerr << "dbg_nests: \"" << dbg_nests << "\", style: " << menu[menu_selected].style << std::endl;
       break;
     }
   }
@@ -203,6 +204,13 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
   {
     bool selection_scrolled = 0;
     bool screen_scrolled = 0;
+    bool redraw_some_child = [](menu_option& parent_menu_option, uint8_t menu_scroll) -> bool {
+      for (uint8_t i = menu_scroll; i < menu_scroll + SCREEN_HEIGHT; i++)
+      {
+        if (parent_menu_option.nested_menu_options[i - ((parent_menu_option.style == NESTED_MENU) ? 1 : 0)].redraw) return 1;
+      }
+      return 0;
+    } (parent_menu_option, menu_scroll);
 
     if (menu[menu_selected].style == VALUE && parent_menu_option.nest_option_active)
     {
@@ -248,13 +256,13 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
       }
 #endif
     }
-    if (selection_scrolled || get_encoder_btn_pressed() || redraw || parent_menu_option.redraw || menu[menu_selected].redraw)
+    if (selection_scrolled || get_encoder_btn_pressed() || redraw || parent_menu_option.redraw || redraw_some_child || menu[menu_selected].redraw)
     {
 #ifdef DEBUG
-      std::cout << "dgb_nests: " << dbg_nests << std::endl;
-      std::cout << "reason (SCR/BTN/RE/parRE)" << selection_scrolled << get_encoder_btn_pressed() << redraw << parent_menu_option.redraw << std::endl;
+      std::cout << "dbg_nests: " << dbg_nests << std::endl;
+      std::cout << "reason (SCR/BTN/RE/parRE/childRE)" << selection_scrolled << get_encoder_btn_pressed() << redraw << parent_menu_option.redraw << redraw_some_child << std::endl;
 #endif
-      if (selection_scrolled || redraw || parent_menu_option.redraw || menu[menu_selected].redraw) // FIXME: screen_scrolled flag 1 when menu_selected == 0/max
+      if (selection_scrolled || redraw || parent_menu_option.redraw || redraw_some_child || menu[menu_selected].redraw) // FIXME: screen_scrolled flag 1 when menu_selected == 0/max
       {
 #ifdef DEBUG
         std::cout << "screenscroll: " << (int)menu_selected << " >= " << (int)menu_scroll << " + " << SCREEN_HEIGHT - 2 << std::endl;
@@ -361,7 +369,8 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
       std::cout << "parent_menu_opti_ac" << (int)parent_menu_option.nest_option_active << std::endl;
 #endif
 #ifdef DEBUG
-      std::cout << "redraw:" << (int)redraw << " parent_redraw:" << (int)parent_menu_option.redraw<< " selected_redraw:" << (int)menu[menu_selected].redraw << " screenscrollED:" << screen_scrolled << std::endl;
+      std::cout << "redraw:" << (int)redraw << " parent_redraw:" << (int)parent_menu_option.redraw << " redraw_some_child" << redraw_some_child << " screenscrollED:" << screen_scrolled << std::endl;
+      printf("|%.*s|", SCREEN_WIDTH, "-----------------------------------------");
 #endif
       if (parent_menu_option.style == NESTED_MENU)
         menu_selected += 1; // cancel accounting for back button in menu
@@ -370,12 +379,12 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
         lcd_pos(lcd, i - menu_scroll, 0);
         if (i < menu.size() + ((parent_menu_option.style == NESTED_MENU) ? 1 : 0)) //+1 for back button
         {
-          if (i == menu_selected && !(parent_menu_option.nest_option_active && parent_menu_option.style == VALUE))
+          if (i == menu_selected && !(parent_menu_option.nest_option_active && menu[i - ((parent_menu_option.style == NESTED_MENU) ? 1 : 0)].style == VALUE))
             lcd_print(lcd, (char *)"\3");
           else
             lcd_print(lcd, (char *)" ");
 
-          if (screen_scrolled || redraw || parent_menu_option.redraw || menu[i - ((parent_menu_option.style == NESTED_MENU) ? 1 : 0)].redraw)
+          if (screen_scrolled || redraw || parent_menu_option.redraw || redraw_some_child || menu[i - ((parent_menu_option.style == NESTED_MENU) ? 1 : 0)].redraw)
           {
             parent_menu_option.redraw = 0;
             menu[i - ((parent_menu_option.style == NESTED_MENU) ? 1 : 0)].redraw = 0;
@@ -430,7 +439,7 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
         }
         else
         {
-          if (screen_scrolled || redraw || parent_menu_option.redraw)
+          if (screen_scrolled || redraw || parent_menu_option.redraw || redraw_some_child)
           {
 #ifdef DEBUG
             std::cout << "i" << (int)i << std::endl;

@@ -48,7 +48,7 @@ idk whatever there is time for
 - AP / wifi / wifi_off
 
 #### communication
-##### lasershow <- pipe
+##### lasershow <- socket
 
 lasershow executable takes commands **from all UI processes** through an **IPC socket**
 command format
@@ -87,3 +87,20 @@ responses immediately on command reception
 
 messages can come at any moment:
 - `INFO: <details>`
+  - details - one of following:
+    - `OPTION <name> <val>`
+      - name: name of option being changed; *any of*:
+        - `point_delay`
+        - `repeat`
+        - `target_frame_time`
+        - `trapezoid_horizontal`
+        - `trapezoid_vertical`
+      - val: numeric (float) value of the option 
+    - `STOP`
+    - `PAUSE <val>`
+      - val: 1 - paused, 0 - not paused
+    - `PROJECT <filename>`
+      - filename: filename of the file being projected
+    - `POS <pos> OF <max>`
+      - pos: position of coursor in projected file
+      - max: size of projected file
