@@ -273,6 +273,8 @@ int main()
     std::cout << "options couldnt be loaded from file" << std::endl;
   }
 
+  publish_message(publisher, "INFO: lasershow ready")
+
   while (true)
   {
     // options.project_filename = "";

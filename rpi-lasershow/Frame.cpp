@@ -91,10 +91,10 @@ bool Frame::isLastPoint(char *bytes)
     return getBit(bytes[FrameData::STATUS_BYTE], FrameData::LAST_POINT_BIT);
 }
 
-// Helpter function to get arbitrary bit value from byte.
+// Helper function to get arbitrary bit value from byte.
 bool Frame::getBit(char b, int bitNumber)
 {
-    return (b & (1 << (bitNumber - 1))) != 0;
+    return (b & (1 << (bitNumber - 1)));
 }
 
 // Helper function to map a value between two value ranges.

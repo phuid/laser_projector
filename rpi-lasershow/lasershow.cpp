@@ -48,7 +48,7 @@ int lasershow_init(zmq::socket_t &publisher, string fileName)
     }
     adcdac.set_dac_gain(2);
 
-    if (ildaReader.readFile(fileName))
+    if (ildaReader.readFile(fileName) != -1)
     {
         printf("Provided file is a valid ILDA file.\n\r");
         publish_message(publisher, "INFO: valid ILDA file");

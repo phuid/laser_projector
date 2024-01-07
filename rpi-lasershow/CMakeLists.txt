@@ -25,7 +25,6 @@ add_executable(
     ABE_ADCDACPi.cpp
     IldaReader.cpp
     Frame.cpp
-    FrameData.cpp
     Points.cpp
 )
 target_link_libraries(
