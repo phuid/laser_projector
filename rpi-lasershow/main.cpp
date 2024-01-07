@@ -78,6 +78,7 @@ void Command::parse(const std::map<command_type, std::string> &command_dict, std
     this->args.push_back(string.substr(init_pos, std::min(space_pos, string.size()) - init_pos + 1));
   }
 
+  std::cout << "string: " << this->received_string << std::endl;
   std::cout << "parsed - type: " << this->type << "; "
             << "args: ";
   for (auto &&i : args)
@@ -125,7 +126,7 @@ int Command::execute(std::string string, zmq::socket_t &publisher, options_struc
     break;
   case PAUSE:
     options.paused = !options.paused;
-    publish_message(publisher, "INFO: PAUSE " + static_cast<int>(options.paused));
+    publish_message(publisher, "INFO: PAUSE " + (options.paused ? std::string("1") : std::string("0")));
     return 0;
     break;
   case OPTION:

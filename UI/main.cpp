@@ -13,7 +13,7 @@
 
 #include <filesystem>
 
-void print_test(zmq::socket_t &command_sender, menu_option &parent)
+void send_option_name(zmq::socket_t &command_sender, menu_option &parent)
 {
     send_command(command_sender, parent.nested_menu_options[parent.nest_selected].name);
     parent.nest_option_active = 0;
@@ -111,6 +111,7 @@ void Command::parse(std::string string)
         this->args.push_back(string.substr(init_pos, std::min(space_pos, string.size()) - init_pos + 1));
     }
 
+    std::cout << "string: " << this->received_string << std::endl;
     std::cout << "parsed - firstWord: " << this->first_word << "; "
               << "args: ";
     for (auto &&i : args)
@@ -140,61 +141,65 @@ int Command::execute(std::string string, menu_option &root)
 #endif
                     }
 #ifdef DEBUG
-                std::cout << "progress::" << static_cast<float>(stoi(this->args[1]) / stoi(this->args[3])) * 100.f << std::endl;
+                std::cout << "progress::" << root.nested_menu_options[0].value.num << std::endl;
 #endif
-            }
-            else if (this->args[0] == "STOP")
-            {
             }
             else if (this->args[0] == "PAUSE")
             {
-                if (this->args.size() >= 2) {
-                    (this->args[1] ? "||" : ">")
+                if (this->args.size() >= 2)
+                {
+                    root.nested_menu_options[3].value.num = stoi(this->args[1]);
+                    root.nested_menu_options[3].redraw = 1;
                 }
             }
             else if (this->args[0] == "PROJECT")
             {
-                if (this->args.size() >= 2) {
-                    this->args[1]
+                if (this->args.size() >= 2)
+                {
+                    root.nested_menu_options[0].name = this->args[1] + "%";
+                    root.nested_menu_options[0].redraw = 1;
                 }
             }
             else if (this->args[0] == "OPTION")
             {
-                if (this->args.size() >= 3) {
-                    if (this->args[2] == "point_delay") {
-
-                    }
-                    else if (this->args[2] == "repeat") {
-
-                    }
-                    else if (this->args[2] == "target_frame_time") {
-
-                    }
-                    else if (this->args[2] == "trapezoid_horizontal") {
-
-                    }
-                    else if (this->args[2] == "trapezoid vertical") {
-
-                    }
-                    else {
-                        exit(0); // FIXME: only for debug, REMOVE
+                if (this->args.size() >= 3)
+                {
+                    for (auto &&option : root.nested_menu_options[5].nested_menu_options)
+                    {
+                        if (option.name == this->args[2])
+                        {
+                            option.value.num = stof(this->args[2]);
+                        }
                     }
                 }
             }
-            else
+            root.nested_menu_options[1].name = "I:";
+            for (auto &&i : this->args)
             {
-                exit(0); // FIXME: only for debug, REMOVE
+                root.nested_menu_options[1].name += i;
             }
+            root.nested_menu_options[1].redraw = 1;
+            std::cout << root.nested_menu_options[1].name << std::endl;
         }
         else
         {
-            exit(0); // FIXME: only for debug, REMOVE
+            exit(1); // FIXME: only for debug, REMOVE
         }
+    }
+    else if (this->first_word == "ERROR:")
+    {
+        root.nested_menu_options[1].name = "E:";
+        for (auto &&i : this->args)
+        {
+            root.nested_menu_options[1].name += i;
+        }
+        root.nested_menu_options[1].redraw = 1;
+        std::cout << root.nested_menu_options[1].name << std::endl;
     }
     else
     {
         std::cout << "first word: \"" << this->first_word << "\"" << std::endl;
-        exit(0); // FIXME: only for debug, REMOVE
+        exit(1); // FIXME: only for debug, REMOVE
     }
 }
 
@@ -263,8 +268,10 @@ int main()
             {.name = "-no out received-",
              .style = TEXT},
             {.name = "STOP",
-             .style = TEXT},
-            {.name = "PAUSE", .style = TEXT, .has_function = 1, .function = print_test},
+             .style = TEXT,
+             .has_function = 1,
+             .function = send_option_name},
+            {.name = "PAUSE", .style = VALUE, .value = {0, 0, 1}, .has_function = 1, .function = send_option_name},
             {
                 .name = "PROJECT",
                 .style = NESTED_MENU,
