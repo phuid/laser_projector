@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
 
 project(lasershow)
 set (CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../FindWiringPi.cmake ${CMAKE_MODULE_PATH})
+include_guard(GLOBAL)
 
 # place binaries and libraries according to GNU standards
 
@@ -24,8 +25,7 @@ add_executable(
     lasershow.cpp
     ABE_ADCDACPi.cpp
     IldaReader.cpp
-    Frame.cpp
-    Points.cpp
+    my_zmq_helper.cpp
 )
 target_link_libraries(
     lasershow

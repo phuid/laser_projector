@@ -169,60 +169,6 @@ ABE_ADCDACPi.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/lasershow.dir/build.make CMakeFiles/lasershow.dir/ABE_ADCDACPi.cpp.s
 .PHONY : ABE_ADCDACPi.cpp.s
 
-Frame.o: Frame.cpp.o
-
-.PHONY : Frame.o
-
-# target to build an object file
-Frame.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lasershow.dir/build.make CMakeFiles/lasershow.dir/Frame.cpp.o
-.PHONY : Frame.cpp.o
-
-Frame.i: Frame.cpp.i
-
-.PHONY : Frame.i
-
-# target to preprocess a source file
-Frame.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lasershow.dir/build.make CMakeFiles/lasershow.dir/Frame.cpp.i
-.PHONY : Frame.cpp.i
-
-Frame.s: Frame.cpp.s
-
-.PHONY : Frame.s
-
-# target to generate assembly for a file
-Frame.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lasershow.dir/build.make CMakeFiles/lasershow.dir/Frame.cpp.s
-.PHONY : Frame.cpp.s
-
-FrameData.o: FrameData.cpp.o
-
-.PHONY : FrameData.o
-
-# target to build an object file
-FrameData.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lasershow.dir/build.make CMakeFiles/lasershow.dir/FrameData.cpp.o
-.PHONY : FrameData.cpp.o
-
-FrameData.i: FrameData.cpp.i
-
-.PHONY : FrameData.i
-
-# target to preprocess a source file
-FrameData.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lasershow.dir/build.make CMakeFiles/lasershow.dir/FrameData.cpp.i
-.PHONY : FrameData.cpp.i
-
-FrameData.s: FrameData.cpp.s
-
-.PHONY : FrameData.s
-
-# target to generate assembly for a file
-FrameData.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lasershow.dir/build.make CMakeFiles/lasershow.dir/FrameData.cpp.s
-.PHONY : FrameData.cpp.s
-
 IldaReader.o: IldaReader.cpp.o
 
 .PHONY : IldaReader.o
@@ -249,33 +195,6 @@ IldaReader.s: IldaReader.cpp.s
 IldaReader.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/lasershow.dir/build.make CMakeFiles/lasershow.dir/IldaReader.cpp.s
 .PHONY : IldaReader.cpp.s
-
-Points.o: Points.cpp.o
-
-.PHONY : Points.o
-
-# target to build an object file
-Points.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lasershow.dir/build.make CMakeFiles/lasershow.dir/Points.cpp.o
-.PHONY : Points.cpp.o
-
-Points.i: Points.cpp.i
-
-.PHONY : Points.i
-
-# target to preprocess a source file
-Points.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lasershow.dir/build.make CMakeFiles/lasershow.dir/Points.cpp.i
-.PHONY : Points.cpp.i
-
-Points.s: Points.cpp.s
-
-.PHONY : Points.s
-
-# target to generate assembly for a file
-Points.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lasershow.dir/build.make CMakeFiles/lasershow.dir/Points.cpp.s
-.PHONY : Points.cpp.s
 
 lasershow.o: lasershow.cpp.o
 
@@ -331,6 +250,33 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/lasershow.dir/build.make CMakeFiles/lasershow.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+my_zmq_helper.o: my_zmq_helper.cpp.o
+
+.PHONY : my_zmq_helper.o
+
+# target to build an object file
+my_zmq_helper.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lasershow.dir/build.make CMakeFiles/lasershow.dir/my_zmq_helper.cpp.o
+.PHONY : my_zmq_helper.cpp.o
+
+my_zmq_helper.i: my_zmq_helper.cpp.i
+
+.PHONY : my_zmq_helper.i
+
+# target to preprocess a source file
+my_zmq_helper.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lasershow.dir/build.make CMakeFiles/lasershow.dir/my_zmq_helper.cpp.i
+.PHONY : my_zmq_helper.cpp.i
+
+my_zmq_helper.s: my_zmq_helper.cpp.s
+
+.PHONY : my_zmq_helper.s
+
+# target to generate assembly for a file
+my_zmq_helper.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lasershow.dir/build.make CMakeFiles/lasershow.dir/my_zmq_helper.cpp.s
+.PHONY : my_zmq_helper.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -343,24 +289,18 @@ help:
 	@echo "... ABE_ADCDACPi.o"
 	@echo "... ABE_ADCDACPi.i"
 	@echo "... ABE_ADCDACPi.s"
-	@echo "... Frame.o"
-	@echo "... Frame.i"
-	@echo "... Frame.s"
-	@echo "... FrameData.o"
-	@echo "... FrameData.i"
-	@echo "... FrameData.s"
 	@echo "... IldaReader.o"
 	@echo "... IldaReader.i"
 	@echo "... IldaReader.s"
-	@echo "... Points.o"
-	@echo "... Points.i"
-	@echo "... Points.s"
 	@echo "... lasershow.o"
 	@echo "... lasershow.i"
 	@echo "... lasershow.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... my_zmq_helper.o"
+	@echo "... my_zmq_helper.i"
+	@echo "... my_zmq_helper.s"
 .PHONY : help
 
 

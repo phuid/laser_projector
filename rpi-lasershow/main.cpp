@@ -1,6 +1,4 @@
 #include "lasershow.hpp"
-#include "Points.h"
-#include "IldaReader.h"
 #include <wiringPi.h>
 #include "ABE_ADCDACPi.h"
 
@@ -273,7 +271,7 @@ int main()
     std::cout << "options couldnt be loaded from file" << std::endl;
   }
 
-  publish_message(publisher, "INFO: lasershow ready")
+  publish_message(publisher, "INFO: lasershow ready");
 
   while (true)
   {
@@ -289,8 +287,7 @@ int main()
     while (options.repeat || first_repeat)
     {
       first_repeat = 0;
-      int init_val = lasershow_init(publisher, options.project_filename);
-      if (!init_val)
+      if (lasershow_init(publisher, options.project_filename) == 0)
       {
         while (first_repeat == 0) // also used just as a break flag (if 1 break)
         {

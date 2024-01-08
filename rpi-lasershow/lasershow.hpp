@@ -13,7 +13,6 @@
 #include <chrono>
 #include <wiringPi.h>
 #include "ABE_ADCDACPi.h"
-#include "Points.h"
 #include "IldaReader.h"
 
 #include "zmq.hpp"
@@ -21,6 +20,6 @@
 
 void lasershow_cleanup(int);
 
-int lasershow_init(zmq::socket_t &publisher, string fileName);
+bool lasershow_init(zmq::socket_t &publisher, std::string fileName);
 
 int lasershow_loop(zmq::socket_t &publisher, options_struct options);

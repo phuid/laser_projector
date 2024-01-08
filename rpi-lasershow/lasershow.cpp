@@ -11,7 +11,6 @@
 #include <chrono>
 #include <wiringPi.h>
 #include "ABE_ADCDACPi.h"
-#include "Points.h"
 #include "IldaReader.h"
 #include "lasershow.hpp"
 
@@ -20,9 +19,7 @@
 
 using namespace std;
 
-
-constexpr uint8_t laser_pins[3] = {0, 2, 3};
-static uint8_t pin_index = 0;
+constexpr uint8_t LASER_PINS[3] = {0, 2, 3};
 
 static ABElectronics_CPP_Libraries::ADCDACPi adcdac;
 static IldaReader ildaReader;
@@ -34,7 +31,7 @@ void lasershow_cleanup(int sig)
     printf("Turn off laser diode.\n\r");
     for (size_t i = 0; i < 3; i++)
     {
-        digitalWrite(laser_pins[i], 0);
+        digitalWrite(LASER_PINS[i], 0);
     }
     adcdac.close_dac();
     ildaReader.closeFile();
@@ -46,25 +43,26 @@ void lasershow_cleanup(int sig)
     }
 }
 
-int lasershow_init(zmq::socket_t &publisher, string fileName)
+bool 
+lasershow_init(zmq::socket_t &publisher, string fileName)
 {
     // Setup hardware communication stuff.
     wiringPiSetup();
 
     for (size_t i = 0; i < 3; i++)
     {
-        pinMode(laser_pins[i], OUTPUT); // laser
+        pinMode(LASER_PINS[i], OUTPUT); // laser
     }
 
     if (adcdac.open_dac() == -1)
     {
         printf("Failed to initialize MCP4822.\n\r");
         publish_message(publisher, "ERROR: OTHER MCP4822 init fail");
-        return -1;
+        return 1;
     }
     adcdac.set_dac_gain(2);
 
-    if (ildaReader.readFile(fileName) == 0)
+    if (ildaReader.readFile(publisher, fileName) == 0)
     {
         printf("Provided file is a valid ILDA file.\n\r");
         publish_message(publisher, "INFO: succesful file read");
@@ -73,7 +71,7 @@ int lasershow_init(zmq::socket_t &publisher, string fileName)
     {
         printf("Error opening ILDA file.\n\rfilename: %s", fileName.c_str());
         publish_message(publisher, "ERROR: EINVAL error opening ILDA filename: \"" + fileName + "\"");
-        return (1);
+        return 1;
     }
 
     // Subscribe program to exit/interrupt signal.
@@ -85,55 +83,52 @@ int lasershow_init(zmq::socket_t &publisher, string fileName)
     return 0;
 }
 
-// return 1 == break;
+// return: 0-success, 1-error, 2-end of projection
 int lasershow_loop(zmq::socket_t &publisher, options_struct options)
 {
-    // In case there's no more points in the current frame check if it's time to load next frame.
-    while (points.next())
+    if (ildaReader.current_frame < ildaReader.sections.size())
     {
-        // Exit if no points found.
-        if (points.size != 0)
+        std::cout << "position\t" << ildaReader.current_frame + 1 << "\tof\t" << ildaReader.sections.size() << std::endl;
+        publish_message(publisher, "POS " + std::to_string(ildaReader.current_frame + 1) + " OF " + std::to_string(ildaReader.sections.size()));
+        uint16_t current_point = 0;
+        while (true) // always broken by time check
         {
+            std::cout << "points[" << current_point << "]: x:" << ildaReader.sections[ildaReader.current_frame].points[current_point].x << ", y:" << ildaReader.sections[ildaReader.current_frame].points[current_point].y << ", R:" << static_cast<int>(ildaReader.sections[ildaReader.current_frame].points[current_point].red) << ", G:" << static_cast<int>(ildaReader.sections[ildaReader.current_frame].points[current_point].green) << ", B:" << static_cast<int>(ildaReader.sections[ildaReader.current_frame].points[current_point].blue) << std::endl;
             // Move galvos to x,y position.
-            adcdac.set_dac_raw(((static_cast<float>(points.store[(points.index * 3) + 1]) / 32767.f) * options.trapezoid_horizontal + 1.f) * points.store[points.index * 3], 1);
-            adcdac.set_dac_raw(((static_cast<float>(points.store[points.index * 3]) / 32767.f) * options.trapezoid_vertical + 1.f) * points.store[(points.index * 3) + 1], 2);
+            adcdac.set_dac_raw(ildaReader.sections[ildaReader.current_frame].points[current_point].x, 1); // TODO: trapezoid calc
+            adcdac.set_dac_raw(ildaReader.sections[ildaReader.current_frame].points[current_point].y, 2);
 
-            // Turn on/off laser diode.
-            if (points.store[(points.index * 3) + 2] == 1)
-            {
-                digitalWrite(laser_pins[pin_index], 0);
-                digitalWrite(laser_pins[++pin_index % 3], 1);
-                pin_index = pin_index % 3;
-                // printf("pin: %u", laser_pins[pin_index]);
-            }
-            else
-                digitalWrite(laser_pins[pin_index], 0);
+            digitalWrite(LASER_PINS[0], ildaReader.sections[ildaReader.current_frame].points[current_point].red);
+            digitalWrite(LASER_PINS[1], ildaReader.sections[ildaReader.current_frame].points[current_point].green);
+            digitalWrite(LASER_PINS[2], ildaReader.sections[ildaReader.current_frame].points[current_point].blue);
 
             // Maybe wait a while there.
             if (options.pointDelay > 0)
                 usleep(options.pointDelay);
+            // check the time and move on to the next frame
             if (options.targetFrameTime < std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start).count())
             {
                 start = std::chrono::system_clock::now();
                 for (size_t i = 0; i < 3; i++)
                 {
-                    digitalWrite(laser_pins[i], 0);
+                    digitalWrite(LASER_PINS[i], 0);
                 }
-                if (options.paused)
+                if (!options.paused)
                 {
-                    points.index = 0;
+                    ildaReader.current_frame++;
+                    current_point = 0;
                 }
-                else
-                {
-                    int getnext_val = ildaReader.getNextFrame(publisher, &points);
-                    if (getnext_val)
-                    {
-                        return getnext_val;
-                    }
-                }
+
                 break;
             }
+            current_point = (current_point + 1) % ildaReader.sections[ildaReader.current_frame].points.size();
         }
+        ildaReader.current_frame++;
+        return 0;
     }
-    return 0;
+    else
+    {
+        std::cout << "end of projection" << std::endl;
+        return 2;
+    }
 }
