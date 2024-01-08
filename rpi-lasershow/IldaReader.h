@@ -41,6 +41,6 @@ public:
 public:
     std::ifstream file;
     size_t file_size;
-    std::vector<section> section;
+    std::vector<section> sections;
     color_palette palette;
 };

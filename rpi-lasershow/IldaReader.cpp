@@ -27,7 +27,7 @@ bool IldaReader::readFile(std::string fileName)
 }
 
 // Read first 32 header bytes from the file and check if the first 4 bytes in ASCII are "ILDA".
-bool section::read_header(buffer &buf)
+bool section::read_header(uint8_t header_buf[FormatData::header::NUMBER_OF_HEADER_BYTES])
 {
     for (int i = FormatData::header::ILDA_STRING_BYTES.first; i < FormatData::header::ILDA_STRING_BYTES.second; i++)
     {
@@ -57,18 +57,18 @@ bool section::read_header(buffer &buf)
     return 0;
 }
 
-bool IldaReader::read_sections(zmq::socket_t &publisher)
+bool IldaReader::read_sections(zmq::socket_t &publisher, std::ifstream &file)
 {
     for (size_t i = 0; i < this->total_frames; i++)
     {
         section section;
 
-        if (position + FormatData::NUMBER_OF_HEADER_BYTES > file_size)
+        if (this->file.tellg() + FormatData::NUMBER_OF_HEADER_BYTES > file_size)
         {
             return 0; // EOF
         }
         uint8_t header_buf[FormatData::header::NUMBER_OF_HEADER_BYTES];
-        this->file.read(header_buf, FormatData::NUMBER_OF_HEADER_BYTES);
+        file.read(header_buf, FormatData::NUMBER_OF_HEADER_BYTES);
 
         // read_header, quit if invalid file format is detected
         if (section.read_header(header_buf))
@@ -78,17 +78,18 @@ bool IldaReader::read_sections(zmq::socket_t &publisher)
             this->color_palette.colors.clear();
         }
 
-        // read points
-        for (size_t i = 0; i < this->number_of_records; i++)
+        // read records
+        for (size_t i = 0; i < section.number_of_records; i++)
         {
             point point;
 
-            if (position + FormatData::NUMBER_OF_RECORD_BYTES[this->format] > file_size)
+            if (this->file.tellg() + FormatData::NUMBER_OF_RECORD_BYTES[this->format] > file_size)
             {
                 return 0; // EOF
             }
+            uint8_t buf[FormatData::NUMBER_OF_RECORD_BYTES[section.format]];
 
-            switch (this->format)
+            switch (section.format)
             {
             case ILDA_2D_INDEXED:
                 point.x = combine_bytes(buf[FormatData::indexed_2d::X_COORDINATE_BYTES.first], buf[FormatData::indexed_2d::X_COORDINATE_BYTES.second]);
@@ -127,12 +128,12 @@ bool IldaReader::read_sections(zmq::socket_t &publisher)
                 return 1; // Invalid file format.
             }
 
-            if (this->format != ILDA_COLOR_PALETTE)
+            if (section.format != ILDA_COLOR_PALETTE)
             {
-                this->points.push_back(point);
+                section.points.push_back(point);
             }
         }
-        if (this->format != ILDA_COLOR_PALETTE)
+        if (section.format != ILDA_COLOR_PALETTE)
         {
             this->sections.push_back(section);
         }

@@ -20,15 +20,31 @@
 
 using namespace std;
 
-void lasershow_cleanup(int sig);
 
 constexpr uint8_t laser_pins[3] = {0, 2, 3};
 static uint8_t pin_index = 0;
 
 static ABElectronics_CPP_Libraries::ADCDACPi adcdac;
 static IldaReader ildaReader;
-static Points points;
 static std::chrono::time_point<std::chrono::system_clock> start;
+
+// Function that is called when program needs to be terminated.
+void lasershow_cleanup(int sig)
+{
+    printf("Turn off laser diode.\n\r");
+    for (size_t i = 0; i < 3; i++)
+    {
+        digitalWrite(laser_pins[i], 0);
+    }
+    adcdac.close_dac();
+    ildaReader.closeFile();
+    printf("lasershow cleanup done.\n\r");
+    if (sig != 0)
+    {
+        printf("stopped on interrupt\n\r");
+        exit(1);
+    }
+}
 
 int lasershow_init(zmq::socket_t &publisher, string fileName)
 {
@@ -48,12 +64,10 @@ int lasershow_init(zmq::socket_t &publisher, string fileName)
     }
     adcdac.set_dac_gain(2);
 
-    if (ildaReader.readFile(fileName) != -1)
+    if (ildaReader.readFile(fileName) == 0)
     {
         printf("Provided file is a valid ILDA file.\n\r");
-        publish_message(publisher, "INFO: valid ILDA file");
-        ildaReader.getNextFrame(publisher, &points);
-        printf("Points loaded in first frame: %d\n\r", points.size);
+        publish_message(publisher, "INFO: succesful file read");
     }
     else
     {
@@ -122,22 +136,4 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options)
         }
     }
     return 0;
-}
-
-// Function that is called when program needs to be terminated.
-void lasershow_cleanup(int sig)
-{
-    printf("Turn off laser diode.\n\r");
-    for (size_t i = 0; i < 3; i++)
-    {
-        digitalWrite(laser_pins[i], 0);
-    }
-    adcdac.close_dac();
-    ildaReader.closeFile();
-    printf("lasershow cleanup done.\n\r");
-    if (sig != 0)
-    {
-        printf("stopped on interrupt\n\r");
-        exit(1);
-    }
 }
