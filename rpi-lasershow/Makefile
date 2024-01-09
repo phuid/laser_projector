@@ -196,6 +196,33 @@ IldaReader.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/lasershow.dir/build.make CMakeFiles/lasershow.dir/IldaReader.cpp.s
 .PHONY : IldaReader.cpp.s
 
+command.o: command.cpp.o
+
+.PHONY : command.o
+
+# target to build an object file
+command.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lasershow.dir/build.make CMakeFiles/lasershow.dir/command.cpp.o
+.PHONY : command.cpp.o
+
+command.i: command.cpp.i
+
+.PHONY : command.i
+
+# target to preprocess a source file
+command.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lasershow.dir/build.make CMakeFiles/lasershow.dir/command.cpp.i
+.PHONY : command.cpp.i
+
+command.s: command.cpp.s
+
+.PHONY : command.s
+
+# target to generate assembly for a file
+command.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lasershow.dir/build.make CMakeFiles/lasershow.dir/command.cpp.s
+.PHONY : command.cpp.s
+
 lasershow.o: lasershow.cpp.o
 
 .PHONY : lasershow.o
@@ -292,6 +319,9 @@ help:
 	@echo "... IldaReader.o"
 	@echo "... IldaReader.i"
 	@echo "... IldaReader.s"
+	@echo "... command.o"
+	@echo "... command.i"
+	@echo "... command.s"
 	@echo "... lasershow.o"
 	@echo "... lasershow.i"
 	@echo "... lasershow.s"

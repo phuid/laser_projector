@@ -5,6 +5,7 @@ Version 1.0 Created 23/06/2017
 ================================================
 
 */
+#include <stdint.h>
 
 #ifndef ADCDACPI_ABE_ADCDACPI_H_
 #define ADCDACPI_ABE_ADCDACPI_H_

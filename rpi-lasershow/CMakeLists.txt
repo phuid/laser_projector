@@ -25,6 +25,7 @@ add_executable(
     lasershow.cpp
     ABE_ADCDACPi.cpp
     IldaReader.cpp
+    command.cpp
     my_zmq_helper.cpp
 )
 target_link_libraries(
