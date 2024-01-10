@@ -15,13 +15,14 @@ find_package(wiringPi)
 find_package(cppzmq)
 
 # Include headers
-include_directories(${WIRINGPI_INCLUDE_DIRS}) 
+include_directories(${WIRINGPI_INCLUDE_DIRS})
 
 
 add_executable(
     UI
     main.cpp
     encoder.cpp
+    my_zmq_helper.cpp
     soft_i2c.c
     soft_lcd.c
 )

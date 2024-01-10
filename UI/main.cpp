@@ -6,6 +6,8 @@
 #include <iostream>
 
 #include "zmq.hpp"
+#include "my_zmq_helper.hpp"
+
 #include "soft_lcd.h"
 
 #include "config.hpp"
@@ -14,9 +16,9 @@
 
 #include <filesystem>
 
-void send_option_name(zmq::socket_t &command_sender, menu_option &parent)
+void send_option_command(zmq::socket_t &command_sender, menu_option &parent)
 {
-    send_command(command_sender, parent.nested_menu_options[parent.nest_selected].name);
+    send_command(command_sender, parent.nested_menu_options[parent.nest_selected].command_name);
     parent.nest_option_active = 0;
 }
 
@@ -24,7 +26,7 @@ void read_options(zmq::socket_t &command_sender, menu_option &parent)
 {
     for (auto &&option : parent.nested_menu_options[parent.nest_selected].nested_menu_options)
     {
-        send_command(command_sender, "OPTION read " + option.name);
+        send_command(command_sender, "OPTION read " + option.command_name);
     }
 }
 
@@ -50,6 +52,7 @@ void project(zmq::socket_t &command_sender, menu_option &parent)
 #endif
     send_command(command_sender, "PROJECT " + path);
     parent.nest_option_active = 0;
+    parent.redraw = 1;
 }
 
 void fill_with_files(zmq::socket_t &command_sender, menu_option &parent)
@@ -149,8 +152,8 @@ int Command::execute(std::string string, menu_option &root)
             {
                 if (this->args.size() >= 2)
                 {
-                    root.nested_menu_options[3].value.num = stoi(this->args[1]);
-                    root.nested_menu_options[3].redraw = 1;
+                    root.nested_menu_options[4].value.num = stoi(this->args[1]);
+                    root.nested_menu_options[4].redraw = 1;
                 }
             }
             else if (this->args[0] == "PROJECT")
@@ -167,20 +170,20 @@ int Command::execute(std::string string, menu_option &root)
                 {
                     for (auto &&option : root.nested_menu_options[5].nested_menu_options)
                     {
-                        if (option.name == this->args[2])
+                        if (option.command_name == this->args[2])
                         {
                             option.value.num = stof(this->args[2]);
                         }
                     }
                 }
             }
-            root.nested_menu_options[1].name = "I:";
+            root.nested_menu_options[2].name = "I:";
             for (auto &&i : this->args)
             {
-                root.nested_menu_options[1].name += i;
+                root.nested_menu_options[2].name += i;
             }
-            root.nested_menu_options[1].redraw = 1;
-            std::cout << root.nested_menu_options[1].name << std::endl;
+            root.nested_menu_options[2].redraw = 1;
+            std::cout << root.nested_menu_options[2].name << std::endl;
         }
         else
         {
@@ -189,13 +192,13 @@ int Command::execute(std::string string, menu_option &root)
     }
     else if (this->first_word == "ERROR:")
     {
-        root.nested_menu_options[1].name = "E:";
+        root.nested_menu_options[2].name = "E:";
         for (auto &&i : this->args)
         {
-            root.nested_menu_options[1].name += i;
+            root.nested_menu_options[2].name += i;
         }
-        root.nested_menu_options[1].redraw = 1;
-        std::cout << root.nested_menu_options[1].name << std::endl;
+        root.nested_menu_options[2].redraw = 1;
+        std::cout << root.nested_menu_options[2].name << std::endl;
     }
     else
     {
@@ -263,16 +266,24 @@ int main()
         .nested_menu_options = {
             {
                 .name = "progress%",
+                .command_name = "progress",
                 .style = VALUE,
                 .value = {0, 0, 100, 0.5},
+            },
+            {
+                .name = "current_frame",
+                .command_name = "current_frame",
+                .style = VALUE,
+                .value = {1, 1, 1, 1},
             },
             {.name = "-no out received-",
              .style = TEXT},
             {.name = "STOP",
+            .command_name = "STOP",
              .style = TEXT,
              .has_function = 1,
              .function = send_option_name},
-            {.name = "PAUSE", .style = VALUE, .value = {0, 0, 1}, .has_function = 1, .function = send_option_name},
+            {.name = "PAUSE", .command_name = "PAUSE", .style = VALUE, .value = {0, 0, 1}, .has_function = 1, .function = send_option_name},
             {
                 .name = "PROJECT",
                 .style = NESTED_MENU,
@@ -285,31 +296,37 @@ int main()
                 .nested_menu_options = {
                     {
                         .name = "screen brightness",
+                        .command_name = "screen_brightness",
                         .style = VALUE,
                         .value = {50, 0, 100},
                     },
                     {
                         .name = "repeat",
+                        .command_name = "repeat",
                         .style = VALUE,
                         .value = {0, 0, 1, 1},
                     },
                     {
                         .name = "point_delay",
+                        .command_name = "point_delay",
                         .style = VALUE,
                         .value = {0, 0, 10000, 10},
                     },
                     {
                         .name = "target_frame_time",
+                        .command_name = "target_frame_time",
                         .style = VALUE,
                         .value = {0, 0, 10000, 1},
                     },
                     {
                         .name = "trapezoid_horizontal",
+                        .command_name = "trapezoid_horizontal",
                         .style = VALUE,
                         .value = {0, -1.f, 1.f, 0.05},
                     },
                     {
                         .name = "trapezoid_vertical",
+                        .command_name = "trapezoid_vertical",
                         .style = VALUE,
                         .value = {0, -1.f, 1.f, 0.05},
                     },
@@ -318,7 +335,7 @@ int main()
                 .function = read_options,
             }}};
 
-    float &brightness_val = root.nested_menu_options[5].nested_menu_options[0].value.num;
+    float &brightness_val = root.nested_menu_options[6].nested_menu_options[0].value.num;
 
     bool first_redraw = 1;
     while (true)

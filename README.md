@@ -65,11 +65,16 @@ any process can send a command into the socket and all processes will read respo
   - `game_name` is any of the following ``//TODO: game names
 - `PRESS` (no args), only handled if game is running
 - `RELEASE` (no args), only handled if game is running
-- `SEEK` args `<frame>`
-  - `frame`: unsigned int, frame to go to, range(1 - number_of_frames) //FIXME: seek
 - `OPTION` args: `<mode>` `<option_name>` `<value>`
   - `mode`: any of `write`/`read`/`reset`
-  - `option_name`: any of `point_delay`/`target_frame_time`/`repeat`/ `trapeziod_horizontal` / `trapeziod_vertical`
+  - `option_name`: any of the following
+    - `progress`
+    - `current_frame` - if a projection is active, this will seek to the defined frame of the projection, must not exceed number_of_frames (every pos info gives this argument)
+    - `point_delay`
+    - `target_frame_time`
+    - `repeat`
+    - `trapeziod_horizontal`
+    - `trapeziod_vertical`
   - `value` only read when using `write` parameter, message won't be processed and `INVALID_CMD` error will be set back through the socket if other modes are used and value is specified
 
 ###### responses:

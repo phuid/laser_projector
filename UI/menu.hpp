@@ -9,13 +9,7 @@
 #include "config.hpp"
 
 #include "zmq.hpp"
-
-static void send_command(zmq::socket_t &publisher, std::string message_string)
-{
-  zmq::message_t msg;
-  msg.rebuild(message_string);
-  publisher.send(msg, zmq::send_flags::none);
-}
+#include "my_zmq_helper.hpp"
 
 template <typename T>
 uint8_t num_digits(T n)
@@ -131,6 +125,11 @@ enum menu_option_style
 struct menu_option
 {
   std::string name;
+
+  // if functions are write option and readoption (usually style=VALUE), this is the name of the option to send to lasershow
+  // if function is send_option command (usually style=TEXT), this is the command to send to lasershow
+  std::string command_name;
+
   menu_option_style style = UNDEFINED;
 
   std::vector<menu_option> nested_menu_options = {}; // does this work????????
@@ -186,7 +185,7 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
 #endif
       if (menu_interact(lcd, command_sender, menu[menu_selected], redraw))
       {
-        parent_menu_option.nest_option_active = 0; //FIXME: does this ever get called?
+        parent_menu_option.nest_option_active = 0;                    // FIXME: does this ever get called?
         menu_interact(lcd, command_sender, parent_menu_option, true); // redraw
       }
       break;
@@ -204,13 +203,15 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
   {
     bool selection_scrolled = 0;
     bool screen_scrolled = 0;
-    bool redraw_some_child = [](menu_option& parent_menu_option, uint8_t menu_scroll) -> bool {
+    bool redraw_some_child = [](menu_option &parent_menu_option, uint8_t menu_scroll) -> bool
+    {
       for (uint8_t i = menu_scroll; i < menu_scroll + SCREEN_HEIGHT; i++)
       {
-        if (parent_menu_option.nested_menu_options[i - ((parent_menu_option.style == NESTED_MENU) ? 1 : 0)].redraw) return 1;
+        if (parent_menu_option.nested_menu_options[i - ((parent_menu_option.style == NESTED_MENU) ? 1 : 0)].redraw)
+          return 1;
       }
       return 0;
-    } (parent_menu_option, menu_scroll);
+    }(parent_menu_option, menu_scroll);
 
     if (menu[menu_selected].style == VALUE && parent_menu_option.nest_option_active)
     {
@@ -231,8 +232,8 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
 #ifdef DEBUG
           std::cout << "changeval" << std::endl;
 #endif
-          send_command(command_sender, "OPTION write " + std::string(menu[menu_selected].name) + " " + std::to_string(menu[menu_selected].value.num));
-          }
+          send_command(command_sender, "OPTION write " + std::string(menu[menu_selected].command_name) + " " + std::to_string(menu[menu_selected].value.num));
+        }
       }
     }
 #ifdef DEBUG
