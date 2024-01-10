@@ -282,8 +282,8 @@ int main()
             .command_name = "STOP",
              .style = TEXT,
              .has_function = 1,
-             .function = send_option_name},
-            {.name = "PAUSE", .command_name = "PAUSE", .style = VALUE, .value = {0, 0, 1}, .has_function = 1, .function = send_option_name},
+             .function = send_option_command},
+            {.name = "PAUSE", .command_name = "PAUSE", .style = VALUE, .value = {0, 0, 1}, .has_function = 1, .function = send_option_command},
             {
                 .name = "PROJECT",
                 .style = NESTED_MENU,
