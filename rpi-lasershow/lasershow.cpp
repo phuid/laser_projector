@@ -20,6 +20,11 @@
 constexpr uint8_t LASER_PINS[3] = {0, 2, 3};
 constexpr uint8_t BRIGHTNESS_LEVELS[] = {0, 100, 200, 512, 1024, 2047, 4095}; //FIXME: pwm for laser isnt linear (idk random values)
 
+
+static ABElectronics_CPP_Libraries::ADCDACPi adcdac;
+static IldaReader ildaReader;
+static std::chrono::time_point<std::chrono::system_clock> start;
+
 // Function that is called when program needs to be terminated.
 void lasershow_cleanup(int sig)
 {
@@ -38,13 +43,13 @@ void lasershow_cleanup(int sig)
     }
 }
 
-lasershow_start(zmq::socket_t &publisher, IldaReader &ildaReader, std::chrono::time_point<std::chrono::system_clock> &start){
-    ildaReader.current_frame_index = 0;
+void lasershow_start(zmq::socket_t &publisher){
+    ildaReader.current_frame = 0;
     start = std::chrono::system_clock::now();
 }
 
 bool
-lasershow_init(zmq::socket_t &publisher, ABElectronics_CPP_Libraries::ADCDACPi &adcdac, IldaReader &ildaReader, std::chrono::time_point<std::chrono::system_clock> &start, std::string fileName)
+lasershow_init(zmq::socket_t &publisher, std::string fileName)
 {
     // Setup hardware communication stuff.
     wiringPiSetup();
@@ -84,7 +89,7 @@ lasershow_init(zmq::socket_t &publisher, ABElectronics_CPP_Libraries::ADCDACPi &
 }
 
 // return: 0-success, 1-error, 2-end of projection
-int lasershow_loop(zmq::socket_t &publisher, ABElectronics_CPP_Libraries::ADCDACPi &adcdac, IldaReader &ildaReader, std::chrono::time_point<std::chrono::system_clock> &start, options_struct options)
+int lasershow_loop(zmq::socket_t &publisher, options_struct options)
 {
     if (ildaReader.current_frame_index < ildaReader.sections.size())
     {

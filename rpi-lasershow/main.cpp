@@ -26,10 +26,6 @@ int main()
   zmq::message_t received;
   zmq::message_t msg_to_send;
 
-  ABElectronics_CPP_Libraries::ADCDACPi adcdac;
-  IldaReader ildaReader;
-  std::chrono::time_point<std::chrono::system_clock> start;
-
   options_struct options;
   if (options.loadFromFile("lasershow.cfg"))
   {
@@ -41,11 +37,11 @@ int main()
   bool pass_next_command_read = 0;
   while (true)
   {
+    Command command;
     if (!pass_next_command_read)
     {
       // options.project_filename = "";
-      command_receiver.recv(received, zmq::recv_flags::none); // blocking
-      Command command;
+      command_receiver.recv(received, zmq::recv_flags::none);              // blocking
       if (command.execute(received.to_string(), publisher, options) == -1) // FIXME: add execute return to not project
       {
         continue;
@@ -67,7 +63,7 @@ int main()
     while (options.repeat || first_repeat)
     {
       first_repeat = 0;
-      lasershow_start(publisher, ildaReader, start);
+      lasershow_start(publisher);
 
       while (first_repeat == 0) // also used just as a break flag (if 1 break)
       {
