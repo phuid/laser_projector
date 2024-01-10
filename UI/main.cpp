@@ -84,7 +84,7 @@ public:
     std::vector<std::string> args;
 
     void parse(std::string string);
-    int execute(std::string string, menu_option &root);
+    void execute(std::string string, menu_option &root);
 };
 
 void Command::parse(std::string string)
@@ -120,14 +120,15 @@ void Command::parse(std::string string)
               << "args: ";
     for (auto &&i : args)
     {
-        std::cout << i << ", ";
+        std::cout << "\"" << i << "\", ";
     }
     std::cout << std::endl;
 }
 
-int Command::execute(std::string string, menu_option &root)
+void Command::execute(std::string string, menu_option &root)
 {
     this->parse(string);
+    std::cout << "executing" << std::endl;
 
     if (this->first_word == "INFO:")
     {
@@ -136,23 +137,26 @@ int Command::execute(std::string string, menu_option &root)
             if (this->args[0] == "POS")
             {
                 if (this->args.size() >= 4)
-                    if (!(root.nest_option_active && root.nest_selected == 0))
+                {
+                    std::cout << "ROOT OPTION ACTIVE: " << root.nest_option_active << std::endl;
+                    if (!(root.nest_option_active && (root.nest_selected == 0)))
                     {
                         root.nested_menu_options[0].value.num = (stof(this->args[1]) / stof(this->args[3])) * 100.f;
                         root.nested_menu_options[0].redraw = 1;
-#ifdef DEBUG
-                        std::cout << "set-";
-#endif
                     }
-#ifdef DEBUG
-                std::cout << "progress::" << root.nested_menu_options[0].value.num << std::endl;
-#endif
+                    if (!(root.nest_option_active && (root.nest_selected == 1)))
+                    {
+                        root.nested_menu_options[1].value.num = stof(this->args[1]);
+                        root.nested_menu_options[1].redraw = 1;
+                    }
+                    root.nested_menu_options[1].value.max = stof(this->args[3]);
+                }
             }
             else if (this->args[0] == "PAUSE")
             {
                 if (this->args.size() >= 2)
                 {
-                    root.nested_menu_options[4].value.num = stoi(this->args[1]);
+                    root.nested_menu_options[4].name = ((stoi(this->args[1])) ? "PAUSE ||" : "PAUSE >");
                     root.nested_menu_options[4].redraw = 1;
                 }
             }
@@ -160,8 +164,17 @@ int Command::execute(std::string string, menu_option &root)
             {
                 if (this->args.size() >= 2)
                 {
-                    root.nested_menu_options[0].name = this->args[1] + "%";
+                    std::string filename_noextension = this->args[1];
+                    size_t delimeter_pos = filename_noextension.find('/');
+                    while (delimeter_pos != std::string::npos)
+                    {
+                        filename_noextension = filename_noextension.substr(delimeter_pos + 1);
+                        delimeter_pos = filename_noextension.find('/');
+                    }
+                    root.nested_menu_options[0].name = filename_noextension + "%";
                     root.nested_menu_options[0].redraw = 1;
+
+                    root.nested_menu_options[4].name = "PAUSE >";
                 }
             }
             else if (this->args[0] == "OPTION")
@@ -172,39 +185,38 @@ int Command::execute(std::string string, menu_option &root)
                     {
                         if (option.command_name == this->args[2])
                         {
-                            option.value.num = stof(this->args[2]);
+                            option.value.num = stof(this->args[3]);
                         }
                     }
                 }
             }
+            else if (this->args[0] == "STOP") {
+                    root.nested_menu_options[4].name = "PAUSE";
+            }
             root.nested_menu_options[2].name = "I:";
             for (auto &&i : this->args)
             {
-                root.nested_menu_options[2].name += i;
+                root.nested_menu_options[2].name += i + " ";
             }
             root.nested_menu_options[2].redraw = 1;
             std::cout << root.nested_menu_options[2].name << std::endl;
         }
         else
         {
-            exit(1); // FIXME: only for debug, REMOVE
+            std::cout << "!!empty INFO received" << std::endl;
         }
     }
     else if (this->first_word == "ERROR:")
     {
-        root.nested_menu_options[2].name = "E:";
-        for (auto &&i : this->args)
-        {
-            root.nested_menu_options[2].name += i;
-        }
+        root.nested_menu_options[2].name = "E:" + this->received_string.substr(std::string("ERROR:").length());
         root.nested_menu_options[2].redraw = 1;
         std::cout << root.nested_menu_options[2].name << std::endl;
     }
     else
     {
-        std::cout << "first word: \"" << this->first_word << "\"" << std::endl;
-        exit(1); // FIXME: only for debug, REMOVE
+        std::cout << "!!unknown response first word: \"" << this->first_word << "\"" << std::endl;
     }
+    std::cout << "done executing" << std::endl;
 }
 
 int main()
@@ -279,11 +291,11 @@ int main()
             {.name = "-no out received-",
              .style = TEXT},
             {.name = "STOP",
-            .command_name = "STOP",
+             .command_name = "STOP",
              .style = TEXT,
              .has_function = 1,
              .function = send_option_command},
-            {.name = "PAUSE", .command_name = "PAUSE", .style = VALUE, .value = {0, 0, 1}, .has_function = 1, .function = send_option_command},
+            {.name = "PAUSE", .command_name = "PAUSE", .style = TEXT, .has_function = 1, .function = send_option_command},
             {
                 .name = "PROJECT",
                 .style = NESTED_MENU,

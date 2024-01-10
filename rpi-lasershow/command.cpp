@@ -56,7 +56,7 @@ void Command::parse(const std::map<command_type, std::string> &command_dict, std
   }
   std::cout << std::endl;
 }
-
+//return: 0 - continue projection / continue doing nothing, 1 - stop projecting and wait for another command, 2 - restart projecting with a new file
 int Command::execute(std::string string, zmq::socket_t &publisher, options_struct &options)
 {
   std::map<command_type, std::string> command_dict{
@@ -85,7 +85,7 @@ int Command::execute(std::string string, zmq::socket_t &publisher, options_struc
     {
       std::cout << "invalid args: \"" << received_string << "\"" << std::endl;
       publish_message(publisher, "ERROR: EINVAL \"" + received_string + "\"");
-      return -1;
+      return 0;
     }
     break;
   case STOP:
@@ -140,11 +140,11 @@ int Command::execute(std::string string, zmq::socket_t &publisher, options_struc
       {
         if (this->args[1] == "point_delay")
         {
-          publish_message(publisher, "INFO: OPTION point_delay " + options.pointDelay);
+          publish_message(publisher, "INFO: OPTION point_delay " + std::to_string(options.pointDelay));
         }
         else if (this->args[1] == "repeat")
         {
-          publish_message(publisher, "INFO: OPTION repeat " + options.repeat);
+          publish_message(publisher, "INFO: OPTION repeat " + std::to_string(options.repeat));
         }
         else if (this->args[1] == "target_frame_time")
         {
@@ -172,12 +172,12 @@ int Command::execute(std::string string, zmq::socket_t &publisher, options_struc
           if (this->args[1] == "point_delay")
           {
             options.pointDelay = stoi(this->args[2]);
-            publish_message(publisher, "INFO: OPTION point_delay " + options.pointDelay);
+            publish_message(publisher, "INFO: OPTION point_delay " + std::to_string(options.pointDelay));
           }
           else if (this->args[1] == "repeat")
           {
             options.repeat = stoi(this->args[2]);
-            publish_message(publisher, "INFO: OPTION repeat " + options.repeat);
+            publish_message(publisher, "INFO: OPTION repeat " + std::to_string(options.repeat));
           }
           else if (this->args[1] == "target_frame_time")
           {

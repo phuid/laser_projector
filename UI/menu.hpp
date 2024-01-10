@@ -132,7 +132,7 @@ struct menu_option
 
   menu_option_style style = UNDEFINED;
 
-  std::vector<menu_option> nested_menu_options = {}; // does this work????????
+  std::vector<menu_option> nested_menu_options = {};
   uint8_t nest_selected = 0;                         // so that back button is possible
   uint8_t nest_scroll = 0;
   bool nest_option_active = 0;
