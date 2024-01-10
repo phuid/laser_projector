@@ -65,8 +65,8 @@ any process can send a command into the socket and all processes will read respo
   - `game_name` is any of the following ``//TODO: game names
 - `PRESS` (no args), only handled if game is running
 - `RELEASE` (no args), only handled if game is running
-- `SEEK` args `<percentage>`
-  - `percentage`: float, percentage of file size to go to //TODO: seek
+- `SEEK` args `<frame>`
+  - `frame`: unsigned int, frame to go to, range(1 - number_of_frames) //FIXME: seek
 - `OPTION` args: `<mode>` `<option_name>` `<value>`
   - `mode`: any of `write`/`read`/`reset`
   - `option_name`: any of `point_delay`/`target_frame_time`/`repeat`/ `trapeziod_horizontal` / `trapeziod_vertical`
@@ -95,7 +95,7 @@ messages can come at any moment:
         - `target_frame_time`
         - `trapezoid_horizontal`
         - `trapezoid_vertical`
-      - val: numeric (float) value of the option 
+      - val: numeric (float) value of the option
     - `STOP`
     - `PAUSE <val>`
       - val: 1 - paused, 0 - not paused
