@@ -18,6 +18,7 @@
 #include "my_zmq_helper.hpp"
 
 constexpr uint8_t LASER_PINS[3] = {0, 2, 3};
+constexpr uint8_t BRIGHTNESS_LEVELS[] = {0, 100, 200, 512, 1024, 2047, 4095}; //FIXME: pwm for laser isnt linear (idk random values)
 
 // Function that is called when program needs to be terminated.
 void lasershow_cleanup(int sig)
@@ -38,7 +39,7 @@ void lasershow_cleanup(int sig)
 }
 
 lasershow_start(zmq::socket_t &publisher, IldaReader &ildaReader, std::chrono::time_point<std::chrono::system_clock> &start){
-    ildaReader.current_frame = 0;
+    ildaReader.current_frame_index = 0;
     start = std::chrono::system_clock::now();
 }
 
@@ -85,21 +86,23 @@ lasershow_init(zmq::socket_t &publisher, ABElectronics_CPP_Libraries::ADCDACPi &
 // return: 0-success, 1-error, 2-end of projection
 int lasershow_loop(zmq::socket_t &publisher, ABElectronics_CPP_Libraries::ADCDACPi &adcdac, IldaReader &ildaReader, std::chrono::time_point<std::chrono::system_clock> &start, options_struct options)
 {
-    if (ildaReader.current_frame < ildaReader.sections.size())
+    if (ildaReader.current_frame_index < ildaReader.sections.size())
     {
-        std::cout << "position\t" << ildaReader.current_frame + 1 << "\tof\t" << ildaReader.sections.size() << std::endl;
-        publish_message(publisher, "POS " + std::to_string(ildaReader.current_frame + 1) + " OF " + std::to_string(ildaReader.sections.size()));
-        uint16_t current_point = 0;
+        std::cout << "position\t" << ildaReader.current_frame_index + 1 << "\tof\t" << ildaReader.sections.size() << std::endl;
+        publish_message(publisher, "POS " + std::to_string(ildaReader.current_frame_index + 1) + " OF " + std::to_string(ildaReader.sections.size()));
+        uint16_t current_point_index = 0;
         while (true) // always broken by time check
         {
-            std::cout << "points[" << current_point << "]: x:" << ildaReader.sections[ildaReader.current_frame].points[current_point].x << ", y:" << ildaReader.sections[ildaReader.current_frame].points[current_point].y << ", R:" << static_cast<int>(ildaReader.sections[ildaReader.current_frame].points[current_point].red) << ", G:" << static_cast<int>(ildaReader.sections[ildaReader.current_frame].points[current_point].green) << ", B:" << static_cast<int>(ildaReader.sections[ildaReader.current_frame].points[current_point].blue) << std::endl;
+            point &current_point = ildaReader.sections[ildaReader.current_frame_index].points[current_point_index];
+            std::cout << "points[" << current_point_index << "]: x:" << current_point.x << ", y:" << current_point.y << ", R:" << static_cast<int>(current_point.red) << ", G:" << static_cast<int>(current_point.green) << ", B:" << static_cast<int>(current_point.blue) << std::endl;
             // Move galvos to x,y position.
-            adcdac.set_dac_raw(ildaReader.sections[ildaReader.current_frame].points[current_point].x, 1); // TODO: trapezoid calc
-            adcdac.set_dac_raw(ildaReader.sections[ildaReader.current_frame].points[current_point].y, 2);
+            adcdac.set_dac_raw(current_point.x, 1); // TODO: trapezoid calc
+            adcdac.set_dac_raw(current_point.y, 2);
 
-            digitalWrite(LASER_PINS[0], ildaReader.sections[ildaReader.current_frame].points[current_point].red);
-            digitalWrite(LASER_PINS[1], ildaReader.sections[ildaReader.current_frame].points[current_point].green);
-            digitalWrite(LASER_PINS[2], ildaReader.sections[ildaReader.current_frame].points[current_point].blue);
+            //TODO: PWM insteal of digitalwrite
+            digitalWrite(LASER_PINS[0], BRIGHTNESS_LEVELS[(current_point.red * sizeof(BRIGHTNESS_LEVELS))/255]);
+            digitalWrite(LASER_PINS[1], BRIGHTNESS_LEVELS[(current_point.green * sizeof(BRIGHTNESS_LEVELS))/255]);
+            digitalWrite(LASER_PINS[2], BRIGHTNESS_LEVELS[(current_point.blue * sizeof(BRIGHTNESS_LEVELS))/255]);
 
             // Maybe wait a while there.
             if (options.pointDelay > 0)
@@ -114,15 +117,15 @@ int lasershow_loop(zmq::socket_t &publisher, ABElectronics_CPP_Libraries::ADCDAC
                 }
                 if (!options.paused)
                 {
-                    ildaReader.current_frame++;
-                    current_point = 0;
+                    ildaReader.current_frame_index++;
+                    current_point_index = 0;
                 }
 
                 break;
             }
-            current_point = (current_point + 1) % ildaReader.sections[ildaReader.current_frame].points.size();
+            current_point_index = (current_point_index + 1) % ildaReader.sections[ildaReader.current_frame_index].points.size();
         }
-        ildaReader.current_frame++;
+        ildaReader.current_frame_index++;
         return 0;
     }
     else

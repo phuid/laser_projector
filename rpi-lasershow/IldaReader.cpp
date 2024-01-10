@@ -83,7 +83,7 @@ bool section::read_header(char buf[FormatData::NUMBER_OF_HEADER_BYTES])
 bool IldaReader::read_sections(zmq::socket_t &publisher)
 {
     this->sections.clear();
-    this->current_frame = 0;
+    this->current_frame_index = 0;
     while (true) // only broken when reading header or by EOF
     {
         section section;

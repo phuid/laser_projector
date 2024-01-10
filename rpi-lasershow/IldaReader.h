@@ -53,6 +53,6 @@ public:
     std::ifstream file;
     size_t file_size;
     std::vector<section> sections;
-    uint16_t current_frame = 0;
+    uint16_t current_frame_index = 0;
     color_palette palette;
 };
