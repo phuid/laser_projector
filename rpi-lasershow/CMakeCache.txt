@@ -261,7 +261,7 @@ CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 PKG_CONFIG_EXECUTABLE:FILEPATH=/usr/bin/pkg-config
 
 //The directory containing a CMake configuration file for ZeroMQ.
-ZeroMQ_DIR:PATH=/usr/local/lib/arm-linux-gnueabihf/cmake/ZeroMQ
+ZeroMQ_DIR:PATH=ZeroMQ_DIR-NOTFOUND
 
 //Path to a file.
 ZeroMQ_INCLUDE_DIR:PATH=/usr/local/include

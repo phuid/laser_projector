@@ -1,7 +1,7 @@
 #include "zmq.hpp"
 #include <string>
 
-void send_command(zmq::socket_t &publisher, std::string message_string)
+void publish_message(zmq::socket_t &publisher, std::string message_string)
 {
   zmq::message_t msg;
   msg.rebuild(message_string);

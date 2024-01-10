@@ -42,7 +42,7 @@ int main()
     {
       // options.project_filename = "";
       command_receiver.recv(received, zmq::recv_flags::none);              // blocking
-      if (command.execute(received.to_string(), publisher, options) == -1) // FIXME: add execute return to not project
+      if (command.execute(received.to_string(), publisher, options) == 0)
       {
         continue;
       }

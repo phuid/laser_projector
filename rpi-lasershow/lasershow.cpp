@@ -18,8 +18,7 @@
 #include "my_zmq_helper.hpp"
 
 constexpr uint8_t LASER_PINS[3] = {0, 2, 3};
-constexpr uint8_t BRIGHTNESS_LEVELS[] = {0, 100, 200, 512, 1024, 2047, 4095}; //FIXME: pwm for laser isnt linear (idk random values)
-
+constexpr uint16_t BRIGHTNESS_LEVELS[] = {0, 100, 200, 512, 1024, 2047, 4095}; // FIXME: pwm for laser isnt linear (idk random values)
 
 static ABElectronics_CPP_Libraries::ADCDACPi adcdac;
 static IldaReader ildaReader;
@@ -43,13 +42,13 @@ void lasershow_cleanup(int sig)
     }
 }
 
-void lasershow_start(zmq::socket_t &publisher){
-    ildaReader.current_frame = 0;
+void lasershow_start(zmq::socket_t &publisher)
+{
+    ildaReader.current_frame_index = 0;
     start = std::chrono::system_clock::now();
 }
 
-bool
-lasershow_init(zmq::socket_t &publisher, std::string fileName)
+bool lasershow_init(zmq::socket_t &publisher, std::string fileName)
 {
     // Setup hardware communication stuff.
     wiringPiSetup();
@@ -94,7 +93,7 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options)
     if (ildaReader.current_frame_index < ildaReader.sections.size())
     {
         std::cout << "position\t" << ildaReader.current_frame_index + 1 << "\tof\t" << ildaReader.sections.size() << std::endl;
-        publish_message(publisher, "POS " + std::to_string(ildaReader.current_frame_index + 1) + " OF " + std::to_string(ildaReader.sections.size()));
+        publish_message(publisher, "INFO: POS " + std::to_string(ildaReader.current_frame_index + 1) + " OF " + std::to_string(ildaReader.sections.size()));
         uint16_t current_point_index = 0;
         while (true) // always broken by time check
         {
@@ -104,10 +103,10 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options)
             adcdac.set_dac_raw(current_point.x, 1); // TODO: trapezoid calc
             adcdac.set_dac_raw(current_point.y, 2);
 
-            //TODO: PWM insteal of digitalwrite
-            digitalWrite(LASER_PINS[0], BRIGHTNESS_LEVELS[(current_point.red * sizeof(BRIGHTNESS_LEVELS))/255]);
-            digitalWrite(LASER_PINS[1], BRIGHTNESS_LEVELS[(current_point.green * sizeof(BRIGHTNESS_LEVELS))/255]);
-            digitalWrite(LASER_PINS[2], BRIGHTNESS_LEVELS[(current_point.blue * sizeof(BRIGHTNESS_LEVELS))/255]);
+            // TODO: PWM insteal of digitalwrite
+            digitalWrite(LASER_PINS[0], BRIGHTNESS_LEVELS[(current_point.red * sizeof(BRIGHTNESS_LEVELS)) / 255]);
+            digitalWrite(LASER_PINS[1], BRIGHTNESS_LEVELS[(current_point.green * sizeof(BRIGHTNESS_LEVELS)) / 255]);
+            digitalWrite(LASER_PINS[2], BRIGHTNESS_LEVELS[(current_point.blue * sizeof(BRIGHTNESS_LEVELS)) / 255]);
 
             // Maybe wait a while there.
             if (options.pointDelay > 0)
@@ -130,7 +129,8 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options)
             }
             current_point_index = (current_point_index + 1) % ildaReader.sections[ildaReader.current_frame_index].points.size();
         }
-        ildaReader.current_frame_index++;
+        if (!options.paused)
+            ildaReader.current_frame_index++;
         return 0;
     }
     else
