@@ -20,6 +20,8 @@
 
 void lasershow_cleanup(int);
 
-bool lasershow_init(zmq::socket_t &publisher, std::string fileName);
+lasershow_start(zmq::socket_t &publisher, IldaReader &ildaReader, std::chrono::time_point<std::chrono::system_clock> &start);
 
-int lasershow_loop(zmq::socket_t &publisher, options_struct options);
+bool lasershow_init(zmq::socket_t &publisher, ABElectronics_CPP_Libraries::ADCDACPi &adcdac, IldaReader &ildaReader, std::chrono::time_point<std::chrono::system_clock> &start, std::string fileName);
+
+int lasershow_loop(zmq::socket_t &publisher, ABElectronics_CPP_Libraries::ADCDACPi &adcdac, IldaReader &ildaReader, std::chrono::time_point<std::chrono::system_clock> &start, options_struct options);

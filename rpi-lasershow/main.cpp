@@ -26,6 +26,10 @@ int main()
   zmq::message_t received;
   zmq::message_t msg_to_send;
 
+  ABElectronics_CPP_Libraries::ADCDACPi adcdac;
+  IldaReader ildaReader;
+  std::chrono::time_point<std::chrono::system_clock> start;
+
   options_struct options;
   if (options.loadFromFile("lasershow.cfg"))
   {
@@ -34,13 +38,28 @@ int main()
 
   publish_message(publisher, "INFO: lasershow ready");
 
+  bool pass_next_command_read = 0;
   while (true)
   {
-    // options.project_filename = "";
-    command_receiver.recv(received, zmq::recv_flags::none); // blocking
-    Command command;
-    if (command.execute(received.to_string(), publisher, options) == -1)
+    if (!pass_next_command_read)
     {
+      // options.project_filename = "";
+      command_receiver.recv(received, zmq::recv_flags::none); // blocking
+      Command command;
+      if (command.execute(received.to_string(), publisher, options) == -1) // FIXME: add execute return to not project
+      {
+        continue;
+      }
+    }
+    else
+    {
+      pass_next_command_read = 0;
+    }
+
+    if (lasershow_init(publisher, options.project_filename) != 0)
+    {
+      std::cout << "failed to init lasershow" << std::endl;
+      publish_message(publisher, "ERROR: failed to init lasershow");
       continue;
     }
 
@@ -48,48 +67,43 @@ int main()
     while (options.repeat || first_repeat)
     {
       first_repeat = 0;
-      if (lasershow_init(publisher, options.project_filename) == 0)
+      lasershow_start(publisher, ildaReader, start);
+
+      while (first_repeat == 0) // also used just as a break flag (if 1 break)
       {
-        while (first_repeat == 0) // also used just as a break flag (if 1 break)
+        // maybe receive messages here, then youd need atleast the ildareader(filename) here in main..
+        // - no,, just exit the loop lol
+        command_receiver.recv(received, zmq::recv_flags::dontwait);
+        while (received.size() > 0)
         {
-          // maybe receive messages here, then youd need atleast the ildareader(filename) here in main..
-          // - no,, just exit the loop lol
-          command_receiver.recv(received, zmq::recv_flags::dontwait);
-          while (received.size() > 0)
+          int exec_val = command.execute(received.to_string(), publisher, options);
+          if (exec_val == 1)
           {
-            int exec_val = command.execute(received.to_string(), publisher, options);
-            if (exec_val == 1)
-            {
-              options.repeat = 0;
-              first_repeat = 1;
-              break;
-            }
-            else if (exec_val == 2)
-            {
-              first_repeat = 1;
-              break;
-            }
-            command_receiver.recv(received, zmq::recv_flags::dontwait);
+            options.repeat = 0; // dont start projecting again
+            first_repeat = 1;
+            break;
           }
-          if (first_repeat == 0)
+          else if (exec_val == 2) // projecting again
           {
-            // draw, if an error or end of file is reached, break
-            int loop_val = lasershow_loop(publisher, options);
-            if (loop_val == 2)
-              break;
-            else if (loop_val == 1)
-            {
-              options.repeat = 0;
-              break;
-            }
+            pass_next_command_read = 1; // load a new file and start projecting again
+            options.repeat = 0;
+            first_repeat = 1;
+            break;
+          }
+          command_receiver.recv(received, zmq::recv_flags::dontwait);
+        }
+        if (first_repeat == 0)
+        {
+          // draw, if an error or end of file is reached, break
+          int loop_val = lasershow_loop(publisher, options);
+          if (loop_val == 2)
+            break;
+          else if (loop_val == 1)
+          {
+            options.repeat = 0;
+            break;
           }
         }
-      }
-      else
-      {
-        std::cout << "failed to init lasershow" << std::endl;
-        publish_message(publisher, "ERROR: failed to init lasershow");
-        break;
       }
 
       lasershow_cleanup(0);
