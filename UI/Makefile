@@ -196,6 +196,33 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/UI.dir/build.make CMakeFiles/UI.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+my_zmq_helper.o: my_zmq_helper.cpp.o
+
+.PHONY : my_zmq_helper.o
+
+# target to build an object file
+my_zmq_helper.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/UI.dir/build.make CMakeFiles/UI.dir/my_zmq_helper.cpp.o
+.PHONY : my_zmq_helper.cpp.o
+
+my_zmq_helper.i: my_zmq_helper.cpp.i
+
+.PHONY : my_zmq_helper.i
+
+# target to preprocess a source file
+my_zmq_helper.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/UI.dir/build.make CMakeFiles/UI.dir/my_zmq_helper.cpp.i
+.PHONY : my_zmq_helper.cpp.i
+
+my_zmq_helper.s: my_zmq_helper.cpp.s
+
+.PHONY : my_zmq_helper.s
+
+# target to generate assembly for a file
+my_zmq_helper.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/UI.dir/build.make CMakeFiles/UI.dir/my_zmq_helper.cpp.s
+.PHONY : my_zmq_helper.cpp.s
+
 soft_i2c.o: soft_i2c.c.o
 
 .PHONY : soft_i2c.o
@@ -265,6 +292,9 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... my_zmq_helper.o"
+	@echo "... my_zmq_helper.i"
+	@echo "... my_zmq_helper.s"
 	@echo "... soft_i2c.o"
 	@echo "... soft_i2c.i"
 	@echo "... soft_i2c.s"
