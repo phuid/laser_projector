@@ -98,7 +98,7 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options)
         while (true) // always broken by time check
         {
             point &current_point = ildaReader.sections[ildaReader.current_frame_index].points[current_point_index];
-            std::cout << "points[" << current_point_index << "]: x:" << current_point.x << ", y:" << current_point.y << ", R:" << static_cast<int>(current_point.red) << ", G:" << static_cast<int>(current_point.green) << ", B:" << static_cast<int>(current_point.blue) << std::endl;
+            // std::cout << "points[" << current_point_index << "]: x:" << current_point.x << ", y:" << current_point.y << ", R:" << static_cast<int>(current_point.red) << ", G:" << static_cast<int>(current_point.green) << ", B:" << static_cast<int>(current_point.blue) << std::endl;
             // Move galvos to x,y position.
             adcdac.set_dac_raw(current_point.x, 1); // TODO: trapezoid calc
             adcdac.set_dac_raw(current_point.y, 2);
