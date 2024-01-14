@@ -1,6 +1,6 @@
 #pragma once
 
-#include <pigpio.h>
+#include <wiringPi.h>
 #include <stdint.h>
 #include "config.hpp"
 

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
 
 project(lasershow)
-set (CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../FindWiringPi.cmake ${CMAKE_MODULE_PATH})
+set (CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 
 # place binaries and libraries according to GNU standards
 
@@ -11,7 +11,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR})
 
 
-find_package(pigpio)
+find_package(wiringPi)
 find_package(cppzmq)
 
 # Include headers
@@ -35,5 +35,5 @@ target_compile_features(
 target_link_libraries(
     UI
     PRIVATE cppzmq ${CMAKE_THREAD_LIBS_INIT}
-    pigpio
+    wiringPi ${WIRINGPI_LIBRARIES}
 )

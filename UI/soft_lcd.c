@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdarg.h>
-#include <pigpio.h>
+#include <wiringPi.h>
 #include "soft_lcd.h"
 #include "soft_i2c.h"
 
