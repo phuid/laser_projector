@@ -9,7 +9,7 @@
 #include <iostream>
 #include <string>
 #include <chrono>
-#include <wiringPi.h>
+#include <pigpio.h>
 #include "ABE_ADCDACPi.h"
 #include "IldaReader.h"
 #include "lasershow.hpp"
@@ -18,7 +18,6 @@
 #include "my_zmq_helper.hpp"
 
 constexpr uint8_t LASER_PINS[3] = {0, 2, 3};
-constexpr uint16_t BRIGHTNESS_LEVELS[] = {0, 100, 200, 512, 1024, 2047, 4095}; // FIXME: pwm for laser isnt linear (idk random values)
 
 static ABElectronics_CPP_Libraries::ADCDACPi adcdac;
 static IldaReader ildaReader;

@@ -9,7 +9,7 @@
  */
 
  
-#include <wiringPi.h>
+#include <pigpio.h>
 #include <stdint.h>
 #include <stdio.h>
 
