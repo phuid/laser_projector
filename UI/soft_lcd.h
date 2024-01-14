@@ -70,7 +70,8 @@
 #define LCD_ERR 1
 #define LCD_ERR_I2C 1
 
-#define LCD_PWM_PIN     18
+/* PWM pins are WPi 1 and WPi 26 */
+#define LCD_PWM_PIN     1
 #define LCD_PWM_CLOCK   19
 #define LCD_PWM_RANGE   1024
 

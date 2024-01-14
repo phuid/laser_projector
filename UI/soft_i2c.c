@@ -18,16 +18,16 @@
 
 /* Pull: drives the line to level LOW */
 void _i2c_pull(int pin) {
-	gpioSetMode(pin, PI_OUTPUT);
-	gpioWrite(pin, 0);
-	gpioDelay((1e6/I2C_FREQ)/2);
+	pinMode(pin, OUTPUT);
+	digitalWrite(pin, LOW);
+	delayMicroseconds((1e6/I2C_FREQ)/2);
 }
 
 /* Release: releases the line and return line status */
 int _i2c_release(int pin) {
-	gpioSetMode(pin, PI_INPUT);
-	gpioDelay((1e6/I2C_FREQ)/2);
-	return gpioRead(pin);
+	pinMode(pin, INPUT);
+	delayMicroseconds((1e6/I2C_FREQ)/2);
+	return digitalRead(pin);
 }
 
 /* In case of clock stretching or busy bus we must wait */
@@ -35,17 +35,17 @@ int _i2c_release(int pin) {
 void _i2c_release_wait(int pin) {
 	int n = 0;
 
-	gpioSetMode(pin, PI_INPUT);
-	gpioDelay((1e6/I2C_FREQ)/2);
-	while (!gpioRead(pin)) {
+	pinMode(pin, INPUT);
+	delayMicroseconds((1e6/I2C_FREQ)/2);
+	while (!digitalRead(pin)) {
 		if (++n >= 50)	{
 			if (WARN) fprintf(stderr, "Warning: I2C Bus busy or defective. Pin %d is LOW for 5s.\n", pin);
 			return;
 		}
-		gpioDelay(100000);
-		gpioSetMode(pin, PI_INPUT);
+		delay(100);
+		pinMode(pin, INPUT);
 	}
-	gpioDelay((1e6/I2C_FREQ)/2);
+	delayMicroseconds((1e6/I2C_FREQ)/2);
 }
 
 /* Initializes software emulated i2c */
@@ -55,10 +55,10 @@ i2c_t i2c_init(int scl, int sda) {
 	port.scl = scl;
 	port.sda = sda;
 	
-	gpioSetMode(scl, PI_INPUT);
-	gpioSetMode(sda, PI_INPUT);
-	gpioSetPullUpDown(scl, PI_PUD_UP);
-	gpioSetPullUpDown(sda, PI_PUD_UP);
+	pinMode(scl, INPUT);
+	pinMode(sda, INPUT);
+	pullUpDnControl(scl, PUD_UP);
+	pullUpDnControl(sda, PUD_UP);
 
 	i2c_reset(port);
 
@@ -99,8 +99,8 @@ void i2c_reset(i2c_t port) {
 			if (WARN) fprintf(stderr, "Warning: I2C Bus busy or defective. SDA doesn't go UP after reset.\n");
 			return;
 		}
-		gpioDelay(10000);
-	} while (!gpioRead(port.sda));
+		delay(10);
+	} while (!digitalRead(port.sda));
 
 	_i2c_pull(port.scl);
 	_i2c_pull(port.sda);
@@ -130,7 +130,7 @@ int i2c_read_bit(i2c_t port) {
 
 	_i2c_release(port.sda);
 	_i2c_release_wait(port.scl);
-	s = gpioRead(port.sda);
+	s = digitalRead(port.sda);
 	_i2c_pull(port.scl);
 	_i2c_pull(port.sda);
 	

@@ -1,26 +1,25 @@
 #include <pigpio.h>
 #include "encoder.hpp"
 
-constexpr uint16_t BUTTON_DEBOUNCE_DELAY = 50000;
-
 static bool encoder_btn_pressed = 0;
 
-void handle_enc_btn_interrupts(int gpio, int level, uint32_t tick)
+void handle_enc_btn_interrupts()
 {
-	static uint32_t last_interrupt_tick = 0;
-	if (tick - last_interrupt_tick > BUTTON_DEBOUNCE_DELAY && !gpioRead(encoder_button_pin))
+	static uint16_t last_interrupt = 0;
+	uint16_t interrupt_time = millis();
+	if (interrupt_time - last_interrupt > 50 && !digitalRead(encoder_button_pin))
 	{
 		encoder_btn_pressed = 1;
 	}
-	last_interrupt_tick = tick;
+	last_interrupt = interrupt_time;
 }
 
 static int16_t encoder_pos = 0;
 
-void handle_enc_interrupts(int gpio, int level, uint32_t tick) // TODO: rewrite, register less interrupts
+void handle_enc_interrupts() // TODO: rewrite, register less interrupts
 {
 	static bool encoder_pins_last_state[2] = {0, 0};
-	bool state[2] = {(bool)gpioRead(encoder_pins[0]), (bool)gpioRead(encoder_pins[1])};
+	bool state[2] = {(bool)digitalRead(encoder_pins[0]), (bool)digitalRead(encoder_pins[1])};
 
 	// bool A_rising = state[0] && !encoder_pins_last_state[0];
 	// bool B_rising = state[1] && !encoder_pins_last_state[1];

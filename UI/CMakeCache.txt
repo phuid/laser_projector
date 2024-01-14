@@ -278,21 +278,6 @@ lasershow_BINARY_DIR:STATIC=/home/pi/laser_projector/UI
 //Value Computed by CMake
 lasershow_SOURCE_DIR:STATIC=/home/pi/laser_projector/UI
 
-//The directory containing a CMake configuration file for pigpio.
-pigpio_DIR:PATH=pigpio_DIR-NOTFOUND
-
-//Path to a file.
-pigpio_INCLUDE_DIR:PATH=/usr/local/include
-
-//Path to a library.
-pigpio_LIBRARY:FILEPATH=/usr/local/lib/libpigpio.so
-
-//Path to a library.
-pigpiod_if2_LIBRARY:FILEPATH=/usr/local/lib/libpigpiod_if2.so
-
-//Path to a library.
-pigpiod_if_LIBRARY:FILEPATH=/usr/local/lib/libpigpiod_if.so
-
 //Path to a library.
 pkgcfg_lib_PC_LIBZMQ_zmq:FILEPATH=/usr/local/lib/libzmq.so
 
@@ -481,8 +466,6 @@ CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 FIND_PACKAGE_MESSAGE_DETAILS_PkgConfig:INTERNAL=[/usr/bin/pkg-config][v0.29.2()]
 //Details about finding ZeroMQ
 FIND_PACKAGE_MESSAGE_DETAILS_ZeroMQ:INTERNAL=[/usr/local/lib/libzmq.so][/usr/local/include][v()]
-//Details about finding pigpio
-FIND_PACKAGE_MESSAGE_DETAILS_pigpio:INTERNAL=[/usr/local/include][/usr/local/lib/libpigpio.so][/usr/local/lib/libpigpiod_if.so][/usr/local/lib/libpigpiod_if2.so][v()]
 PC_LIBZMQ_CFLAGS:INTERNAL=-I/usr/local/include
 PC_LIBZMQ_CFLAGS_I:INTERNAL=
 PC_LIBZMQ_CFLAGS_OTHER:INTERNAL=

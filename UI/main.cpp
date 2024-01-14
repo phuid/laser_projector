@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include <cstring>
 #include <vector>
-#include <pigpio.h>
+#include <wiringPi.h>
 #include <iostream>
 
 #include "zmq.hpp"
@@ -231,7 +231,7 @@ int main()
 
     // TODO: add SIGINT handler + cleanup function
 
-    gpioInitialise();
+    wiringPiSetup();
 
     /* Create a LCD given SCL, SDA and I2C address, 4 lines */
     /* PCF8574 has default address 0x27 */
@@ -245,17 +245,17 @@ int main()
 
     lcd_init(lcd);
 
-    gpioSetMode(encoder_pins[0], PI_INPUT);
-    gpioSetMode(encoder_pins[1], PI_INPUT);
-    gpioSetMode(encoder_button_pin, PI_INPUT);
+    pinMode(encoder_pins[0], INPUT);
+    pinMode(encoder_pins[1], INPUT);
+    pinMode(encoder_button_pin, INPUT);
 
-    gpioSetPullUpDown(encoder_pins[0], PI_PUD_UP);
-    gpioSetPullUpDown(encoder_pins[1], PI_PUD_UP);
-    gpioSetPullUpDown(encoder_button_pin, PI_PUD_UP);
+    pullUpDnControl(encoder_pins[0], PUD_UP);
+    pullUpDnControl(encoder_pins[1], PUD_UP);
+    pullUpDnControl(encoder_button_pin, PUD_UP);
 
-    gpioSetISRFunc(encoder_pins[0], EITHER_EDGE, 0, *handle_enc_interrupts);
-    gpioSetISRFunc(encoder_pins[1], EITHER_EDGE, 0, *handle_enc_interrupts);
-    gpioSetISRFunc(encoder_button_pin, FALLING_EDGE, 0, *handle_enc_btn_interrupts);
+    wiringPiISR(encoder_pins[0], INT_EDGE_BOTH, *handle_enc_interrupts);
+    wiringPiISR(encoder_pins[1], INT_EDGE_BOTH, *handle_enc_interrupts);
+    wiringPiISR(encoder_button_pin, INT_EDGE_BOTH, *handle_enc_btn_interrupts);
 
     lcd_create_char(lcd, PARENT_CHAR_NUM, parent_char);
     lcd_create_char(lcd, INVERTED_SPACE_CHAR_NUM, inverted_space_char);
