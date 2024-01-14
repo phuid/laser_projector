@@ -23,7 +23,7 @@
 
 lcd_t *lcd_create(int scl, int sda, int addr, int lines) {
 
-	if (wiringPiSetup () == -1)
+	if (gpioInitialise() < 0)
 	        return NULL;
 	
 	i2c_t i2c = i2c_init(scl, sda);
@@ -153,13 +153,13 @@ void lcd_pos_raw(lcd_t *lcd, int pos) {
 
 /* Set LCD controller into a known state and set 4 bit mode */
 void lcd_reset (lcd_t *lcd) {
-	usleep(45000);
+	gpioDelay(45000);
 	_pcf8574_put(lcd, LCD_D5 | LCD_D4);
 
-	usleep(5000);
+	gpioDelay(5000);
 	_pcf8574_put(lcd, LCD_D5 | LCD_D4);
 
-	usleep(1000);
+	gpioDelay(1000);
 	_pcf8574_put(lcd, LCD_D5 | LCD_D4);
 
 	/* we assume pcf8574 and 4bit mode for now */
@@ -235,15 +235,15 @@ int lcd_read_data (lcd_t *lcd) {
 /* Dim the backlight using PWM on pin BCM 18 */
 void lcd_backlight_dim (lcd_t *lcd, float intensity) {
 	if (lcd->_dimming < 0) {
-		pwmSetClock(LCD_PWM_CLOCK);
-		pwmSetRange(LCD_PWM_RANGE);
-		pinMode(LCD_PWM_PIN, PWM_OUTPUT);
+		gpioSetMode(LCD_PWM_PIN, PI_OUTPUT);
+		// pwmSetClock(LCD_PWM_CLOCK);
+		gpioSetPWMrange(LCD_PWM_PIN, LCD_PWM_RANGE);
 	}
 
 	if (intensity > 1) intensity = 1;
 	if (intensity < 0) intensity = 0;
 
-	pwmWrite(LCD_PWM_PIN, (int) (intensity * (float)LCD_PWM_RANGE));
+	gpioPWM(LCD_PWM_PIN, (int) (intensity * (float)LCD_PWM_RANGE));
 	lcd->_dimming = intensity;
 }
 
