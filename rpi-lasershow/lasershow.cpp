@@ -17,7 +17,7 @@
 #include "zmq.hpp"
 #include "my_zmq_helper.hpp"
 
-constexpr uint8_t LASER_PINS[3] = {0, 2, 3};
+constexpr uint8_t LASER_PINS[3] = {17, 27, 22};
 
 static ABElectronics_CPP_Libraries::ADCDACPi adcdac;
 static IldaReader ildaReader;
@@ -29,7 +29,7 @@ void lasershow_cleanup(int sig)
     printf("Turn off laser diode.\n\r");
     for (size_t i = 0; i < 3; i++)
     {
-        digitalWrite(LASER_PINS[i], 0);
+        gpioWrite(LASER_PINS[i], 0);
     }
     adcdac.close_dac();
     ildaReader.closeFile();
@@ -50,11 +50,17 @@ void lasershow_start(zmq::socket_t &publisher)
 bool lasershow_init(zmq::socket_t &publisher, std::string fileName)
 {
     // Setup hardware communication stuff.
-    wiringPiSetup();
+    if (gpioInitialise() < 0)
+    {
+        // pigpio initialisation failed.
+        std::cout << "init fail" << std::endl;
+        exit(1);
+    }
 
     for (size_t i = 0; i < 3; i++)
     {
-        pinMode(LASER_PINS[i], OUTPUT); // laser
+        gpioSetMode(LASER_PINS[i], PI_OUTPUT);     // laser
+        gpioSetPWMfrequency(LASER_PINS[i], 40000); // highest freq
     }
 
     if (adcdac.open_dac() == -1)
@@ -103,9 +109,19 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options)
             adcdac.set_dac_raw(current_point.y, 2);
 
             // TODO: PWM insteal of digitalwrite
-            digitalWrite(LASER_PINS[0], BRIGHTNESS_LEVELS[(current_point.red * sizeof(BRIGHTNESS_LEVELS)) / 255]);
-            digitalWrite(LASER_PINS[1], BRIGHTNESS_LEVELS[(current_point.green * sizeof(BRIGHTNESS_LEVELS)) / 255]);
-            digitalWrite(LASER_PINS[2], BRIGHTNESS_LEVELS[(current_point.blue * sizeof(BRIGHTNESS_LEVELS)) / 255]);
+            if (current_point.laser_on) // blanking bit (moving the mirrors with laser off)
+            {
+                gpioPWM(LASER_PINS[0], current_point.red);
+                gpioPWM(LASER_PINS[1], current_point.green);
+                gpioPWM(LASER_PINS[2], current_point.blue);
+            }
+            else
+            {
+                for (uint8_t i = 0; i < 3; i++)
+                {
+                    gpioWrite(LASER_PINS[i], 0);
+                }
+            }
 
             // Maybe wait a while there.
             if (options.pointDelay > 0)
@@ -116,7 +132,7 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options)
                 start = std::chrono::system_clock::now();
                 for (size_t i = 0; i < 3; i++)
                 {
-                    digitalWrite(LASER_PINS[i], 0);
+                    gpioWrite(LASER_PINS[i], 0);
                 }
                 if (!options.paused)
                 {

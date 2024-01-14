@@ -22,7 +22,7 @@ namespace FormatData
         constexpr int16_t PROJECTOR_NUMBER_BYTE = 30;
     };
     constexpr uint8_t NUMBER_OF_RECORD_BYTES[6] = {8, 6, 3, 0, 10, 8};
-
+    constexpr uint8_t BLANKING_BIT = 6;
     namespace indexed_3d
     {
         constexpr pair X_COORDINATE_BYTES = {0, 1};

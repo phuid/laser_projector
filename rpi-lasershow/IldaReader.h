@@ -26,6 +26,7 @@ struct point {
     uint8_t blue;
 
     uint8_t status;
+    bool laser_on;
 };
 
 struct section {
