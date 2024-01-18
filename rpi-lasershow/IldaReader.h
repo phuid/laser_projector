@@ -9,11 +9,11 @@
 
 enum section_format
 {
-    ILDA_2D_INDEXED = 0,
-    ILDA_3D_INDEXED = 1,
+    ILDA_3D_INDEXED = 0,
+    ILDA_2D_INDEXED = 1,
     ILDA_COLOR_PALETTE = 2,
-    ILDA_2D_REAL = 4,
-    ILDA_3D_REAL = 5,
+    ILDA_3D_REAL = 4,
+    ILDA_2D_REAL = 5,
 };
 
 struct point {

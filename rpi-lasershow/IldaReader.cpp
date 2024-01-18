@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <string>
+#include <bitset>
 
 #include <iostream> //debug
 
@@ -12,13 +13,9 @@ int16_t combine_bytes(char first, char second)
 }
 
 // Helper function to map a value between two value ranges.
-int map(int x, int in_min, int in_max, int out_min, int out_max) {
+int map(int x, int in_min, int in_max, int out_min, int out_max)
+{
     return ((x - in_min) * (out_max - out_min) / (in_max - in_min)) + out_min;
-}
-
-// Helpter function to get arbitrary bit value from byte.
-bool getBit(char b, int bitNumber) {
-    return (b & (1 << (bitNumber - 1))) != 0;
 }
 
 IldaReader::IldaReader() {}
@@ -121,36 +118,53 @@ bool IldaReader::read_sections(zmq::socket_t &publisher)
 
             char buf[FormatData::NUMBER_OF_RECORD_BYTES[section.format]];
             this->file.read(buf, FormatData::NUMBER_OF_RECORD_BYTES[section.format]);
+            std::cout << "format:" << section.format << std::endl;
+            std::cout << "buffer:";
+            for (size_t i = 0; i < FormatData::NUMBER_OF_RECORD_BYTES[section.format]; i++)
+            {
+                std::cout << std::bitset<8>(buf[i]) << " ";
+            }
+            std::cout << std::endl;
+            uint8_t color_index;
 
             switch (section.format)
             {
-            case ILDA_2D_INDEXED:
-                point.x = combine_bytes(buf[FormatData::indexed_2d::X_COORDINATE_BYTES.first], buf[FormatData::indexed_2d::X_COORDINATE_BYTES.second]);
-                point.y = combine_bytes(buf[FormatData::indexed_2d::Y_COORDINATE_BYTES.first], buf[FormatData::indexed_2d::Y_COORDINATE_BYTES.second]);
-                point.status = buf[FormatData::indexed_2d::STATUS_BYTE];
-                point.laser_on = !getBit(point.status, FormatData::BLANKING_BIT);
-                point.red = this->palette.colors[buf[FormatData::indexed_2d::COLOR_INDEX_BYTE]].r;
-                point.green = this->palette.colors[buf[FormatData::indexed_2d::COLOR_INDEX_BYTE]].g;
-                point.blue = this->palette.colors[buf[FormatData::indexed_2d::COLOR_INDEX_BYTE]].b;
-                break;
             case ILDA_3D_INDEXED:
                 point.x = combine_bytes(buf[FormatData::indexed_3d::X_COORDINATE_BYTES.first], buf[FormatData::indexed_3d::X_COORDINATE_BYTES.second]);
                 point.y = combine_bytes(buf[FormatData::indexed_3d::Y_COORDINATE_BYTES.first], buf[FormatData::indexed_3d::Y_COORDINATE_BYTES.second]);
                 point.z = combine_bytes(buf[FormatData::indexed_3d::Z_COORDINATE_BYTES.first], buf[FormatData::indexed_3d::Z_COORDINATE_BYTES.second]);
                 point.status = buf[FormatData::indexed_3d::STATUS_BYTE];
-                point.laser_on = !getBit(point.status, FormatData::BLANKING_BIT);
-                point.red = this->palette.colors[buf[FormatData::indexed_3d::COLOR_INDEX_BYTE]].r;
-                point.green = this->palette.colors[buf[FormatData::indexed_3d::COLOR_INDEX_BYTE]].g;
-                point.blue = this->palette.colors[buf[FormatData::indexed_3d::COLOR_INDEX_BYTE]].b;
+                point.laser_on = !(point.status & FormatData::BLANKING_MASK);
+                color_index = buf[FormatData::indexed_3d::COLOR_INDEX_BYTE];
+                point.red = this->palette.colors[color_index].r;
+                point.green = this->palette.colors[color_index].g;
+                point.blue = this->palette.colors[color_index].b;
+                break;
+            case ILDA_2D_INDEXED:
+                // std::cout << "palette:" << std::endl;
+                // for (size_t i = 0; i < this->palette.colors.size(); i++)
+                // {
+                //     std::cout << i << "] = (" << (int)this->palette.colors[i].r << "," << (int)this->palette.colors[i].g << "," << (int)this->palette.colors[i].b << std::endl;
+                // }
+                
+                point.x = combine_bytes(buf[FormatData::indexed_2d::X_COORDINATE_BYTES.first], buf[FormatData::indexed_2d::X_COORDINATE_BYTES.second]);
+                point.y = combine_bytes(buf[FormatData::indexed_2d::Y_COORDINATE_BYTES.first], buf[FormatData::indexed_2d::Y_COORDINATE_BYTES.second]);
+                point.status = buf[FormatData::indexed_2d::STATUS_BYTE];
+                point.laser_on = !(point.status & FormatData::BLANKING_MASK);
+                color_index = buf[FormatData::indexed_2d::COLOR_INDEX_BYTE];
+                point.red = this->palette.colors[color_index].r;
+                point.green = this->palette.colors[color_index].g;
+                point.blue = this->palette.colors[color_index].b;
                 break;
             case ILDA_COLOR_PALETTE:
                 this->palette.colors.push_back({buf[FormatData::palette::RED_BYTE], buf[FormatData::palette::GREEN_BYTE], buf[FormatData::palette::BLUE_BYTE]});
+                std::cout << "palette,, lol" << std::endl;
                 break;
             case ILDA_2D_REAL:
                 point.x = combine_bytes(buf[FormatData::real_2d::X_COORDINATE_BYTES.first], buf[FormatData::real_2d::X_COORDINATE_BYTES.second]);
                 point.y = combine_bytes(buf[FormatData::real_2d::Y_COORDINATE_BYTES.first], buf[FormatData::real_2d::Y_COORDINATE_BYTES.second]);
                 point.status = buf[FormatData::real_2d::STATUS_BYTE];
-                point.laser_on = !getBit(point.status, FormatData::BLANKING_BIT);
+                point.laser_on = !(point.status & FormatData::BLANKING_MASK);
                 point.red = buf[FormatData::real_2d::RED_BYTE];
                 point.green = buf[FormatData::real_2d::GREEN_BYTE];
                 point.blue = buf[FormatData::real_2d::BLUE_BYTE];
@@ -160,7 +174,7 @@ bool IldaReader::read_sections(zmq::socket_t &publisher)
                 point.y = combine_bytes(buf[FormatData::real_3d::Y_COORDINATE_BYTES.first], buf[FormatData::real_3d::Y_COORDINATE_BYTES.second]);
                 point.z = combine_bytes(buf[FormatData::real_3d::Z_COORDINATE_BYTES.first], buf[FormatData::real_3d::Z_COORDINATE_BYTES.second]);
                 point.status = buf[FormatData::real_3d::STATUS_BYTE];
-                point.laser_on = !getBit(point.status, FormatData::BLANKING_BIT);
+                point.laser_on = !(point.status & FormatData::BLANKING_MASK);
                 point.red = buf[FormatData::real_3d::RED_BYTE];
                 point.green = buf[FormatData::real_3d::GREEN_BYTE];
                 point.blue = buf[FormatData::real_3d::BLUE_BYTE];
@@ -171,6 +185,8 @@ bool IldaReader::read_sections(zmq::socket_t &publisher)
 
             if (section.format != ILDA_COLOR_PALETTE)
             {
+                std::cout << "status:" << std::bitset<8>(point.status) << std::endl;
+                // if (point.status) exit(1);
                 // ILDA format has a weird way of storing values. Positive numbers are stored nomally
                 // but negative numbers are stored in second part of 'unsigned short' (>32768) so e.g.
                 // the number "-1" is storead as "65535".

@@ -17,7 +17,7 @@
 #include "zmq.hpp"
 #include "my_zmq_helper.hpp"
 
-constexpr uint8_t LASER_PINS[3] = {17, 27, 22};
+constexpr uint8_t LASER_PINS[3] = {22, 27, 17};
 
 static ABElectronics_CPP_Libraries::ADCDACPi adcdac;
 static IldaReader ildaReader;
@@ -106,7 +106,7 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options)
             // std::cout << "points[" << current_point_index << "]: x:" << current_point.x << ", y:" << current_point.y << ", R:" << static_cast<int>(current_point.red) << ", G:" << static_cast<int>(current_point.green) << ", B:" << static_cast<int>(current_point.blue) << std::endl;
             // Move galvos to x,y position.
             adcdac.set_dac_raw(current_point.x, 1); // TODO: trapezoid calc
-            adcdac.set_dac_raw(current_point.y, 2);
+            adcdac.set_dac_raw(4096 - current_point.y, 2);
 
             // TODO: PWM insteal of digitalwrite
             if (current_point.laser_on) // blanking bit (moving the mirrors with laser off)
@@ -114,6 +114,7 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options)
                 gpioPWM(LASER_PINS[0], current_point.red);
                 gpioPWM(LASER_PINS[1], current_point.green);
                 gpioPWM(LASER_PINS[2], current_point.blue);
+                // std::cout << current_point_index << ":" << static_cast<int>(current_point.red) << "," << static_cast<int>(current_point.green) << "," << static_cast<int>(current_point.blue) << "," << std::endl;
             }
             else
             {
@@ -121,6 +122,7 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options)
                 {
                     gpioWrite(LASER_PINS[i], 0);
                 }
+                // std::cout << current_point_index << ":" << "---------" << std::endl;
             }
 
             // Maybe wait a while there.
