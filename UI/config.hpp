@@ -2,7 +2,7 @@
 
 #define DEBUG
 
-constexpr uint8_t ENCODER_PINS[2] = {25, 27};
+constexpr uint8_t ENCODER_PINS[2] = {21, 22};
 constexpr uint8_t ENCODER_BUTTON_PIN = 23;
 
 constexpr uint8_t LCD_SDA_PIN = 8;
