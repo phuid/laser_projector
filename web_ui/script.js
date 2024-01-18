@@ -1,35 +1,59 @@
-var terminalContainer = document.getElementById("terminal-container");
-const term = new Terminal({
-  cursorBlink: true,
-  allowTransparency: true,
-  drawBoldTextInBrightColors: true,
-  fontSize: 1 * parseFloat(getComputedStyle(document.documentElement).fontSize),
-  theme: {
-    background: "rgba(0, 0, 0, 0)",
-  },
-});
-const fitAddon = new FitAddon.FitAddon();
-term.loadAddon(fitAddon);
-term.open(terminalContainer);
-fitAddon.fit();
+class terminal {
+  constructor(container_id) {
+    this.container = document.getElementById(container_id);
+    this.Term = new Terminal({
+      cursorBlink: true,
+      allowTransparency: true,
+      drawBoldTextInBrightColors: true,
+      fontSize:
+        1 * parseFloat(getComputedStyle(document.documentElement).fontSize),
+      theme: {
+        background: "rgba(0, 0, 0, 0)",
+      },
+    });
+    this.sshFitAddon = new FitAddon.FitAddon();
+    this.Term.loadAddon(sshFitAddon);
+    this.Term.open(TerminalContainer);
+    this.sshFitAddon.fit();
+  }
+}
+
+var terminals = {
+  ssh: terminal("ssh-terminal-container"),
+  lasershow: terminal("lasershow-terminal-container"),
+  wifiman: terminal("wifiman-terminal-container"),
+};
 
 var socket = io(); //.connect();
 socket.on("connect", function () {
-  term.write("\r\n*** WebSocket connection estabilished ***\r\n");
+  terminals.forEach((terminal) => {
+    terminal.write("\r\n*** WebSocket connection estabilished ***\r\n");
+  });
+});
+socket.on("disconnect", function () {
+  terminals.forEach((terminal) => {
+    terminal.write("\r\n*** WebSocket connection lost ***\r\n");
+  });
 });
 
 // Browser -> Backend
-term.onData(function (ev) {
+terminals.ssh.onData(function (ev) {
   socket.emit("sshdata", ev.toString());
 });
 
 // Backend -> Browser
 socket.on("sshdata", function (data) {
-  term.write(data);
+  terminals.ssh.write(data);
 });
 
-socket.on("disconnect", function () {
-  term.write("\r\n*** WebSocket connection lost ***\r\n");
+// Backend -> Browser
+socket.on("LASERSHOWmsg", function (data) {
+  terminals.lasershow.write(data);
+});
+
+// Backend -> Browser
+socket.on("WIFIMANmsg", function (data) {
+  terminals.wifiman.write(data);
 });
 
 socket.on("alert", (alert) => {
@@ -63,14 +87,14 @@ $("#projectionform").submit(function (e) {
     contentType: false, //this is requireded please see answers above
     processData: false, //this is requireded please see answers above
     success: function (data) {
-      term.write("\n" + data);
+      terminals.ssh.write("\n" + data);
     },
     error: function (data) {
       alert("ERROR\n" + data);
     },
   });
 });
-$("#projectsvg").on('click', () => {
+$("#projectsvg").on("click", () => {
   var postData = new FormData(document.getElementById("projectionform"));
   $.ajax({
     type: "POST",
@@ -79,7 +103,7 @@ $("#projectsvg").on('click', () => {
     contentType: false, //this is requireded please see answers above
     processData: false, //this is requireded please see answers above
     success: function (data) {
-      term.write("\n" + data);
+      terminals.ssh.write("\n" + data);
     },
     error: function (data) {
       alert("ERROR\n" + data);
@@ -92,8 +116,9 @@ function fillProjectForm() {
     console.log(response);
     response.json().then((data) => {
       data.forEach((filename) => {
-        document.getElementById("lastpatharea").innerHTML +=
-          `<option class=\"IldOption\" value=\"${filename}\">${filename}</option>`;
+        document.getElementById(
+          "lastpatharea"
+        ).innerHTML += `<option class=\"IldOption\" value=\"${filename}\">${filename}</option>`;
       });
     });
   });
@@ -101,8 +126,21 @@ function fillProjectForm() {
 
 fillProjectForm();
 
-function focusOnTextArea() {
-  document.getElementsByClassName("xterm-helper-textarea")[0].focus();
+function focusOnTextArea(parent_element) {
+  parent_element.getElementsByClassName("xterm-helper-textarea")[0].focus();
 }
 
-document.getElementById("terminal-container").style.zIndex = "10";
+terminals.forEach(terminal => {
+  terminal.container.style.zIndex = "10";
+});
+
+window.mySwipe = new Swipe(document.getElementById('slider'), {
+  startSlide: 2,
+  speed: 400,
+  auto: 3000,
+  continuous: true,
+  disableScroll: false,
+  stopPropagation: false,
+  callback: function(index, elem) {},
+  transitionEnd: function(index, elem) {}
+});

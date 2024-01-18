@@ -2,8 +2,19 @@ const fs = require("fs");
 const path = require("path");
 const formidable = require("formidable");
 const { exec } = require("child_process");
+var zmq = require("zeromq"),
+  command_sender = zmq.socket("sub"),
+  ls_receiver = zmq.socket("sub"),
+  wifi_man_receiver = zmq.socket("sub");
 const config = require("../config.json").web_ui;
 var server = require("http").createServer(onRequest);
+
+command_sender.connect("tcp://localhost:5557");
+
+ls_receiver.connect("tcp://localhost:5556");
+ls_receiver.subscribe("LASERSHOW");
+wifi_man_receiver.connect("tcp://localhost:5556");
+wifi_man_receiver.subscribe("WIFIMAN");
 
 var io = require("socket.io")(server);
 var SSHClient = require("ssh2").Client;
@@ -172,38 +183,11 @@ function onRequest(req, res) {
         if (fields.filename.length > 0) {
           //add stoping of previous projection
           console.log(
-            "../lasershow 0 " +
-              path.join(__dirname, "../ild/" + fields.filename)
+            "PROJECT " + path.join(__dirname, "../ild/" + fields.filename)
           );
-          exec(
-            "../lasershow 0 " +
-              path.join(__dirname, "../ild/" + fields.filename),
-            (error, stdout, stderr) => {
-              if (error) {
-                res.write(`error:\n${error.message}\n`);
-                console.log(`error:\n${error.message}\n`);
-              }
-              if (stderr) {
-                res.write(`stderr:\n${stderr}\n`);
-                console.log(`stderr:\n${stderr}\n`);
-              }
-              res.write("stdout:\n");
-
-              for (var i = 0; i < stdout.length; i++) {
-                if (stdout[i] == "\n") {
-                  res.write("\n");
-                }
-                //protection from creating unwanted html elements
-                else if (stdout[i] == "<" || stdout[i] == ">") continue;
-                else {
-                  res.write(stdout[i]);
-                }
-              }
-              console.log(`${stdout}`);
-            }
-          ).on("close", () => {
-            res.end("\n    **process finished**");
-          });
+          send_command(
+            "PROJECT " + path.join(__dirname, "../ild/" + fields.filename)
+          );
         } else {
           res.end(
             '<h2 style="color: red; font-family: monospace;"><u>INPUT IS EMPTY</u></h2>'
@@ -230,6 +214,10 @@ function onRequest(req, res) {
 
       res.end();
     }
+  } else if (req.method == "GET" && req.url == "/loadoptions") {
+    option_names.forEach((option_name) => {
+      send_command("OPTION read " + option_name);
+    });
   } else {
     res.writeHead(404);
     res.end();
@@ -279,6 +267,13 @@ io.on("connection", function (socket) {
     });
 });
 
-let port = 3000;
-console.log("Listening on port", port);
+ls_receiver.on("message", (msg) => {
+  io.sockets.emit("LASERSHOWmsg", msg);
+});
+wifi_man_receiver.on("message", (msg) => {
+  io.sockets.emit("WIFIMANmsg", msg);
+});
+
+let port = 5000;
+console.log("Listening on http://localhost:" + port);
 server.listen(port);
