@@ -12,7 +12,7 @@
   overflow-y: scroll;
 }
 
-#terminal-container {
+#ssh-terminal-container {
   font-family: Inconsolata, monospace;
   border: 1px solid var(--text-2);
   background-color: var(--background-2);
@@ -63,6 +63,21 @@ svg {
   /* form .button {
     width: 100%;
   } */
+
+  .swipe {
+    overflow: hidden;
+    visibility: hidden;
+    position: relative;
+  }
+  .swipe-wrap {
+    overflow: hidden;
+    position: relative;
+  }
+  .swipe-wrap > div {
+    float:left;
+    width:100%;
+    position: relative;
+  }
 
   #fileupload {
     top: 0;
@@ -118,7 +133,7 @@ svg {
     width: 100%;
   }
 
-  #terminal-container {
+  #ssh-terminal-container {
     position: absolute;
     top: 0;
     bottom: 11vh;

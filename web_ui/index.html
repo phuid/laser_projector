@@ -38,7 +38,13 @@
       </g>
     </svg>
   </form>
-  <div id="terminal-container" onclick="focusOnTextArea()"></div>
+  <div id='slider' class='swipe'>
+    <div class='swipe-wrap'>
+      <div id="ssh-terminal-container" onclick="focusOnTextArea(this)"></div>
+      <div id="lasershow-terminal-container" onclick="focusOnTextArea(this)"></div>
+      <div id="wifiman-terminal-container" onclick="focusOnTextArea(this)"></div>
+    </div>
+  </div>
   <form id="projectionform" action="project" method="post" enctype="multipart/form-data">
     <select id="lastpatharea" name="filename" placeholder="name of ild file here"></select>
     <input id="projectbutton" type="submit" />
