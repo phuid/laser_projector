@@ -1,3 +1,4 @@
+#include <wiringPi.h>
 #include "encoder.hpp"
 
 static bool encoder_btn_pressed = 0;

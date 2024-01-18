@@ -11,7 +11,7 @@
 #include <iostream>
 #include <string>
 #include <chrono>
-#include <wiringPi.h>
+#include <pigpio.h>
 #include "ABE_ADCDACPi.h"
 #include "IldaReader.h"
 

@@ -1,4 +1,3 @@
-#include <wiringPi.h>
 #include "ABE_ADCDACPi.h"
 
 #include "zmq.hpp"
