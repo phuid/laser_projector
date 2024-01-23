@@ -209,6 +209,21 @@ fi
 #             (cd && git clone https://github.com/WiringPi/WiringPi.git && cd WiringPi && ./build && cd "$(dirname "$0")")
 #     fi
 # fi
+
+##bcm2835
+wget http://www.airspayce.com/mikem/bcm2835/bcm2835-1.71.tar.gz -O - | tar -zxvf -
+cd bcm2835-1.71
+./configure
+make
+sudo make check
+sudo make install
+
+##LCD
+curl -sL https://github.com/gavinlyonsrepo/HD44780_LCD_RPI/archive/1.3.2.tar.gz | tar xz
+cd HD44780_LCD_RPI-1.3.2
+make
+sudo make install
+
 ##pigpio
 wget https://github.com/joan2937/pigpio/archive/master.zip
 unzip master.zip

@@ -23,7 +23,6 @@ add_executable(
     main.cpp
     encoder.cpp
     my_zmq_helper.cpp
-    soft_i2c.c
     soft_lcd.c
 )
 
@@ -35,5 +34,5 @@ target_compile_features(
 target_link_libraries(
     UI
     PRIVATE cppzmq ${CMAKE_THREAD_LIBS_INIT}
-    wiringPi ${WIRINGPI_LIBRARIES}
+    pigpiod_if2
 )

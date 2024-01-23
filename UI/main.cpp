@@ -2,8 +2,8 @@
 #include <unistd.h>
 #include <cstring>
 #include <vector>
-#include <wiringPi.h>
 #include <iostream>
+#include <pigpiod_if2.h>
 
 #include "zmq.hpp"
 #include "my_zmq_helper.hpp"
@@ -231,11 +231,15 @@ int main()
 
     // TODO: add SIGINT handler + cleanup function
 
-    wiringPiSetup();
+    int pi = pigpio_start(NULL, NULL);
+    if (pi < 0) {
+        std::cerr << "pigpio couldnt start" << std::endl;
+        return 1;
+    }
 
-    /* Create a LCD given SCL, SDA and I2C address, 4 lines */
+    /* Create a LCD given pigpio pi, bus 1 (sda = 2, scl = 3) and I2C address, 4 lines */
     /* PCF8574 has default address 0x27 */
-    lcd_t *lcd = lcd_create(LCD_SCL_PIN, LCD_SDA_PIN, 0x27, SCREEN_HEIGHT);
+    lcd_t *lcd = lcd_create(pi, 1, 0x27, SCREEN_HEIGHT);
 
     if (lcd == NULL)
     {
@@ -245,17 +249,21 @@ int main()
 
     lcd_init(lcd);
 
-    pinMode(encoder_pins[0], INPUT);
-    pinMode(encoder_pins[1], INPUT);
-    pinMode(encoder_button_pin, INPUT);
+    set_mode(pi, encoder_pins[0], PI_INPUT);
+    set_mode(pi, encoder_pins[1], PI_INPUT);
+    set_mode(pi, encoder_button_pin, PI_INPUT);
 
-    pullUpDnControl(encoder_pins[0], PUD_UP);
-    pullUpDnControl(encoder_pins[1], PUD_UP);
-    pullUpDnControl(encoder_button_pin, PUD_UP);
+    set_pull_up_down(pi, encoder_pins[0], PI_PUD_UP);
+    set_pull_up_down(pi, encoder_pins[1], PI_PUD_UP);
+    set_pull_up_down(pi, encoder_button_pin, PI_PUD_UP);
 
-    wiringPiISR(encoder_pins[0], INT_EDGE_BOTH, *handle_enc_interrupts);
-    wiringPiISR(encoder_pins[1], INT_EDGE_BOTH, *handle_enc_interrupts);
-    wiringPiISR(encoder_button_pin, INT_EDGE_BOTH, *handle_enc_btn_interrupts);
+    set_glitch_filter(pi, encoder_pins[0], 1000);
+    set_glitch_filter(pi, encoder_pins[1], 1000);
+    set_glitch_filter(pi, encoder_button_pin, 20000);
+
+    callback(pi, encoder_pins[0], EITHER_EDGE, *handle_enc_interrupts);
+    callback(pi, encoder_pins[1], EITHER_EDGE, *handle_enc_interrupts);
+    callback(pi, encoder_button_pin, EITHER_EDGE, *handle_enc_btn_interrupts);
 
     lcd_create_char(lcd, PARENT_CHAR_NUM, parent_char);
     lcd_create_char(lcd, INVERTED_SPACE_CHAR_NUM, inverted_space_char);

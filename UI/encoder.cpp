@@ -1,25 +1,24 @@
-#include <wiringPi.h>
+#include <pigpiod_if2.h>
 #include "encoder.hpp"
 
 static bool encoder_btn_pressed = 0;
 
-void handle_enc_btn_interrupts()
+void handle_enc_btn_interrupts(int pi, unsigned user_gpio, unsigned level, uint32_t tick)
 {
 	static uint16_t last_interrupt = 0;
-	uint16_t interrupt_time = millis();
-	if (interrupt_time - last_interrupt > 50 && !digitalRead(encoder_button_pin))
+	if (tick - last_interrupt > 50000 && !gpio_read(pi, encoder_button_pin))
 	{
 		encoder_btn_pressed = 1;
 	}
-	last_interrupt = interrupt_time;
+	last_interrupt = tick;
 }
 
 static int16_t encoder_pos = 0;
 
-void handle_enc_interrupts() // TODO: rewrite, register less interrupts
+void handle_enc_interrupts(int pi, unsigned user_gpio, unsigned level, uint32_t tick) // TODO: rewrite, register less interrupts
 {
 	static bool encoder_pins_last_state[2] = {0, 0};
-	bool state[2] = {(bool)digitalRead(encoder_pins[0]), (bool)digitalRead(encoder_pins[1])};
+	bool state[2] = {(bool)gpio_read(pi, encoder_pins[0]), (bool)gpio_read(pi, encoder_pins[1])};
 
 	// bool A_rising = state[0] && !encoder_pins_last_state[0];
 	// bool B_rising = state[1] && !encoder_pins_last_state[1];
