@@ -191,30 +191,14 @@ else
     fi
 fi
 
-# if which gpio > /dev/null
-# then
-#     echo -e "${On_IWhite}##${Color_Off} ${Yellow}wiringpi${Color_Off} is already installed, ${UWhite}skipping${Color_Off}... ${On_IWhite}##${Color_Off}"
-# else
-#     echo -e "${On_IWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}wiringpi${Color_Off}... ${On_IWhite}##${Color_Off}"
-#     echo -e "${On_IBlack}++${Color_Off} (cd && git clone https://github.com/WiringPi/WiringPi.git && cd WiringPi && ./build && cd \"$(dirname \"$0\")\") ${On_IBlack}++${Color_Off}"
-#     if [ $userauth == 1 ];
-#     then
-#         read -p "[y/n]: " currentauth
-#         if [ "$currentauth" != "${currentauth#[Yy]}" ];
-#         then
-#             (cd && git clone https://github.com/WiringPi/WiringPi.git && cd WiringPi && ./build && cd "$(dirname "$0")")
-#         fi
-#         unset currentauth
-#     else
-#             (cd && git clone https://github.com/WiringPi/WiringPi.git && cd WiringPi && ./build && cd "$(dirname "$0")")
-#     fi
-# fi
-##pigpio
-wget https://github.com/joan2937/pigpio/archive/master.zip
-unzip master.zip
-cd pigpio-master
+##libgpio
+sudo apt install swig
+wget http://abyz.me.uk/lg/lg.zip
+unzip lg.zip
+cd lg
 make
 sudo make install
+
 
 if which dnsmasq > /dev/null
 then

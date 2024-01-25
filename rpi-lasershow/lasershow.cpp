@@ -9,7 +9,7 @@
 #include <iostream>
 #include <string>
 #include <chrono>
-#include <pigpio.h>
+#include <lgpio.h>
 #include "ABE_ADCDACPi.h"
 #include "IldaReader.h"
 #include "lasershow.hpp"
@@ -19,9 +19,14 @@
 
 constexpr uint8_t LASER_PINS[3] = {22, 27, 17};
 
+
+//internals
+#constexpr uint8_t GPIO_CHIP_NUM = 2;
+
 static ABElectronics_CPP_Libraries::ADCDACPi adcdac;
 static IldaReader ildaReader;
 static std::chrono::time_point<std::chrono::system_clock> start;
+static int gpio_chip_handle;
 
 // Function that is called when program needs to be terminated.
 void lasershow_cleanup(int sig)
@@ -50,7 +55,8 @@ void lasershow_start(zmq::socket_t &publisher)
 bool lasershow_init(zmq::socket_t &publisher, std::string fileName)
 {
     // Setup hardware communication stuff.
-    if (gpioInitialise() < 0)
+    gpio_chip_handle = lgGpiochipOpen(GPIO_CHIP_NUM);
+    if (gpio_chip_handle < 0)
     {
         // pigpio initialisation failed.
         std::cout << "init fail" << std::endl;
