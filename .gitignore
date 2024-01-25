@@ -26,3 +26,5 @@ rpi-lasershow/bin
 rpi-lasershow/CMakeFiles
 UI/bin
 UI/CMakeFiles
+lg_pwm_test/bin
+lg_pwm_test/CMakeFiles
