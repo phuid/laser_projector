@@ -267,7 +267,7 @@ WIRINGPI_INCLUDE_DIRS:PATH=/usr/local/include
 WIRINGPI_LIBRARIES:FILEPATH=/usr/local/lib/libwiringPi.so
 
 //The directory containing a CMake configuration file for ZeroMQ.
-ZeroMQ_DIR:PATH=ZeroMQ_DIR-NOTFOUND
+ZeroMQ_DIR:PATH=/usr/local/lib/arm-linux-gnueabihf/cmake/ZeroMQ
 
 //Path to a file.
 ZeroMQ_INCLUDE_DIR:PATH=/usr/local/include

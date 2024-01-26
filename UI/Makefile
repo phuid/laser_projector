@@ -223,33 +223,6 @@ my_zmq_helper.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/UI.dir/build.make CMakeFiles/UI.dir/my_zmq_helper.cpp.s
 .PHONY : my_zmq_helper.cpp.s
 
-soft_i2c.o: soft_i2c.c.o
-
-.PHONY : soft_i2c.o
-
-# target to build an object file
-soft_i2c.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/UI.dir/build.make CMakeFiles/UI.dir/soft_i2c.c.o
-.PHONY : soft_i2c.c.o
-
-soft_i2c.i: soft_i2c.c.i
-
-.PHONY : soft_i2c.i
-
-# target to preprocess a source file
-soft_i2c.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/UI.dir/build.make CMakeFiles/UI.dir/soft_i2c.c.i
-.PHONY : soft_i2c.c.i
-
-soft_i2c.s: soft_i2c.c.s
-
-.PHONY : soft_i2c.s
-
-# target to generate assembly for a file
-soft_i2c.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/UI.dir/build.make CMakeFiles/UI.dir/soft_i2c.c.s
-.PHONY : soft_i2c.c.s
-
 soft_lcd.o: soft_lcd.c.o
 
 .PHONY : soft_lcd.o
@@ -295,9 +268,6 @@ help:
 	@echo "... my_zmq_helper.o"
 	@echo "... my_zmq_helper.i"
 	@echo "... my_zmq_helper.s"
-	@echo "... soft_i2c.o"
-	@echo "... soft_i2c.i"
-	@echo "... soft_i2c.s"
 	@echo "... soft_lcd.o"
 	@echo "... soft_lcd.i"
 	@echo "... soft_lcd.s"
