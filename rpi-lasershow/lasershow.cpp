@@ -128,7 +128,7 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options)
             {
                 for (uint8_t i = 0; i < 3; i++)
                 {
-                    gpioWrite(LASER_PINS[i], 0);
+                    lgGpioWrite(gpio_chip_handle, LASER_PINS[i], 0);
                 }
                 // std::cout << current_point_index << ":" << "---------" << std::endl;
             }
@@ -142,7 +142,7 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options)
                 start = std::chrono::system_clock::now();
                 for (size_t i = 0; i < 3; i++)
                 {
-                    gpioWrite(LASER_PINS[i], 0);
+                    lgGpioWrite(gpio_chip_handle, LASER_PINS[i], 0);
                 }
                 if (!options.paused)
                 {
