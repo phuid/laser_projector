@@ -10,10 +10,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR})
 
-
-find_package(pigpio)
-find_package(cppzmq)
-
+find_package(cppzmq REQUIRED)
 
 add_executable(
     lasershow
@@ -27,5 +24,5 @@ add_executable(
 target_link_libraries(
     lasershow
     PRIVATE cppzmq ${CMAKE_THREAD_LIBS_INIT}
-    pigpio
+    lgpio
 )

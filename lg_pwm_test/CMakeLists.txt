@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
 
-project(lasershow)
+project(lgpio_test)
 set (CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 
 # place binaries and libraries according to GNU standards
@@ -10,24 +10,11 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR})
 
-
-find_package(cppzmq)
-
 add_executable(
-    UI
+    test
     main.cpp
-    encoder.cpp
-    my_zmq_helper.cpp
-    soft_lcd.c
 )
-
-target_compile_features(
-    UI
-    PRIVATE cxx_std_17
-)
-
 target_link_libraries(
-    UI
-    PRIVATE cppzmq ${CMAKE_THREAD_LIBS_INIT}
+    test
     lgpio
 )

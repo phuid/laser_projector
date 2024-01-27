@@ -14,20 +14,21 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR})
 find_package(cppzmq)
 
 add_executable(
-    UI
-    main.cpp
-    encoder.cpp
-    my_zmq_helper.cpp
-    soft_lcd.c
-)
-
-target_compile_features(
-    UI
-    PRIVATE cxx_std_17
+    s
+    s.cpp
 )
 
 target_link_libraries(
-    UI
+    s
     PRIVATE cppzmq ${CMAKE_THREAD_LIBS_INIT}
-    lgpio
+)
+
+add_executable(
+    c
+    c.cpp
+)
+
+target_link_libraries(
+    c
+    PRIVATE cppzmq ${CMAKE_THREAD_LIBS_INIT}
 )
