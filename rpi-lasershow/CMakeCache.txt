@@ -278,6 +278,9 @@ lasershow_BINARY_DIR:STATIC=/home/pi/laser_projector/rpi-lasershow
 //Value Computed by CMake
 lasershow_SOURCE_DIR:STATIC=/home/pi/laser_projector/rpi-lasershow
 
+//The directory containing a CMake configuration file for lgpio.
+lgpio_DIR:PATH=lgpio_DIR-NOTFOUND
+
 //Path to a file.
 pigpio_INCLUDE_DIR:PATH=/usr/local/include
 

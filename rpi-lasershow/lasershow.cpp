@@ -37,6 +37,9 @@ void lasershow_cleanup(int sig)
         gpioWrite(LASER_PINS[i], 0);
     }
     adcdac.close_dac();
+    if (lgGpiochipClose(gpio_chip_handle) < 0) {
+        std::cout << "couldnt close gpio chip";
+    }
     ildaReader.closeFile();
     printf("lasershow cleanup done.\n\r");
     if (sig != 0)
@@ -65,8 +68,7 @@ bool lasershow_init(zmq::socket_t &publisher, std::string fileName)
 
     for (size_t i = 0; i < 3; i++)
     {
-        gpioSetMode(LASER_PINS[i], PI_OUTPUT);     // laser
-        gpioSetPWMfrequency(LASER_PINS[i], 40000); // highest freq
+        lgGpioClaimOutput(gpio_chip_handle, LG_SET_PULL_DOWN, LASER_PINS[i], 0);
     }
 
     if (adcdac.open_dac() == -1)
@@ -117,16 +119,16 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options)
             // TODO: PWM insteal of digitalwrite
             if (current_point.laser_on) // blanking bit (moving the mirrors with laser off)
             {
-                gpioPWM(LASER_PINS[0], current_point.red);
-                gpioPWM(LASER_PINS[1], current_point.green);
-                gpioPWM(LASER_PINS[2], current_point.blue);
+                lgTxPwm(gpio_chip_handle, LASER_PINS[0], 10000, (static_cast<float>(current_point.red) / 255.f) * 100.f, 0, 0);
+                lgTxPwm(gpio_chip_handle, LASER_PINS[1], 10000, (static_cast<float>(current_point.green) / 255.f) * 100.f, 0, 0);
+                lgTxPwm(gpio_chip_handle, LASER_PINS[2], 10000, (static_cast<float>(current_point.blue) / 255.f) * 100.f, 0, 0);
                 // std::cout << current_point_index << ":" << static_cast<int>(current_point.red) << "," << static_cast<int>(current_point.green) << "," << static_cast<int>(current_point.blue) << "," << std::endl;
             }
             else
             {
                 for (uint8_t i = 0; i < 3; i++)
                 {
-                    gpioWrite(LASER_PINS[i], 0);
+                    lgGpioWrite(gpio_chip_handle, LASER_PINS[i], 0);
                 }
                 // std::cout << current_point_index << ":" << "---------" << std::endl;
             }
@@ -140,7 +142,7 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options)
                 start = std::chrono::system_clock::now();
                 for (size_t i = 0; i < 3; i++)
                 {
-                    gpioWrite(LASER_PINS[i], 0);
+                    lgGpioWrite(gpio_chip_handle, LASER_PINS[i], 0);
                 }
                 if (!options.paused)
                 {

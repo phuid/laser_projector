@@ -192,7 +192,8 @@ else
 fi
 
 ##libgpio
-sudo apt install swig
+sudo apt install swig python-dev python3-dev
+sudo apt install python-setuptools python3-setuptools
 wget http://abyz.me.uk/lg/lg.zip
 unzip lg.zip
 cd lg
