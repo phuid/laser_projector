@@ -20,11 +20,9 @@ Robutek-rewrite-2022
 
 **/.vscode
 
-bin
+**/bin
+**/CMakeFiles
+**/Makefile
 
-rpi-lasershow/bin
-rpi-lasershow/CMakeFiles
-UI/bin
-UI/CMakeFiles
-lg_pwm_test/bin
-lg_pwm_test/CMakeFiles
+**/cmake_install.cmake
+**/CMakeCache.txt

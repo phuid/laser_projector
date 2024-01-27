@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include "soft_lcd.h"
 #include <lgpio.h>
 
@@ -485,6 +486,6 @@ int _pcf8574_check(int i2c_handle, int addr)
 	if (r != I2C_ACK)
 		return 0;
 
-	i2c_close(i2c_handle);
+	lgI2cClose(i2c_handle);
 	return 1;
 }

@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include <lgpio.h>
 #include "encoder.hpp"
 
@@ -33,6 +35,8 @@ static int16_t encoder_pos = 0;
 
 void handle_enc_interrupts(int num_alerts, lgGpioAlert_p alerts, void *userdata) // TODO: rewrite, register less interrupts
 {
+	std::cout << "yuuh" << std::endl;
+
 	int gpio_chip_handle = *static_cast<int*>(userdata);
 
 	static bool encoder_pins_last_state[2] = {0, 0};

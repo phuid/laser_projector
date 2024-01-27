@@ -21,7 +21,7 @@ constexpr uint8_t LASER_PINS[3] = {22, 27, 17};
 
 
 //internals
-#constexpr uint8_t GPIO_CHIP_NUM = 2;
+constexpr uint8_t GPIO_CHIP_NUM = 4;
 
 static ABElectronics_CPP_Libraries::ADCDACPi adcdac;
 static IldaReader ildaReader;
@@ -34,7 +34,7 @@ void lasershow_cleanup(int sig)
     printf("Turn off laser diode.\n\r");
     for (size_t i = 0; i < 3; i++)
     {
-        gpioWrite(LASER_PINS[i], 0);
+        lgGpioWrite(gpio_chip_handle, LASER_PINS[i], 0);
     }
     adcdac.close_dac();
     if (lgGpiochipClose(gpio_chip_handle) < 0) {
