@@ -1,0 +1,50 @@
+### Footprint positions - created on Fri Jan 26 19:06:12 2024 ###,,,,,,,
+### Printed by KiCad version 7.0.10,,,,,,,
+## Unit = mm, Angle = deg.,,,,,,
+## Side : both lol,,,,,,,
+Ref, Val, Link, Package, PosX, PosY, Rot, Side
+C1, 1u, https://www.gme.cz/v/1486151/hitano-ck-1u-50v-x7r-rm508-10-keramicky-kondenzator, C_Disc_D5.0mm_W2.5mm_P5.00mm,258.572,-54.3668,90, top
+C2, 10u,https://www.gme.cz/v/1489492/hitano-ce-10u-63vit-hit-exr-5x11-rm2-bulk-elektrolyticky-kondenzator, CP_Radial_D5.0mm_P2.00mm,254.4419,-67.0814,0, top
+C3, 10u,, CP_Radial_D5.0mm_P2.00mm,253.7561,-60.071,0, top
+D1, D_Schottky, https://www.gme.cz/v/1493653/ss56c-schottkyho-dioda, D_SMC_Handsoldering,267.6398,-51.6636,0, top
+D2, D,, D_SMC_Handsoldering,-267.6398,-51.6636,0, bottom
+U1, MCP4822,bought, DIP-8_W7.62mm,248.3258,-44.9734,180, top
+U2, TL082,bought, DIP-8_W7.62mm,249.1386,-61.5696,-90, top
+U3, TL082,bought, DIP-8_W7.62mm,249.1032,-49.6416,-90, top
+U4, LM358,https://www.gme.cz/v/1487661/texas-instruments-lm358p, DIP-8_W7.62mm,256.169,-37.1194,0, top
+U5, ADC0831,https://www.gme.cz/v/1490502/texas-instruments-adc0831ccn-nopb, DIP-8_W7.62mm,266.5476,-37.221,0, top
+U6, AOZ1282CI,https://www.tme.eu/cz/en/details/aoz1282ci/voltage-regulators-dc-dc-circuits/alpha-omega-semiconductor/, SOT-23-6,270.05,-59.3598,-90, top
+J1, Raspberry_Pi_2_3,bought, PinSocket_2x20_P2.54mm_Vertical,-276.86,-25.4,180, bottom
+L1, 20u,https://www.gme.cz/v/1496226/da105np-220m-tlumivka-smd, L_Sumida_CR75,-265.4446,-66.7004,180, bottom
+L2, 20u,, L_Sumida_CR75,267.5782,-66.7004,0, top
+R2, R,https://www.gme.cz/v/1485408/yageo-r1206-22k-025w-1-smd-rezistor, R_1812_4532Metric_Pad1.30x3.40mm_HandSolder,253.9492,-52.5018,90, top
+R3, R,, R_1812_4532Metric_Pad1.30x3.40mm_HandSolder,252.2982,-40.8686,90, top
+R8, R,, R_1812_4532Metric_Pad1.30x3.40mm_HandSolder,-259.7912,-42.4688,90, bottom
+R10, R,, R_1812_4532Metric_Pad1.30x3.40mm_HandSolder,-252.3236,-40.8178,90, bottom
+R13, 39k,https://www.gme.cz/v/1485560/yageo-r1206-39k-025w-1-smd-rezistor, R_1812_4532Metric_Pad1.30x3.40mm_HandSolder,263.9314,-57.8612,180, top
+R1, 1kR,https://www.gme.cz/v/1485383/yageo-r1206-1k-025w-1-smd-rezistor, R_1812_4532Metric_Pad1.30x3.40mm_HandSolder,-235.1024,-38.227,0, bottom
+R7, 1kR,, R_1812_4532Metric_Pad1.30x3.40mm_HandSolder,-234.7468,-58.5216,0, bottom
+R4, 47kR,https://www.gme.cz/v/1483907/yageo-r1206-47k-025w-1-smd-rezistor, R_1812_4532Metric_Pad1.30x3.40mm_HandSolder,-235.0516,-43.3578,180, bottom
+R9, 47kR,, R_1812_4532Metric_Pad1.30x3.40mm_HandSolder,-234.6706,-69.6214,180, bottom
+R15, 47kR,, R_1812_4532Metric_Pad1.30x3.40mm_HandSolder,-253.8476,-50.0126,90, bottom
+pwrSW_PU1, 47kR,, R_1812_4532Metric_Pad1.30x3.40mm_HandSolder,-270.7132,-41.2344,-90, bottom
+R5, 10kR,https://www.gme.cz/v/1486609/yageo-r1206-10k-025w-1-smd-rezistor, R_1812_4532Metric_Pad1.30x3.40mm_HandSolder,-234.9754,-49.4538,180, bottom
+R6, 10kR,, R_1812_4532Metric_Pad1.30x3.40mm_HandSolder,-245.227,-53.594,180, bottom
+R11, 10kR,, R_1812_4532Metric_Pad1.30x3.40mm_HandSolder,-234.6706,-64.6176,180, bottom
+R12, 10kR,, R_1812_4532Metric_Pad1.30x3.40mm_HandSolder,-245.34,-65.5574,180, bottom
+R14, 2k2,https://www.gme.cz/v/1496462/yageo-r1206-2k2-025w-1-smd-rezistor, R_1812_4532Metric_Pad1.30x3.40mm_HandSolder,-263.906,-57.8866,0, bottom
+Xgain1, 10kR,bought (may be burned), Potentiometer_Alps_RK09K_Single_Vertical,227.4504,-57.2362,0, top
+Xoffset1, 10kR,, Potentiometer_Alps_RK09K_Single_Vertical,227.5266,-67.7264,0, top
+Ygain1, 10kR,, Potentiometer_Alps_RK09K_Single_Vertical,227.4504,-36.078,0, top
+Yoffset1, 10kR,, Potentiometer_Alps_RK09K_Single_Vertical,227.4758,-46.5428,0, top
+bat_probe1, Conn_01x01_Male,bought (robotarna lol), PinHeader_1x01_P2.54mm_Horizontal,-242.3414,-32.639,90, bottom
+encoder1, Conn_01x04_Male,, PinHeader_1x04_P2.54mm_Horizontal,-231.4508,-73.7266,-90, bottom
+galPWR1, Conn_01x03_Male,, PinHeader_1x03_P2.54mm_Horizontal,-263.3472,-73.533,-90, bottom
+galX1, Conn_01x03_Male,, PinHeader_1x03_P2.54mm_Horizontal,-243.982,-73.6284,-90, bottom
+galY1, Conn_01x03_Male,, PinHeader_1x03_P2.54mm_Horizontal,-253.4158,-73.6092,-90, bottom
+laser_B1, Conn_01x02_Male,, PinHeader_1x02_P2.54mm_Horizontal,-272.8264,-32.6706,90, bottom
+laser_G1, Conn_01x02_Male,, PinHeader_1x02_P2.54mm_Horizontal,-265.2064,-32.6452,90, bottom
+laser_R1, Conn_01x02_Male,, PinHeader_1x02_P2.54mm_Horizontal,-257.6626,-32.6706,90, bottom
+pwrSW1, Conn_01x03_Male,, PinHeader_1x03_P2.54mm_Horizontal,-251.5362,-32.639,90, bottom
+LCD1, Conn_01x05_Male,, PinHeader_1x05_P2.54mm_Horizontal,-238.379,-32.5882,90, bottom
++15supply1, Conn_01x02_Male,, PinHeader_1x02_P2.54mm_Horizontal,-271.3736,-81.3816,0, bottom
