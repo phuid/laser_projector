@@ -12,13 +12,6 @@
   overflow-y: scroll;
 }
 
-#ssh-terminal-container {
-  font-family: Inconsolata, monospace;
-  border: 1px solid var(--text-2);
-  background-color: var(--background-2);
-  overflow: scroll;
-}
-
 input[type="textarea"] {
   color: var(--text-1);
 }
@@ -59,7 +52,146 @@ svg {
   border-radius: 2rem;
 }
 
-@media (orientation: portrait) {
+@media screen and (orientation: landscape) {
+  #slider {
+    position: absolute;
+    top: 10vh;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    margin: 10px;
+  }
+  
+  .swipe-wrap {
+    height: 100%;
+    width: 100%;
+  }
+  
+  #ssh-terminal-container {
+    font-family: Inconsolata, monospace;
+    border: 1px solid var(--text-2);
+    background-color: var(--background-2);
+    overflow: scroll;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 50%;
+    height: 100%;
+  }
+  
+  #lasershow-terminal-container {
+    font-family: Inconsolata, monospace;
+    border: 1px solid var(--text-2);
+    background-color: var(--background-2);
+    overflow: scroll;
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 50%;
+    height: 50%;
+  }
+  
+  #wifiman-terminal-container {
+    font-family: Inconsolata, monospace;
+    border: 1px solid var(--text-2);
+    background-color: var(--background-2);
+    overflow: scroll;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 50%;
+    height: 50%;
+  }
+  
+  #fileupload {
+    top: 0;
+    left: 0;
+    right: 50%;
+    bottom: 90vh;
+    position: absolute;
+    padding: 0;
+    margin: 0;
+    background: linear-gradient(var(--text-2), rgba(0,0,0,0));
+    z-index: 11;
+  }
+
+  input[type="file"] {
+    height: 10vh;
+    width: 80%;
+    border-style: solid;
+    border-width: 3px;
+    border-image: linear-gradient(to right, var(--text-button), var(--text-2) 30%);
+    border-image-slice: 1 fill;
+    border-radius: 5vh;
+    background-color: var(--background-2);
+    color: var(--background-1);
+  }
+
+  input[type="file"]::file-selector-button {
+    height: 100%;
+    color: var(--background-1);
+  }
+  input[type="file"]::-webkit-file-upload-button {
+    height: 100%;
+  }
+
+  #fileupload input[type="submit"] {
+    height: 10vh;
+    width: 20%;
+    position: relative;
+    top: -10vh;
+    left: 40%;
+  }
+
+  #uploadsvg {
+    position: absolute;
+    right: 1vh;
+    top: 1vh;
+    height: 10vh;
+    width: 20%;
+    z-index: 2;
+  }
+
+  input {
+    font-size: 2rem;
+    width: 100%;
+  }
+
+  #projectionform {
+    top: 0;
+    left: 50%;
+    right: 0;
+    bottom: 90vh;
+    position: absolute;
+    padding: 0;
+    margin: 0;
+    background: linear-gradient(var(--text-2), rgba(0,0,0,0));
+    z-index: 11;
+  }
+  #lastpatharea {
+    font-size: 2rem;
+    position: absolute;
+    left: 0;
+    width: 80%;
+    bottom: 0;
+    right: 20%;
+    height: 10vh;
+    overflow-x: scroll;
+    z-index: 1;
+  }
+
+  #projectsvg {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    height: 10vh;
+    width: 20%;
+    z-index: 2;
+  }
+}
+
+@media screen and (orientation: portrait) {
   /* form .button {
     width: 100%;
   } */
