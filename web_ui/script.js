@@ -26,14 +26,15 @@ var terminals = {
 
 var socket = io(); //.connect();
 socket.on("connect", function () {
-  for (var i = 0; i < terminals.length; i++) {
-    terminals[i].write("\r\n*** WebSocket connection estabilished ***\r\n");
-  }
+  Object.entries(terminals).forEach(([key, terminal]) => {
+    terminal.term.write("\r\n*** WebSocket connection estabilished ***\r\n");
+  });
 });
 socket.on("disconnect", function () {
-  for (var i = 0; i < terminals.length; i++) {
-    terminals[i].write("\r\n*** WebSocket connection lost ***\r\n");
-  }
+  Object.entries(terminals).forEach(([key, terminal]) => {
+    terminal.term.write("\r\n*** WebSocket connection lost ***\r\n");
+  });
+  console.log("socket lost");
 });
 
 // Browser -> Backend
@@ -130,9 +131,9 @@ function focusOnTextArea(parent_element) {
   parent_element.getElementsByClassName("xterm-helper-textarea")[0].focus();
 }
 
-for (var i = 0; i < terminals.length; i++) {
-  terminals[i].container.style.zIndex = "10";
-}
+Object.entries(terminals).forEach(([key, terminal]) => {
+  terminal.container.style.zIndex = "10";
+});
 
 window.mySwipe = new Swipe(document.getElementById("slider"), {
   startSlide: 2,
