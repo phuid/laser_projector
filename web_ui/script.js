@@ -18,6 +18,36 @@ class terminal {
   }
 }
 
+if (screen.availHeight > screen.availWidth) {
+  var swiper = new Swiper(".swiper", {
+    grabCursor: false,
+    effect: "coverflow",
+    spaceBetween: 30,
+    coverflowEffect: {
+      rotate: 0,
+      stretch: 0,
+      depth: 0,
+      modifier: 1,
+      slideShadows: false,
+    },
+    pagination: {
+      el: ".swiper-pagination",
+      clickable: true,
+    },
+  });
+}
+else {
+  console.log("landscape detected - removing swiper classes")
+  const classes_to_remove_in_landscape = ["swiper", "swiper-wrapper", "swiper-slide", "swiper-pagination", "swiper-button-prev", "swiper-button-next"];
+  classes_to_remove_in_landscape.forEach((classname) => {
+    for (var i = 0; i < document.getElementsByClassName(classname).length; i++){
+      console.log(document.getElementsByClassName(classname)[i]);
+      document.getElementsByClassName(classname)[i].classList.remove(classname)
+    }
+  });
+}
+
+
 var terminals = {
   ssh: new terminal("ssh-terminal-container"),
   lasershow: new terminal("lasershow-terminal-container"),
@@ -131,17 +161,14 @@ function focusOnTextArea(parent_element) {
   parent_element.getElementsByClassName("xterm-helper-textarea")[0].focus();
 }
 
-Object.entries(terminals).forEach(([key, terminal]) => {
-  terminal.container.style.zIndex = "10";
+// Object.entries(terminals).forEach(([key, terminal]) => {
+//   terminal.container.style.zIndex = "10";
+// });
+
+addEventListener("resize", (event) => {
+  Object.entries(terminals).forEach(([key, terminal]) => {
+    terminal.fit.fit();
+  });
 });
 
-window.mySwipe = new Swipe(document.getElementById("slider"), {
-  startSlide: 2,
-  speed: 400,
-  auto: 3000,
-  continuous: true,
-  disableScroll: false,
-  stopPropagation: false,
-  callback: function (index, elem) {},
-  transitionEnd: function (index, elem) {},
-});
+// swiper.updateSlides()

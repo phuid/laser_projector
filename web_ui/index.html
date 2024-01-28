@@ -4,13 +4,21 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>laser-projector</title>
+  
+  <link rel="stylesheet" href="style.css">
+
+  <!-- xterm -->
   <link rel="stylesheet" href="/xterm.css" />
   <script src="/xterm.js" defer></script>
   <script src="/xterm-addon-fit.js" defer></script>
+  <!-- socket.io -->
   <script src="/socket.io/socket.io.js" defer></script>
+  <!-- jquery -->
   <script src="/lib/jquery-3.5.1.min.js" defer></script>
+  <!-- Swiper JS -->
+  <script src="/swiper-bundle.min.js"></script>
+  <link rel="stylesheet" href="swiper-bundle.min.css" />
 
-  <link rel="stylesheet" href="style.css">
   <script src="script.js" defer></script>
 </head>
 
@@ -38,16 +46,18 @@
       </g>
     </svg>
   </form>
-  <div id='slider' class='swipe'>
-    <div class='swipe-wrap'>
-      <div id="ssh-terminal-container" onclick="focusOnTextArea(this)">
-        
+  <div class='swiper swiperstyle'>
+    <div class='swiper-wrapper width100'>
+      <div id="ssh-terminal-container" class="terminal-container swiper-slide" onclick="focusOnTextArea(this)">
       </div>
-      <div id="lasershow-terminal-container" onclick="focusOnTextArea(this)">
+      <div id="lasershow-terminal-container" class="terminal-container swiper-slide" onclick="focusOnTextArea(this)">
       </div>
-      <div id="wifiman-terminal-container" onclick="focusOnTextArea(this)">
+      <div id="wifiman-terminal-container" class="terminal-container swiper-slide" onclick="focusOnTextArea(this)">
       </div>
     </div>
+    <div class="swiper-pagination landscape-invisible"></div>
+    <!-- <div class="swiper-button-prev landscape-invisible"></div>
+    <div class="swiper-button-next landscape-invisible"></div> -->
   </div>
   <form id="projectionform" action="project" method="post" enctype="multipart/form-data">
     <select id="lastpatharea" name="filename" placeholder="name of ild file here"></select>

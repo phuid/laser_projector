@@ -21,21 +21,35 @@ var SSHClient = require("ssh2").Client;
 
 // Load static files into memory
 var staticFiles = {};
-var basePath = path.join(require.resolve("xterm"), "..");
+
+var xtermBasePath = path.join(require.resolve("xterm"), "..");
 staticFiles["/xterm.css"] = fs.readFileSync(
-  path.join(basePath, "../css/xterm.css")
+  path.join(xtermBasePath, "../css/xterm.css")
 );
-staticFiles["/xterm.js"] = fs.readFileSync(path.join(basePath, "xterm.js"));
-basePath = path.join(require.resolve("xterm-addon-fit"), "..");
+staticFiles["/xterm.js"] = fs.readFileSync(path.join(xtermBasePath, "xterm.js"));
+staticFiles["/xterm.js.map"] = fs.readFileSync(path.join(xtermBasePath, "xterm.js.map"));
+xtermBasePath = path.join(require.resolve("xterm-addon-fit"), "..");
 staticFiles["/xterm-addon-fit.js"] = fs.readFileSync(
-  path.join(basePath, "xterm-addon-fit.js")
+  path.join(xtermBasePath, "xterm-addon-fit.js")
 );
+staticFiles["/xterm-addon-fit.js.map"] = fs.readFileSync(
+  path.join(xtermBasePath, "xterm-addon-fit.js.map")
+);
+
 staticFiles["/lib/jquery-3.5.1.min.js"] = fs.readFileSync(
   "lib/jquery-3.5.1.min.js"
 );
+
+var swiperBasePath = path.join(require.resolve("swiper"), "..");
+staticFiles["/swiper-bundle.min.js"] = fs.readFileSync(path.join(swiperBasePath, "swiper-bundle.min.js"));
+staticFiles["/swiper-bundle.min.js.map"] = fs.readFileSync(path.join(swiperBasePath, "swiper-bundle.min.js.map"));
+staticFiles["/swiper-bundle.min.css"] = fs.readFileSync(path.join(swiperBasePath, "swiper-bundle.min.css"));
+
 staticFiles["/"] = fs.readFileSync("index.html");
 staticFiles["/style.css"] = fs.readFileSync("style.css");
 staticFiles["/script.js"] = fs.readFileSync("script.js");
+
+staticFiles["/swiper_demo.html"] = fs.readFileSync("swiper_demo.html");
 
 // Handle static file serving
 function onRequest(req, res) {
@@ -50,6 +64,7 @@ function onRequest(req, res) {
           ? "javascript"
           : "html"),
     });
+    console.log("sending" + req.url);
     return res.end(file);
   } else if (req.method == "POST") {
     if (req.url == "/fileupload") {
@@ -197,14 +212,14 @@ function onRequest(req, res) {
     } else if (req.url == "/listIld") {
       res.writeHead(200, { "Content-Type": "text/json" });
 
-      basePath = path.join(__dirname, "../ild");
-      ILDdirectoryContent = fs.readdirSync(basePath);
+      xtermBasePath = path.join(__dirname, "../ild");
+      ILDdirectoryContent = fs.readdirSync(xtermBasePath);
       let files = ILDdirectoryContent.filter((filename) => {
-        return fs.statSync(`${basePath}/${filename}`).isFile();
+        return fs.statSync(`${xtermBasePath}/${filename}`).isFile();
       });
       let sorted = files.sort((a, b) => {
-        let aStat = fs.statSync(`${basePath}/${a}`),
-          bStat = fs.statSync(`${basePath}/${b}`);
+        let aStat = fs.statSync(`${xtermBasePath}/${a}`),
+          bStat = fs.statSync(`${xtermBasePath}/${b}`);
         return (
           new Date(bStat.birthtime).getTime() -
           new Date(aStat.birthtime).getTime()
