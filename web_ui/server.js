@@ -49,8 +49,6 @@ staticFiles["/"] = fs.readFileSync("index.html");
 staticFiles["/style.css"] = fs.readFileSync("style.css");
 staticFiles["/script.js"] = fs.readFileSync("script.js");
 
-staticFiles["/swiper_demo.html"] = fs.readFileSync("swiper_demo.html");
-
 // Handle static file serving
 function onRequest(req, res) {
   var file;
