@@ -17,7 +17,7 @@
 
 #include <filesystem>
 
-constexpr int GPIO_CHIP_NUM = 0;
+constexpr int GPIO_CHIP_NUM = 4;
 
 void send_option_command(zmq::socket_t &command_sender, menu_option &parent)
 {
