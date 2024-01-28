@@ -1,7 +1,7 @@
 class terminal {
   constructor(container_id) {
     this.container = document.getElementById(container_id);
-    this.Term = new Terminal({
+    this.term = new Terminal({
       cursorBlink: true,
       allowTransparency: true,
       drawBoldTextInBrightColors: true,
@@ -11,49 +11,49 @@ class terminal {
         background: "rgba(0, 0, 0, 0)",
       },
     });
-    this.sshFitAddon = new FitAddon.FitAddon();
-    this.Term.loadAddon(sshFitAddon);
-    this.Term.open(TerminalContainer);
-    this.sshFitAddon.fit();
+    this.fit = new FitAddon.FitAddon();
+    this.term.loadAddon(this.fit);
+    this.term.open(this.container);
+    this.fit.fit();
   }
 }
 
 var terminals = {
-  ssh: terminal("ssh-terminal-container"),
-  lasershow: terminal("lasershow-terminal-container"),
-  wifiman: terminal("wifiman-terminal-container"),
+  ssh: new terminal("ssh-terminal-container"),
+  lasershow: new terminal("lasershow-terminal-container"),
+  wifiman: new terminal("wifiman-terminal-container"),
 };
 
 var socket = io(); //.connect();
 socket.on("connect", function () {
-  terminals.forEach((terminal) => {
-    terminal.write("\r\n*** WebSocket connection estabilished ***\r\n");
-  });
+  for (var i = 0; i < terminals.length; i++) {
+    terminals[i].write("\r\n*** WebSocket connection estabilished ***\r\n");
+  }
 });
 socket.on("disconnect", function () {
-  terminals.forEach((terminal) => {
-    terminal.write("\r\n*** WebSocket connection lost ***\r\n");
-  });
+  for (var i = 0; i < terminals.length; i++) {
+    terminals[i].write("\r\n*** WebSocket connection lost ***\r\n");
+  }
 });
 
 // Browser -> Backend
-terminals.ssh.onData(function (ev) {
+terminals.ssh.term.onData(function (ev) {
   socket.emit("sshdata", ev.toString());
 });
 
 // Backend -> Browser
 socket.on("sshdata", function (data) {
-  terminals.ssh.write(data);
+  terminals.ssh.term.write(data);
 });
 
 // Backend -> Browser
 socket.on("LASERSHOWmsg", function (data) {
-  terminals.lasershow.write(data);
+  terminals.lasershow.term.write(data);
 });
 
 // Backend -> Browser
 socket.on("WIFIMANmsg", function (data) {
-  terminals.wifiman.write(data);
+  terminals.wifiman.term.write(data);
 });
 
 socket.on("alert", (alert) => {
@@ -130,17 +130,17 @@ function focusOnTextArea(parent_element) {
   parent_element.getElementsByClassName("xterm-helper-textarea")[0].focus();
 }
 
-terminals.forEach(terminal => {
-  terminal.container.style.zIndex = "10";
-});
+for (var i = 0; i < terminals.length; i++) {
+  terminals[i].container.style.zIndex = "10";
+}
 
-window.mySwipe = new Swipe(document.getElementById('slider'), {
+window.mySwipe = new Swipe(document.getElementById("slider"), {
   startSlide: 2,
   speed: 400,
   auto: 3000,
   continuous: true,
   disableScroll: false,
   stopPropagation: false,
-  callback: function(index, elem) {},
-  transitionEnd: function(index, elem) {}
+  callback: function (index, elem) {},
+  transitionEnd: function (index, elem) {},
 });

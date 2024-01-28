@@ -140,7 +140,7 @@ svg {
     height: 10vh;
     width: 20%;
     position: relative;
-    top: -10vh;
+    top: 10vh;
     left: 40%;
   }
 
@@ -174,7 +174,7 @@ svg {
     position: absolute;
     left: 0;
     width: 80%;
-    bottom: 0;
+    top: 0;
     right: 20%;
     height: 10vh;
     overflow-x: scroll;
@@ -184,7 +184,7 @@ svg {
   #projectsvg {
     position: absolute;
     right: 0;
-    bottom: 0;
+    top: 0;
     height: 10vh;
     width: 20%;
     z-index: 2;
@@ -215,7 +215,7 @@ svg {
     top: 0;
     left: 0;
     right: 0;
-    bottom: calc(90vh);
+    height: 10vh;
     position: absolute;
     padding: 0;
     margin: 0;
@@ -247,7 +247,7 @@ svg {
     height: 10vh;
     width: 20%;
     position: relative;
-    top: -10vh;
+    top: 10vh;
     left: 80%;
   }
 

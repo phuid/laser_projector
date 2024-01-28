@@ -228,7 +228,6 @@ io.on("connection", function (socket) {
   var conn = new SSHClient();
   conn
     .on("ready", function () {
-      socket.emit("sshdata", "\r\n*** BACKEND CONNECTION ESTABLISHED ***\r\n");
       conn.shell(function (err, stream) {
         if (err)
           return socket.emit(
@@ -257,13 +256,12 @@ io.on("connection", function (socket) {
       socket.emit(
         "sshdata",
         "\r\n*** SSH CONNECTION ERROR: " + err.message + " ***\r\n"
-      );
-    })
-    .connect({
+      ); //solution Error:0308010C:digital envelope routines::unsupported https://github.com/facebook/create-react-app/issues/11708#issuecomment-1267989131
+    });
+    conn.connect({
       host: config.sshHost,
-      port: config.sshPort,
       username: config.sshUsername,
-      password: config.sshPassword,
+      privateKey: fs.readFileSync(config.sshKeyPath),
     });
 });
 
