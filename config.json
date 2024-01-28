@@ -7,6 +7,6 @@
     "sshHost": "localhost",
     "sshPort": 22,
     "sshUsername": "pi",
-    "sshPassword": "123456789"
+    "sshKeyPath": "/home/pi/.ssh/id_rsa"
   }
 }

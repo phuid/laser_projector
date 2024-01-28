@@ -146,12 +146,21 @@ else
     echo -e "${On_IBlack}++${Color_Off} sudo apt-get update -y && sudo apt-get upgrade -y ${On_IBlack}++${Color_Off}"
     sudo apt-get update -y && sudo apt-get upgrade -y
 fi
+
+
+ssh-keygen -t rsa -b 4096 -f ./.ssh/id_rsa
+echo $(cat ./.ssh/id_rsa.pub) >> ~/.ssh/authorized_keys
+install -d -m 700 ~/.ssh
+sudo chmod 644 ~/.ssh/authorized_keys
+sudo chown pi:pi ~/.ssh/authorized_keys
+
+
 if which node > /dev/null
 then
     echo -e "${On_IWhite}##${Color_Off} ${Yellow}node${Color_Off} is already installed, ${UWhite}skipping${Color_Off}...${Purple}(cant check version, give me a way in issues pls)${Color_Off} ${On_IWhite}##${Color_Off}"
 else
     echo -e "${On_IWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}node${Color_Off}... ${On_IWhite}##${Color_Off}"
-    echo -e "${On_IBlack}++${Color_Off} sudo curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash - ${On_IBlack}++${Color_Off}"
+    echo -e "${On_IBlack}++${Color_Off} sudo curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo bash - ${On_IBlack}++${Color_Off}"
     echo -e "${On_IBlack}++${Color_Off} sudo apt-get install nodejs -y ${On_IBlack}++${Color_Off}"
     
     if [ $userauth == 1 ];
@@ -159,13 +168,13 @@ else
         read -p "[y/n]: " currentauth
         if [ "$currentauth" != "${currentauth#[Yy]}" ];
         then
-            sudo curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash -
-            sudo apt-get install nodejs
+            curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - &&\
+sudo apt-get install nodejs
         fi
         unset currentauth
     else
-        sudo curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash -
-        sudo apt-get install nodejs -y
+    curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - &&\
+sudo apt-get install -y nodejs
     fi
 fi
 
@@ -174,19 +183,19 @@ then
     echo -e "${On_IWhite}##${Color_Off} ${Yellow}npm${Color_Off} is already installed, ${UWhite}skipping${Color_Off}... ${On_IWhite}##${Color_Off}"
 else
     echo -e "${On_IWhite}##${Color_Off} ${UWhite}installing${Color_Off} ${Yellow}npm${Color_Off}... ${On_IWhite}##${Color_Off}"
-    echo -e "${On_IBlack}++${Color_Off} sudo curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash - ${On_IBlack}++${Color_Off}"
+    echo -e "${On_IBlack}++${Color_Off} sudo curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo bash - ${On_IBlack}++${Color_Off}"
     echo -e "${On_IBlack}++${Color_Off} sudo apt-get install npm -y ${On_IBlack}++${Color_Off}"
     if [ $userauth == 1 ];
     then
         read -p "[y/n]: " currentauth
         if [ "$currentauth" != "${currentauth#[Yy]}" ];
         then
-            sudo curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash -
+        curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - &&\
             sudo apt-get install npm
         fi
         unset currentauth
     else
-        sudo curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash -
+    curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - &&\
         sudo apt-get install npm -y
     fi
 fi
@@ -196,9 +205,9 @@ sudo apt install swig python-dev python3-dev
 sudo apt install python-setuptools python3-setuptools
 wget http://abyz.me.uk/lg/lg.zip
 unzip lg.zip
-cd lg
-make
-sudo make install
+rm lg.zip
+(cd lg && make && sudo make install)
+rm -r lg
 
 
 if which dnsmasq > /dev/null
