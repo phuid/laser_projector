@@ -783,6 +783,11 @@
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
     )
+    (model "C:/Users/simon/Downloads/rk09k113004u.stp"
+      (offset (xyz -3 -2.5 7.5))
+      (scale (xyz 1 1 1))
+      (rotate (xyz -100 0 -90))
+    )
   )
 
   (footprint "Package_DIP:DIP-8_W7.62mm" (layer "F.Cu")
@@ -914,6 +919,11 @@
       (offset (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
+    )
+    (model "C:/Users/simon/Downloads/rk09k113004u.stp"
+      (offset (xyz -3 -2.5 7.5))
+      (scale (xyz 1 1 1))
+      (rotate (xyz -100 0 -90))
     )
   )
 
@@ -1309,6 +1319,11 @@
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
     )
+    (model "C:/Users/simon/Downloads/rk09k113004u.stp"
+      (offset (xyz -3 -2.5 7.5))
+      (scale (xyz 1 1 1))
+      (rotate (xyz -100 0 -90))
+    )
   )
 
   (footprint "Package_DIP:DIP-8_W7.62mm" (layer "F.Cu")
@@ -1440,6 +1455,11 @@
       (offset (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
+    )
+    (model "C:/Users/simon/Downloads/rk09k113004u.stp"
+      (offset (xyz -3 -2.5 7.5))
+      (scale (xyz 1 1 1))
+      (rotate (xyz -100 0 -90))
     )
   )
 
@@ -4189,7 +4209,7 @@
     (stroke (width 0.12) (type solid)) (layer "F.SilkS") (tstamp 1129049b-d5ce-4690-a650-c62f9d5658e2))
   (gr_line (start 281.322 82.7208) (end 276.352 82.7208)
     (stroke (width 0.12) (type solid)) (layer "F.SilkS") (tstamp 14d349f9-b746-4a14-81a8-aa16d06289d5))
-  (gr_rect (start 280.7208 26.61285) (end 278.13 29.20365)
+  (gr_rect (start 278.13 26.61285) (end 280.7208 29.20365)
     (stroke (width 0.12) (type dot)) (fill none) (layer "F.SilkS") (tstamp 194a219d-5f05-4ae7-8387-1d5e67034a97))
   (gr_line (start 263.9714 22.574) (end 263.9714 27.544)
     (stroke (width 0.12) (type solid)) (layer "F.SilkS") (tstamp 1f5b7e2f-f860-4993-b6c2-b8a8cd2d8c1f))
@@ -4227,7 +4247,7 @@
     (stroke (width 0.12) (type solid)) (layer "F.SilkS") (tstamp 58e8de09-da2c-427d-b6e1-b706fe880260))
   (gr_line (start 261.3714 22.504) (end 261.3714 27.544)
     (stroke (width 0.12) (type solid)) (layer "F.SilkS") (tstamp 5bc3541b-88b1-434a-a2d0-31821eb593e5))
-  (gr_rect (start 278.13 26.66365) (end 280.7081 24.07285)
+  (gr_rect (start 278.13 24.07285) (end 280.7081 26.66365)
     (stroke (width 0.12) (type dot)) (fill none) (layer "F.SilkS") (tstamp 5d44e402-2786-4f7b-befa-6311107db022))
   (gr_rect (start 275.5392 34.24555) (end 278.13 36.77285)
     (stroke (width 0.12) (type solid)) (fill none) (layer "F.SilkS") (tstamp 67761b96-5361-484b-a21e-0eb7611ee3bb))
