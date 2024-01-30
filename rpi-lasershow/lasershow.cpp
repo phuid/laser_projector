@@ -113,6 +113,7 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options)
             point &current_point = ildaReader.sections[ildaReader.current_frame_index].points[current_point_index];
             // std::cout << "points[" << current_point_index << "]: x:" << current_point.x << ", y:" << current_point.y << ", R:" << static_cast<int>(current_point.red) << ", G:" << static_cast<int>(current_point.green) << ", B:" << static_cast<int>(current_point.blue) << std::endl;
             // Move galvos to x,y position.
+// trapezoid calc FORGOT TO ADD BACK YMAX/2
             adcdac.set_dac_raw(current_point.x, 1); // TODO: trapezoid calc
             adcdac.set_dac_raw(4096 - current_point.y, 2);
 
