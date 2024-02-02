@@ -9,7 +9,7 @@ void publish_message(zmq::socket_t &publisher, std::string message_string)
 
 void publish_message(std::string message_string)
 {
-  zmq::context_t ctx(1);
+  zmq::context_t ctx;
 
   zmq::socket_t publisher(ctx, zmq::socket_type::pub);
   publisher.connect("tcp://*:5556");

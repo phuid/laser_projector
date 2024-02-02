@@ -20,9 +20,7 @@ struct point {
     int16_t y;
     int16_t z;
 
-    uint8_t red;
-    uint8_t green;
-    uint8_t blue;
+    uint8_t color[3];
 
     uint8_t status;
     bool laser_on;
@@ -46,13 +44,14 @@ class IldaReader
 {
 public:
     IldaReader();
-    bool read_sections();
+    bool read_sections_from_file();
     bool readFile(std::string fileName);
     void closeFile();
 
     std::ifstream file;
     size_t file_size;
-    std::vector<section> sections;
+    std::vector<section> sections_from_file;
+    std::vector<section> projection_sections;
     uint16_t current_frame_index = 0;
     color_palette palette;
 };
