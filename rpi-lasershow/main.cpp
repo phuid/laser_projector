@@ -40,7 +40,7 @@ int main()
     if (!pass_next_command_read)
     {
       // options.project_filename = "";
-      command_receiver.recv(received, zmq::recv_flags::none);              // blocking
+      command_receiver.recv(received, zmq::recv_flags::none); // blocking
       if (received.to_string() == "LASERSHOW") {
         continue;
       }
