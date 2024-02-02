@@ -202,6 +202,7 @@ int Command::execute(std::string string, zmq::socket_t &publisher, options_struc
           }
         }
       }
+      options.saveToFile("./lasershow.cfg");
     }
     else
     {

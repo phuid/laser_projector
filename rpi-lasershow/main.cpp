@@ -6,6 +6,8 @@
 #include "my_helper.hpp"
 
 #include <string>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <vector>
 #include <map>
@@ -26,7 +28,7 @@ int main()
   zmq::message_t msg_to_send;
 
   options_struct options;
-  if (options.loadFromFile("lasershow.cfg"))
+  if (options.loadFromFile("./lasershow.cfg"))
   {
     std::cout << "options couldnt be loaded from file" << std::endl;
   }

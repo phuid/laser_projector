@@ -22,6 +22,7 @@ add_executable(
     command.cpp
     my_helper.cpp
 )
+
 target_link_libraries(
     lasershow
     PRIVATE cppzmq ${CMAKE_THREAD_LIBS_INIT}

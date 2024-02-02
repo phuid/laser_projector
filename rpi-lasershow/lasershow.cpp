@@ -80,6 +80,7 @@ void calculate_points(zmq::socket_t &publisher, options_struct options, IldaRead
             // TODO: PWM insteal of digitalwrite
             if (current_point.laser_on) // blanking bit (moving the mirrors with laser off)
             {
+                std::cout << "r:" << static_cast<int>(current_point.color[0]) << "g:" << static_cast<int>(current_point.color[1]) << "b:" << static_cast<int>(current_point.color[2]) << "-->";
                 int calc_brs[3] = {
                     static_cast<int>(options.laser_brightness * options.laser_red_brightness * (current_point.color[0] + options.laser_red_br_offset)),
                     static_cast<int>(options.laser_brightness * options.laser_green_brightness * (current_point.color[1] + options.laser_green_br_offset)),
@@ -95,6 +96,7 @@ void calculate_points(zmq::socket_t &publisher, options_struct options, IldaRead
                 for (uint8_t i = 0; i < 3; i++){
                     current_point.color[i] = calc_brs[i];
                     }
+                std::cout << "r:" << static_cast<int>(current_point.color[0]) << "g:" << static_cast<int>(current_point.color[1]) << "b:" << static_cast<int>(current_point.color[2]) << std::endl;
                 // std::cout << current_point_index << ":" << static_cast<int>(current_point.red) << "," << static_cast<int>(current_point.green) << "," << static_cast<int>(current_point.blue) << "," << std::endl;
             }
             else
