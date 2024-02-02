@@ -11,12 +11,11 @@
 #include <iostream>
 #include <string>
 #include <chrono>
-#include <pigpio.h>
 #include "ABE_ADCDACPi.h"
 #include "IldaReader.h"
 
 #include "zmq.hpp"
-#include "my_zmq_helper.hpp"
+#include "my_helper.hpp"
 
 void lasershow_cleanup(int);
 

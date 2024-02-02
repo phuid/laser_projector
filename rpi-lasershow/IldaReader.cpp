@@ -21,7 +21,7 @@ int map(int x, int in_min, int in_max, int out_min, int out_max)
 IldaReader::IldaReader() {}
 
 // return: 0-success, 1-error
-bool IldaReader::readFile(zmq::socket_t &publisher, std::string fileName)
+bool IldaReader::readFile(std::string fileName)
 {
     // Open file.
     this->file = std::ifstream(fileName, std::ifstream::binary);
@@ -35,7 +35,7 @@ bool IldaReader::readFile(zmq::socket_t &publisher, std::string fileName)
     this->file_size = this->file.tellg();
     this->file.seekg(0);
 
-    bool return_val = read_sections(publisher);
+    bool return_val = read_sections();
     this->closeFile();
     return return_val;
 }
@@ -76,7 +76,7 @@ bool section::read_header(char buf[FormatData::NUMBER_OF_HEADER_BYTES])
 }
 
 // return: 0-success, 1-error
-bool IldaReader::read_sections(zmq::socket_t &publisher)
+bool IldaReader::read_sections()
 {
     this->sections.clear();
     this->current_frame_index = 0;

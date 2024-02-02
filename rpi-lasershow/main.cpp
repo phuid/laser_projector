@@ -3,7 +3,7 @@
 #include "zmq.hpp"
 #include "lasershow.hpp"
 #include "command.hpp"
-#include "my_zmq_helper.hpp"
+#include "my_helper.hpp"
 
 #include <string>
 #include <iostream>

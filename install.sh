@@ -200,15 +200,11 @@ else
     fi
 fi
 
-##libgpio
-sudo apt install swig python-dev python3-dev
-sudo apt install python-setuptools python3-setuptools
-wget http://abyz.me.uk/lg/lg.zip
-unzip lg.zip
-rm lg.zip
-(cd lg && make && sudo make install)
-rm -r lg
-
+##pigpio
+cd "$(dirname "$0")"
+(mkdir pigpio_install && cd pigpio_install && wget https://github.com/joan2937/pigpio/archive/master.zip && unzip master.zip && cd pigpio-master && make && sudo make install)
+cd "$(dirname "$0")"
+rm -r pigpio_install
 
 if which dnsmasq > /dev/null
 then

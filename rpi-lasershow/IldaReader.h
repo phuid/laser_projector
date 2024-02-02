@@ -1,6 +1,5 @@
 #pragma once
 
-#include "zmq.hpp"
 #include "colorPalette.hpp"
 #include "FormatData.h"
 
@@ -47,8 +46,8 @@ class IldaReader
 {
 public:
     IldaReader();
-    bool read_sections(zmq::socket_t &publisher);
-    bool readFile(zmq::socket_t &publisher, std::string fileName);
+    bool read_sections();
+    bool readFile(std::string fileName);
     void closeFile();
 
     std::ifstream file;

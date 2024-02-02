@@ -11,6 +11,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR})
 
 find_package(cppzmq REQUIRED)
+find_package(pigpio)
 
 add_executable(
     lasershow
@@ -19,10 +20,10 @@ add_executable(
     ABE_ADCDACPi.cpp
     IldaReader.cpp
     command.cpp
-    my_zmq_helper.cpp
+    my_helper.cpp
 )
 target_link_libraries(
     lasershow
     PRIVATE cppzmq ${CMAKE_THREAD_LIBS_INIT}
-    lgpio
+    pigpio
 )

@@ -5,28 +5,28 @@
 #include <signal.h>
 #include <stdexcept>
 #include <time.h>
+#include <cmath>
 #include <unistd.h>
 #include <iostream>
 #include <string>
 #include <chrono>
-#include <lgpio.h>
+#include <pigpio.h>
 #include "ABE_ADCDACPi.h"
 #include "IldaReader.h"
 #include "lasershow.hpp"
 
 #include "zmq.hpp"
-#include "my_zmq_helper.hpp"
+#include "my_helper.hpp"
 
 constexpr uint8_t LASER_PINS[3] = {22, 27, 17};
 
+constexpr int DAC_RAW_MAX = 4095; // 12bit dac - 2^12 - 1 = 4096 - 1 = 4095
+constexpr float TRAPEZOID_MAX = 1; // prolly defined in options
 
 //internals
-constexpr uint8_t GPIO_CHIP_NUM = 4;
-
 static ABElectronics_CPP_Libraries::ADCDACPi adcdac;
 static IldaReader ildaReader;
 static std::chrono::time_point<std::chrono::system_clock> start;
-static int gpio_chip_handle;
 
 // Function that is called when program needs to be terminated.
 void lasershow_cleanup(int sig)
@@ -34,14 +34,13 @@ void lasershow_cleanup(int sig)
     printf("Turn off laser diode.\n\r");
     for (size_t i = 0; i < 3; i++)
     {
-        lgGpioWrite(gpio_chip_handle, LASER_PINS[i], 0);
+        gpioWrite(LASER_PINS[i], 0);
     }
     adcdac.close_dac();
-    if (lgGpiochipClose(gpio_chip_handle) < 0) {
-        std::cout << "couldnt close gpio chip";
-    }
+    gpioTerminate();
     ildaReader.closeFile();
     printf("lasershow cleanup done.\n\r");
+    publish_message("lasershow cleanup done.");
     if (sig != 0)
     {
         printf("stopped on interrupt\n\r");
@@ -58,17 +57,18 @@ void lasershow_start(zmq::socket_t &publisher)
 bool lasershow_init(zmq::socket_t &publisher, std::string fileName)
 {
     // Setup hardware communication stuff.
-    gpio_chip_handle = lgGpiochipOpen(GPIO_CHIP_NUM);
-    if (gpio_chip_handle < 0)
+    if (gpioInitialise() < 0)
     {
         // pigpio initialisation failed.
         std::cout << "init fail" << std::endl;
-        exit(1);
+        return 1;
     }
 
     for (size_t i = 0; i < 3; i++)
     {
-        lgGpioClaimOutput(gpio_chip_handle, LG_SET_PULL_DOWN, LASER_PINS[i], 0);
+        gpioSetMode(LASER_PINS[i], PI_OUTPUT);
+        gpioSetPullUpDown(LASER_PINS[i], PI_PUD_DOWN);
+        gpioSetPWMfrequency(LASER_PINS[i], 100000);
     }
 
     if (adcdac.open_dac() == -1)
@@ -79,7 +79,7 @@ bool lasershow_init(zmq::socket_t &publisher, std::string fileName)
     }
     adcdac.set_dac_gain(2);
 
-    if (ildaReader.readFile(publisher, fileName) == 0)
+    if (ildaReader.readFile(fileName) == 0)
     {
         printf("Provided file is a valid ILDA file.\n\r");
         publish_message(publisher, "INFO: succesful file read");
@@ -113,22 +113,52 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options)
             point &current_point = ildaReader.sections[ildaReader.current_frame_index].points[current_point_index];
             // std::cout << "points[" << current_point_index << "]: x:" << current_point.x << ", y:" << current_point.y << ", R:" << static_cast<int>(current_point.red) << ", G:" << static_cast<int>(current_point.green) << ", B:" << static_cast<int>(current_point.blue) << std::endl;
             // Move galvos to x,y position.
-            adcdac.set_dac_raw(current_point.x, 1); // TODO: trapezoid calc
-            adcdac.set_dac_raw(4096 - current_point.y, 2);
+            int calc_coord_x = current_point.x;
+            int calc_coord_y = current_point.y;
+
+            if (options.trapezoid_horizontal != 0) {
+                // calc_coord_x = ;
+                std::cout << "you dumb fuck you did the wrong one" << std::endl;
+            }
+            if (options.trapezoid_vertical != 0) {
+                float tr = fabs(options.trapezoid_vertical);
+                float y = (current_point.y - (DAC_RAW_MAX / 2));
+                int x = (options.trapezoid_vertical > 0) ? current_point.x : (DAC_RAW_MAX - current_point.x);
+                float xcoef = static_cast<float>(x) / DAC_RAW_MAX;
+                float total_coef = (1 - (tr + (xcoef * (TRAPEZOID_MAX - tr))));
+                std::cout << "[" << current_point.x << "," << current_point.y << "] " << "tr:" << tr << ",y:" << y << ",x:" << x << ",xcoef:" << xcoef << "->" << total_coef;
+
+                calc_coord_y = (DAC_RAW_MAX / 2) + (y * total_coef);
+                std::cout << " --- Yfinal=" << calc_coord_y << std::endl;
+            }
+                adcdac.set_dac_raw(calc_coord_x, 1);
+                adcdac.set_dac_raw(DAC_RAW_MAX - calc_coord_y, 2);
 
             // TODO: PWM insteal of digitalwrite
             if (current_point.laser_on) // blanking bit (moving the mirrors with laser off)
             {
-                lgTxPwm(gpio_chip_handle, LASER_PINS[0], 10000, (static_cast<float>(current_point.red) / 255.f) * 100.f, 0, 0);
-                lgTxPwm(gpio_chip_handle, LASER_PINS[1], 10000, (static_cast<float>(current_point.green) / 255.f) * 100.f, 0, 0);
-                lgTxPwm(gpio_chip_handle, LASER_PINS[2], 10000, (static_cast<float>(current_point.blue) / 255.f) * 100.f, 0, 0);
+                int calc_brs[3] = {
+                    static_cast<int>(options.laser_brightness * options.laser_red_brightness * (current_point.red + options.laser_red_br_offset)),
+                    static_cast<int>(options.laser_brightness * options.laser_green_brightness * (current_point.green + options.laser_green_br_offset)),
+                    static_cast<int>(options.laser_brightness * options.laser_blue_brightness * (current_point.blue + options.laser_blue_br_offset))
+                };
+
+                for (uint8_t i = 0; i < 3; i++) {
+                    if (calc_brs[i] > 255)
+                        calc_brs[i] = 255;
+                    if (calc_brs[i] < 0)
+                        calc_brs[i] = 0;
+                    }
+                for (uint8_t i = 0; i < 3; i++){
+                    gpioPWM(LASER_PINS[0], calc_brs[i]);
+                    }
                 // std::cout << current_point_index << ":" << static_cast<int>(current_point.red) << "," << static_cast<int>(current_point.green) << "," << static_cast<int>(current_point.blue) << "," << std::endl;
             }
             else
             {
                 for (uint8_t i = 0; i < 3; i++)
                 {
-                    lgGpioWrite(gpio_chip_handle, LASER_PINS[i], 0);
+                    gpioWrite(LASER_PINS[i], 0);
                 }
                 // std::cout << current_point_index << ":" << "---------" << std::endl;
             }
@@ -142,7 +172,7 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options)
                 start = std::chrono::system_clock::now();
                 for (size_t i = 0; i < 3; i++)
                 {
-                    lgGpioWrite(gpio_chip_handle, LASER_PINS[i], 0);
+                    gpioWrite(LASER_PINS[i], 0);
                 }
                 if (!options.paused)
                 {
