@@ -3,7 +3,7 @@ const path = require("path");
 const formidable = require("formidable");
 const { exec } = require("child_process");
 var zmq = require("zeromq"),
-  command_sender = zmq.socket("sub"),
+  command_sender = zmq.socket("pub"),
   ls_receiver = zmq.socket("sub"),
   wifi_man_receiver = zmq.socket("sub");
 const config = require("../config.json").web_ui;
@@ -251,7 +251,7 @@ io.on("connection", function (socket) {
           stream.write(data);
         });
         socket.on("projection", function (data) {
-          console.log("projection");
+          console.log("projection"); //FIXME: dafuq?
         });
         stream
           .on("data", function (d) {
@@ -276,10 +276,18 @@ io.on("connection", function (socket) {
       username: config.sshUsername,
       privateKey: fs.readFileSync(config.sshKeyPath),
     });
+
+    socket.on("LASERSHOWdata", function (data) {
+      command_sender.send(["LASERSHOW", data.toString()]);
+    });
+    socket.on("WIFIMANdata", function (data) {
+      command_sender.send(["WIFIMAN", data.toString()]);
+    });
 });
 
-ls_receiver.on("message", (msg) => {
-  io.sockets.emit("LASERSHOWmsg", msg);
+ls_receiver.on("message", (env, msg) => {
+  console.log(env + ": " + msg);
+  io.sockets.emit("LASERSHOWmsg", msg.toString() + "\n\r");
 });
 wifi_man_receiver.on("message", (msg) => {
   io.sockets.emit("WIFIMANmsg", msg);

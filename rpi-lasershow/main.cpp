@@ -20,9 +20,9 @@ int main()
 
   zmq::socket_t command_receiver(ctx, zmq::socket_type::sub);
   command_receiver.bind("tcp://*:5557");
-  command_receiver.set(zmq::sockopt::subscribe, "");
+  command_receiver.set(zmq::sockopt::subscribe, "LASERSHOW");
 
-  zmq::message_t received;
+  std::vector<zmq::message_t> received;
   zmq::message_t msg_to_send;
 
   options_struct options;
@@ -68,10 +68,16 @@ int main()
       {
         // maybe receive messages here, then youd need atleast the ildareader(filename) here in main..
         // - no,, just exit the loop lol
-        command_receiver.recv(received, zmq::recv_flags::dontwait);
-        while (received.size() > 0)
+
+        // command_receiver.recv(received, zmq::recv_flags::dontwait);
+        zmq::recv_result_t result = zmq::recv_multipart(command_receiver, std::back_inserter(received), zmq::recv_flags::dontwait);
+        assert(result && "recv failed");
+        assert(*result == 2);
+
+        while (received.size() > 1) //multiparts receive 2 msgs
         {
-          int exec_val = command.execute(received.to_string(), publisher, options);
+          if (received[0].to_string() == "LASERSHOW") {
+          int exec_val = command.execute(received[1].to_string(), publisher, options);
           if (exec_val == 1)
           {
             options.repeat = 0; // dont start projecting again
@@ -85,7 +91,17 @@ int main()
             first_repeat = 1;
             break;
           }
-          command_receiver.recv(received, zmq::recv_flags::dontwait);
+          } else {
+            publish_message(publisher, "bad envelope: " + received[0].to_string())
+          }
+          for (uint8_t i = 0; i < 2; i++) {
+            received.erase(received.begin());
+          }
+          zmq::recv_result_t result = zmq::recv_multipart(command_receiver, std::back_inserter(received), zmq::recv_flags::dontwait);
+          assert(result && "recv failed");
+          assert(*result == 2);
+
+          // command_receiver.recv(received, zmq::recv_flags::dontwait);
         }
         if (first_repeat == 0)
         {

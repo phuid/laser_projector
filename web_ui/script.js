@@ -72,16 +72,36 @@ terminals.ssh.term.onData(function (ev) {
   socket.emit("sshdata", ev.toString());
 });
 
+lasershow_line = ""
+// Browser -> Backend
+terminals.lasershow.term.onData(function (ev) {
+  string = ev.toString();
+  lasershow_line += string;
+  if (string.match(/\n|\r/gi) != null) {
+    lasershow_line.replace(/\n|\r/gi, "")
+    socket.emit("LASERSHOWdata", lasershow_line);
+    terminals.lasershow.term.write("\n\r");
+    lasershow_line = "";
+  }
+  else {
+    terminals.lasershow.term.write(string);
+  }
+});
+wifiman_line = ""
+// Browser -> Backend
+terminals.wifiman.term.onData(function (ev) {
+  socket.emit("WIFIMANdata", ev.toString());
+});
+
 // Backend -> Browser
 socket.on("sshdata", function (data) {
   terminals.ssh.term.write(data);
 });
-
 // Backend -> Browser
 socket.on("LASERSHOWmsg", function (data) {
+  console.log(data);
   terminals.lasershow.term.write(data);
 });
-
 // Backend -> Browser
 socket.on("WIFIMANmsg", function (data) {
   terminals.wifiman.term.write(data);

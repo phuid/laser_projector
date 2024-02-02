@@ -4,9 +4,8 @@
 
 void publish_message(zmq::socket_t &publisher, std::string message_string)
 {
-  zmq::message_t msg;
-  msg.rebuild(message_string);
-  publisher.send(msg, zmq::send_flags::none);
+  publisher.send(zmq::str_buffer("LASERSHOW"), zmq::send_flags::sndmore);
+  publisher.send(zmq::message_t(message_string.c_str(), message_string.length()), zmq::send_flags::none);
 }
 
 void publish_message(std::string message_string)
@@ -16,7 +15,6 @@ void publish_message(std::string message_string)
   zmq::socket_t publisher(ctx, zmq::socket_type::pub);
   publisher.connect("tcp://*:5556");
   
-  zmq::message_t msg;
-  msg.rebuild(message_string);
-  publisher.send(msg, zmq::send_flags::none);
+  publisher.send(zmq::str_buffer("LASERSHOW"), zmq::send_flags::sndmore);
+  publisher.send(zmq::message_t(message_string.c_str(), message_string.length()), zmq::send_flags::none);
 }
