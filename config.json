@@ -8,5 +8,6 @@
     "sshPort": 22,
     "sshUsername": "pi",
     "sshKeyPath": "/home/pi/.ssh/id_rsa"
-  }
+  },
+  "wifi_state": "wifi"
 }

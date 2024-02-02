@@ -20,7 +20,7 @@ int main()
 
   zmq::socket_t command_receiver(ctx, zmq::socket_type::sub);
   command_receiver.bind("tcp://*:5557");
-  command_receiver.set(zmq::sockopt::subscribe, "LASERSHOW");
+  command_receiver.set(zmq::sockopt::subscribe, "");
 
   zmq::message_t received;
   zmq::message_t msg_to_send;
@@ -41,9 +41,6 @@ int main()
     {
       // options.project_filename = "";
       command_receiver.recv(received, zmq::recv_flags::none); // blocking
-      if (received.to_string() == "LASERSHOW") {
-        continue;
-      }
       if (command.execute(received.to_string(), publisher, options) == 0)
       {
         continue;
@@ -74,7 +71,6 @@ int main()
         command_receiver.recv(received, zmq::recv_flags::dontwait);
         while (received.size() > 0)
         {
-          if (received.to_string() != "LASERSHOW"){
           int exec_val = command.execute(received.to_string(), publisher, options);
           if (exec_val == 1)
           {
@@ -88,7 +84,6 @@ int main()
             options.repeat = 0;
             first_repeat = 1;
             break;
-          }
           }
           command_receiver.recv(received, zmq::recv_flags::dontwait);
         }

@@ -78,7 +78,7 @@ terminals.lasershow.term.onData(function (ev) {
   string = ev.toString();
   lasershow_line += string;
   if (string.match(/\n|\r/gi) != null) {
-    lasershow_line.replace(/\n|\r/gi, "")
+    lasershow_line = lasershow_line.replace(/\n|\r/gi, "")
     socket.emit("LASERSHOWdata", lasershow_line);
     terminals.lasershow.term.write("\n\r> ");
     lasershow_line = "";
@@ -90,14 +90,14 @@ terminals.lasershow.term.onData(function (ev) {
 wifiman_line = ""
 terminals.wifiman.term.onData(function (ev) {
   string = ev.toString();
-  lasershow_line += string;
-  if (string.match(/\n|\r/gi) != null) {
-    lasershow_line.replace(/\n|\r/gi, "")
+  wifiman_line += string;
+  if (string.match(/\n|\r/g) != null) {
+    wifiman_line = wifiman_line.replace(/\n|\r/g, "")
     socket.emit("WIFIMANdata", wifiman_line);
-    terminals.lasershow.term.write("\n\r> ");
-    lasershow_line = "";
+    terminals.wifiman.term.write("\n\r> ");
+    wifiman_line = "";
   } else {
-    terminals.lasershow.term.write(ev);
+    terminals.wifiman.term.write(ev);
   }
 });
 
@@ -108,11 +108,11 @@ socket.on("sshdata", function (data) {
 // Backend -> Browser
 socket.on("LASERSHOWmsg", function (data) {
   console.log(data);
-  terminals.lasershow.term.write(data);
+  terminals.lasershow.term.write(data.replace(/\n/g, "\n\r"));
 });
 // Backend -> Browser
 socket.on("WIFIMANmsg", function (data) {
-  terminals.wifiman.term.write(data);
+  terminals.wifiman.term.write(data.replace(/\n/g, "\n\r"));
 });
 
 socket.on("alert", (alert) => {

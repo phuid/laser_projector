@@ -3,18 +3,20 @@ const path = require("path");
 const formidable = require("formidable");
 const { exec } = require("child_process");
 var zmq = require("zeromq"),
-  command_sender = zmq.socket("pub"),
-  ls_receiver = zmq.socket("sub"),
-  wifi_man_receiver = zmq.socket("sub");
+  lasershow_sender = zmq.socket("pub"),
+  wifiman_sender = zmq.socket("pub"),
+  lasershow_receiver = zmq.socket("sub"),
+  wifiman_receiver = zmq.socket("sub");
 const config = require("../config.json").web_ui;
 var server = require("http").createServer(onRequest);
 
-command_sender.connect("tcp://localhost:5557");
+lasershow_sender.connect("tcp://localhost:5557");
+lasershow_receiver.connect("tcp://localhost:5556");
+lasershow_receiver.subscribe("");
 
-ls_receiver.connect("tcp://localhost:5556");
-ls_receiver.subscribe("LASERSHOW");
-wifi_man_receiver.connect("tcp://localhost:5556");
-wifi_man_receiver.subscribe("WIFIMAN");
+wifiman_sender.connect("tcp://localhost:5559");
+wifiman_receiver.connect("tcp://localhost:5558");
+wifiman_receiver.subscribe("");
 
 var io = require("socket.io")(server);
 var SSHClient = require("ssh2").Client;
@@ -278,19 +280,18 @@ io.on("connection", function (socket) {
     });
 
     socket.on("LASERSHOWdata", function (data) {
-      command_sender.send(["LASERSHOW", data.toString()]);
+      lasershow_sender.send(data.toString());
     });
     socket.on("WIFIMANdata", function (data) {
-      command_sender.send(["WIFIMAN", data.toString()]);
+      wifiman_sender.send(data.toString());
     });
 });
 
-ls_receiver.on("message", (env, msg) => {
-  console.log(env + ": " + msg);
+lasershow_receiver.on("message", (msg) => {
   io.sockets.emit("LASERSHOWmsg", msg.toString() + "\n\r");
 });
-wifi_man_receiver.on("message", (msg) => {
-  io.sockets.emit("WIFIMANmsg", msg);
+wifiman_receiver.on("message", (msg) => {
+  io.sockets.emit("WIFIMANmsg", msg.toString() + "\n\r");
 });
 
 let port = 5000;
