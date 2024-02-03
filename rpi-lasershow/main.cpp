@@ -3,9 +3,11 @@
 #include "zmq.hpp"
 #include "lasershow.hpp"
 #include "command.hpp"
-#include "my_zmq_helper.hpp"
+#include "my_helper.hpp"
 
 #include <string>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <vector>
 #include <map>
@@ -26,12 +28,15 @@ int main()
   zmq::message_t msg_to_send;
 
   options_struct options;
-  if (options.loadFromFile("lasershow.cfg"))
+  if (options.loadFromFile("./lasershow.cfg"))
   {
     std::cout << "options couldnt be loaded from file" << std::endl;
   }
 
   publish_message(publisher, "INFO: lasershow ready");
+
+  IldaReader ildaReader;
+  std::chrono::time_point<std::chrono::system_clock> start;
 
   bool pass_next_command_read = 0;
   while (true)
@@ -40,7 +45,7 @@ int main()
     if (!pass_next_command_read)
     {
       // options.project_filename = "";
-      command_receiver.recv(received, zmq::recv_flags::none);              // blocking
+      command_receiver.recv(received, zmq::recv_flags::none); // blocking
       if (command.execute(received.to_string(), publisher, options) == 0)
       {
         continue;
@@ -51,7 +56,7 @@ int main()
       pass_next_command_read = 0;
     }
 
-    if (lasershow_init(publisher, options.project_filename) != 0)
+    if (lasershow_init(publisher, options, ildaReader, start) != 0)
     {
       std::cout << "failed to init lasershow" << std::endl;
       publish_message(publisher, "ERROR: failed to init lasershow");
@@ -62,7 +67,7 @@ int main()
     while (options.repeat || first_repeat)
     {
       first_repeat = 0;
-      lasershow_start(publisher);
+      lasershow_start(publisher, ildaReader, start);
 
       while (first_repeat == 0) // also used just as a break flag (if 1 break)
       {
@@ -90,7 +95,7 @@ int main()
         if (first_repeat == 0)
         {
           // draw, if an error or end of file is reached, break
-          int loop_val = lasershow_loop(publisher, options);
+          int loop_val = lasershow_loop(publisher, options, ildaReader, start);
           if (loop_val == 2)
             break;
           else if (loop_val == 1)

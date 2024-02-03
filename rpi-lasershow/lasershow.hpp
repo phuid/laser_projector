@@ -11,17 +11,18 @@
 #include <iostream>
 #include <string>
 #include <chrono>
-#include <pigpio.h>
 #include "ABE_ADCDACPi.h"
 #include "IldaReader.h"
 
 #include "zmq.hpp"
-#include "my_zmq_helper.hpp"
+#include "my_helper.hpp"
 
 void lasershow_cleanup(int);
 
-void lasershow_start(zmq::socket_t &publisher);
+void lasershow_start(zmq::socket_t &publisher, IldaReader &ildaReader, std::chrono::time_point<std::chrono::system_clock> &start);
 
-bool lasershow_init(zmq::socket_t &publisher, std::string fileName);
+void calculate_points(zmq::socket_t &publisher, options_struct options, IldaReader &ildaReader);
 
-int lasershow_loop(zmq::socket_t &publisher, options_struct options);
+bool lasershow_init(zmq::socket_t &publisher, options_struct options, IldaReader &ildaReader, std::chrono::time_point<std::chrono::system_clock> &start);
+
+int lasershow_loop(zmq::socket_t &publisher, options_struct options, IldaReader &ildaReader, std::chrono::time_point<std::chrono::system_clock> &start);

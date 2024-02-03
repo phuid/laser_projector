@@ -1,3 +1,12 @@
+function toggledisplay(el) {
+  if (el.style.display != "block") {
+    el.style.display = "block";
+  }
+  else {
+    el.style.display = "none";
+  }
+}
+
 class terminal {
   constructor(container_id) {
     this.container = document.getElementById(container_id);
@@ -72,19 +81,47 @@ terminals.ssh.term.onData(function (ev) {
   socket.emit("sshdata", ev.toString());
 });
 
+// Browser -> Backend
+lasershow_line = ""
+terminals.lasershow.term.onData(function (ev) {
+  string = ev.toString();
+  lasershow_line += string;
+  if (string.match(/\n|\r/gi) != null) {
+    lasershow_line = lasershow_line.replace(/\n|\r/gi, "")
+    socket.emit("LASERSHOWdata", lasershow_line);
+    terminals.lasershow.term.write("\n\r> ");
+    lasershow_line = "";
+  } else {
+    terminals.lasershow.term.write(ev);
+  }
+});
+// Browser -> Backend
+wifiman_line = ""
+terminals.wifiman.term.onData(function (ev) {
+  string = ev.toString();
+  wifiman_line += string;
+  if (string.match(/\n|\r/g) != null) {
+    wifiman_line = wifiman_line.replace(/\n|\r/g, "")
+    socket.emit("WIFIMANdata", wifiman_line);
+    terminals.wifiman.term.write("\n\r> ");
+    wifiman_line = "";
+  } else {
+    terminals.wifiman.term.write(ev);
+  }
+});
+
 // Backend -> Browser
 socket.on("sshdata", function (data) {
   terminals.ssh.term.write(data);
 });
-
 // Backend -> Browser
 socket.on("LASERSHOWmsg", function (data) {
-  terminals.lasershow.term.write(data);
+  console.log(data);
+  terminals.lasershow.term.write(data.replace(/\n/g, "\n\r"));
 });
-
 // Backend -> Browser
 socket.on("WIFIMANmsg", function (data) {
-  terminals.wifiman.term.write(data);
+  terminals.wifiman.term.write(data.replace(/\n/g, "\n\r"));
 });
 
 socket.on("alert", (alert) => {

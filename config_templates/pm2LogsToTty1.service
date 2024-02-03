@@ -1,5 +1,5 @@
 [Unit]
-Description=Service to redirect all pm2 logs to /dev/tty1 - RPI HDMI output
+Description=Redirect all pm2 logs to /dev/tty1 - RPI HDMI output
 After=pm2-pi.service
 [Service]
 User=pi

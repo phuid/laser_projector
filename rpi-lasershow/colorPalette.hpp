@@ -1,3 +1,6 @@
+#include <vector>
+#include <string>
+
 struct color
 {
   uint8_t r;
