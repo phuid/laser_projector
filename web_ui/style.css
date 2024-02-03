@@ -12,6 +12,11 @@
   overflow-y: scroll;
 }
 
+body {
+  width: 100vh;
+  height: 100vh;
+}
+
 input[type="textarea"] {
   color: var(--text-1);
 }
@@ -65,14 +70,27 @@ svg {
   width: 100%;
 }
 
+.flex-container {
+  display:flex;
+}
+
+#queue {
+  background-color: black;
+  /* display: none; */
+}
+#settings {
+  background-color: black;
+  /* display: none; */
+}
+
 @media screen and (orientation: landscape) {
   .swiperstyle {
     position: absolute;
     top: 10vh;
     left: 0;
     height: 90vh;
-    width: 100vw;
-    z-index: 10;
+    right: 0;
+    z-index: 6;
     padding: 10px;
   }
 
@@ -85,7 +103,7 @@ svg {
     left: 0;
     top: 0;
     width: 50%;
-    height: 100%;
+    bottom: 11vh;
   }
   
   #lasershow-terminal-container {
@@ -189,6 +207,39 @@ svg {
     width: 20%;
     z-index: 2;
   }
+
+  #nowplaying {
+    position: absolute;
+    left: 0;
+    right: 50%;
+    top: 90vh;
+    height: 10vh;
+    flex-direction: row;
+    justify-content: space-evenly;
+  }
+
+  #nowplaying > div {
+    height: 100%;
+    text-align: center;
+    padding: calc(5vh - 0.5rem) 0;
+  }
+  
+  #queue {
+    position: absolute;
+    left: 0;
+    right: 50%;
+    bottom: 10vh;
+    top: 10vh;
+    z-index: 12;
+  }
+  #settings {
+    position: absolute;
+    left: 0;
+    right: 50%;
+    bottom: 10vh;
+    top: 10vh;
+    z-index: 12;
+  }
 }
 
 @media screen and (orientation: portrait) {
@@ -201,7 +252,7 @@ svg {
 
   .swiper {
     margin-top: 10vh;
-    height: 70lezitvh;
+    height: 70vh;
     width: 100%;
   }
 
@@ -214,6 +265,39 @@ svg {
   .swiper-pagination {
     position: absolute;
     /* bottom: 11vh; */ /*var(--swiper-pagination-bottom)*/
+  }
+
+  #nowplaying {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 10vh;
+    height: 10vh;
+    flex-direction: row;
+    justify-content: space-evenly;
+  }
+
+  #nowplaying > div {
+    height: 100%;
+    text-align: center;
+    padding: calc(5vh - 0.5rem) 0;
+  }
+  
+  #queue {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 20vh;
+    top: 10vh;
+    z-index: 12;
+  }
+  #settings {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 20vh;
+    top: 10vh;
+    z-index: 12;
   }
 
   #fileupload {

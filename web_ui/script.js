@@ -1,3 +1,12 @@
+function toggledisplay(el) {
+  if (el.style.display != "block") {
+    el.style.display = "block";
+  }
+  else {
+    el.style.display = "none";
+  }
+}
+
 class terminal {
   constructor(container_id) {
     this.container = document.getElementById(container_id);

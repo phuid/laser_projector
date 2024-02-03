@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>laser-projector</title>
-  
+
   <link rel="stylesheet" href="style.css">
 
   <!-- xterm -->
@@ -58,6 +58,17 @@
     <div class="swiper-pagination landscape-invisible"></div>
     <!-- <div class="swiper-button-prev landscape-invisible"></div>
     <div class="swiper-button-next landscape-invisible"></div> -->
+  </div>
+  <div id="queue">hellyea</div>
+  <div id="settings">yeahyfashjgfhSEETTINGS</div>
+  <div id="nowplaying" class="flex-container">
+    <div id="settingsbtn" onclick="toggledisplay(this)">s</div>
+    <div id="shufflebtn">sh</div>
+    <div id="back"> << </div>
+    <div id="play">></div>
+    <div id="forward">>></div>
+    <div id="repeatbtn">r</div>
+    <div id="queuebtn" onclick="toggledisplay(this)">=</div>
   </div>
   <form id="projectionform" action="project" method="post" enctype="multipart/form-data">
     <select id="lastpatharea" name="filename" placeholder="name of ild file here"></select>
