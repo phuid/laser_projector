@@ -73,14 +73,15 @@ struct options_struct
         "#lines begining with # will be ignored" << std::endl <<
         "#bool" << std::endl <<
         "repeat=" << std::to_string(repeat) << std::endl <<
-        "#int" << std::endl <<
+        "#int (microseconds)" << std::endl <<
         "pointDelay=" << std::to_string(pointDelay) << std::endl <<
-        "#uint16_t" << std::endl <<
+        "#uint16_t (milliseconds)" << std::endl <<
         "targetFrameTime=" << std::to_string(targetFrameTime) << std::endl <<
-        "#float" << std::endl <<
+        "#float (arbitrary)" << std::endl <<
         "trapezoid_horizontal=" << std::to_string(trapezoid_horizontal) << std::endl <<
         "trapezoid_vertical=" << std::to_string(trapezoid_vertical) << std::endl <<
         "#float" << std::endl <<
+        "#diode brightness calculation = static_cast<int>(options.laser_brightness * options.laser_red_brightness * (current_point.color[0] + options.laser_red_br_offset))" << std::endl <<
         "laser_brightness=" << std::to_string(laser_brightness) << std::endl <<
         "laser_red_brightness=" << std::to_string(laser_red_brightness) << std::endl <<
         "laser_green_brightness=" << std::to_string(laser_green_brightness) << std::endl <<

@@ -182,7 +182,7 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options, IldaReader 
 
             // Maybe wait a while there.
             if (options.pointDelay > 0)
-                usleep(options.pointDelay);
+                gpioDelay(options.pointDelay);
             // check the time and move on to the next frame
             if (options.targetFrameTime < std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start).count())
             {
