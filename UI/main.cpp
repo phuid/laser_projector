@@ -242,8 +242,20 @@ void Command::execute(std::string string, zmq::socket_t &subscriber, menu_option
             }
         }
     }
-    else if (this->first_word == "ALERT:") {
-
+    else if (this->first_word == "ALERT:") // cant be replaced by new command, user has to dismiss it
+    {
+        std::string display_string = this->received_string.substr(std::string("ALERT:").length());
+        zmq::message_t received;
+        std::cout << "displaying \"" << display_string << "\"" << std::endl;
+        root.redraw = 1;
+        for (size_t scroll = 0; !get_encoder_btn_pressed(); scroll = (scroll + 1) % (display_string.length() - SCREEN_WIDTH)) {
+            lcd_clear(lcd);
+            lcd_pos(lcd, 0, 0);
+            lcd_print(lcd, "press btn to dismiss");
+            lcd_pos(lcd, 1, 0);
+            lcd_printf(lcd, "%.*s", SCREEN_WIDTH, (display_string.length() < SCREEN_WIDTH) ? display_string.c_str() : display_string.substr(scroll).c_str());
+            delay(200); // 0.2s to draw and bin all the other display messages
+        }
     }
     else
     {

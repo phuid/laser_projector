@@ -37,7 +37,7 @@ void lasershow_cleanup(int sig)
     adcdac.close_dac();
     gpioTerminate();
     printf("lasershow cleanup done.\n\r");
-    publish_message("lasershow cleanup done.");
+    publish_message("INFO: lasershow cleanup done.");
     if (sig != 0)
     {
         printf("stopped on interrupt\n\r");
