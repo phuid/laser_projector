@@ -128,7 +128,7 @@ void Command::parse(std::string string)
     std::cout << std::endl;
 }
 
-void Command::execute(std::string string, menu_option &root)
+void Command::execute(std::string string, menu_option &root, lcd_t *lcd)
 {
     this->parse(string);
     std::cout << "executing" << std::endl;
@@ -137,7 +137,7 @@ void Command::execute(std::string string, menu_option &root)
     {
         if (this->args.size() >= 1)
         {
-            if (this->args[0] == "POS")
+            if (this->args[0] == "FRAME")
             {
                 if (this->args.size() >= 4)
                 {
@@ -214,6 +214,24 @@ void Command::execute(std::string string, menu_option &root)
         root.nested_menu_options[2].name = "E:" + this->received_string.substr(std::string("ERROR:").length());
         root.nested_menu_options[2].redraw = 1;
         std::cout << root.nested_menu_options[2].name << std::endl;
+    }
+    else if (this->first_word == "DISPLAY:") {
+        std::string display_string = "";
+        for (auto &&word : this->args) {
+            display_string += word + " ";
+        }
+        zmq::message_t received;
+        for (size_t scroll = 0; !get_encoder_btn_pressed() && subscriber.recv(received, zmq::recv_flags::dontwait); scroll = (scroll + 1) % (display_string.length() - SCREEN_WIDTH)) {
+            lcd_pos(lcd, 0, 0);
+            lcd_print(lcd, "press btn to dismiss");
+            lcd_pos(lcd, 1, 0);
+            lcd_printf("%.*s", SCREEN_WIDTH, display_string.substr(scroll));
+            gpioDelay(200000); // micros -> 0.2s
+        }
+        if (received.size() > 0) {
+            Command new_command;
+            new_command.execute(received.to_string(), root, lcd);
+        }
     }
     else
     {
@@ -358,11 +376,10 @@ int main()
 
         lcd_backlight_dim(lcd, brightness_val);
 
-        subscriber.recv(received, zmq::recv_flags::dontwait);
-        while (received.size() > 0)
+        while (subscriber.recv(received, zmq::recv_flags::dontwait))
         {
             Command command;
-            command.execute(received.to_string(), root);
+            command.execute(received.to_string(), root, lcd);
 
             subscriber.recv(received, zmq::recv_flags::dontwait);
         }

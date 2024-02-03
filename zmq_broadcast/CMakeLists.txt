@@ -32,3 +32,13 @@ target_link_libraries(
     c
     PRIVATE cppzmq ${CMAKE_THREAD_LIBS_INIT}
 )
+
+add_executable(
+    noblock_c
+    noblock_c.cpp
+)
+
+target_link_libraries(
+    noblock_c
+    PRIVATE cppzmq ${CMAKE_THREAD_LIBS_INIT}
+)

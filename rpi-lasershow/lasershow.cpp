@@ -137,7 +137,7 @@ bool lasershow_init(zmq::socket_t &publisher, options_struct options, IldaReader
     }
     adcdac.set_dac_gain(2);
 
-    if (ildaReader.readFile(options.project_filename) == 0)
+    if (ildaReader.readFile(publisher, options.project_filename) == 0)
     {
         printf("Provided file is a valid ILDA file.\n\r");
         publish_message(publisher, "INFO: succesful file read");
@@ -165,8 +165,8 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options, IldaReader 
 {
     if (ildaReader.current_frame_index < ildaReader.projection_sections.size())
     {
-        std::cout << "position\t" << ildaReader.current_frame_index + 1 << "\tof\t" << ildaReader.projection_sections.size() << std::endl;
-        publish_message(publisher, "INFO: POS " + std::to_string(ildaReader.current_frame_index + 1) + " OF " + std::to_string(ildaReader.projection_sections.size()));
+        std::cout << "frame\t" << ildaReader.current_frame_index + 1 << "\tof\t" << ildaReader.projection_sections.size() << std::endl;
+        publish_message(publisher, "INFO: FRAME " + std::to_string(ildaReader.current_frame_index + 1) + " OF " + std::to_string(ildaReader.projection_sections.size()));
         uint16_t current_point_index = 0;
         while (true) // always broken by time check
         {

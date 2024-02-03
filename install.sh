@@ -429,15 +429,6 @@ echo -e "${URed}pm2 -y confirm todo${Color_Off}"
 echo -e "${URed}pm2 -y confirm todo${Color_Off}"
 echo -e "${URed}pm2 -y confirm todo${Color_Off}\n\n\n"
 
-echo -e "${URed}CONFIG TODO${Color_Off}"
-echo -e "${URed}CONFIG TODO${Color_Off}"
-echo -e "${URed}CONFIG TODO${Color_Off}"
-echo -e "${URed}CONFIG TODO${Color_Off}"
-echo -e "${URed}CONFIG TODO${Color_Off}"
-echo -e "${URed}CONFIG TODO${Color_Off}"
-echo -e "${URed}CONFIG TODO${Color_Off}"
-echo -e "${URed}CONFIG TODO${Color_Off}"
-
 echo ""
 
 #npm dependencies
