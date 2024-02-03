@@ -79,7 +79,7 @@ any process can send a command into the socket and all processes will read respo
 
 ###### responses:
 lasershow exec can write to the socket at any time
-- `ERR: <e> <details>`:
+- `ERROR: <e> <details>`:
   - `e`: any of the following; returned if received command couldn't be parsed correctly
     - `E2BIG`: too many arguments (option read/reset command probably includes value argument)
     - `EINVAL`: invalid argument (typo in argument or project filename probably has wrong extension)
