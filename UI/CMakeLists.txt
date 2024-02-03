@@ -10,7 +10,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR})
 
-
+find_package(wiringPi)
 find_package(cppzmq)
 
 add_executable(
@@ -19,6 +19,7 @@ add_executable(
     encoder.cpp
     my_zmq_helper.cpp
     soft_lcd.c
+    soft_i2c.c
 )
 
 target_compile_features(
@@ -29,5 +30,5 @@ target_compile_features(
 target_link_libraries(
     UI
     PRIVATE cppzmq ${CMAKE_THREAD_LIBS_INIT}
-    lgpio
+    wiringPi ${WIRINGPI_LIBRARIES}
 )

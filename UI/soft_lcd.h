@@ -14,6 +14,8 @@
 #ifndef _SOFT_LCD_H
 #define _SOFT_LCD_H
 
+#include "soft_i2c.h"
+
 #define LCD_RS      1
 #define LCD_READ    2
 #define LCD_WRITE   0
@@ -68,8 +70,10 @@
 #define LCD_ERR 1
 #define LCD_ERR_I2C 1
 
+/* PWM pins are WPi 1 and WPi 26 */
 #define LCD_PWM_PIN     18
-#define LCD_PWM_RANGE   100
+#define LCD_PWM_CLOCK   19
+#define LCD_PWM_RANGE   1024
 
 #ifdef __cplusplus
 extern "C" {
@@ -92,11 +96,10 @@ typedef struct {
 	int _lines;
 	int _addr;
 	float _dimming;
-	int _i2c_handle;
-	int _pi;
+	i2c_t _i2c;
 } lcd_t;
 
-lcd_t *lcd_create(int pi, unsigned bus, int addr, int lines);
+lcd_t *lcd_create(int scl, int sda, int addr, int lines);
 void lcd_destroy(lcd_t *lcd);
 void lcd_init(lcd_t *lcd);
 
@@ -109,7 +112,7 @@ void lcd_on(lcd_t *lcd);
 void lcd_off(lcd_t *lcd);
 void lcd_backlight_on(lcd_t *lcd);
 void lcd_backlight_off(lcd_t *lcd);
-void lcd_backlight_dim(lcd_t *lcd, uint8_t intensity);
+void lcd_backlight_dim(lcd_t *lcd, float intensity);
 void lcd_cursor_on(lcd_t *lcd);
 void lcd_cursor_off(lcd_t *lcd);
 void lcd_blink_on(lcd_t *lcd);
@@ -135,7 +138,7 @@ char *_replace_UTF8_chars(char *s);
 
 void _pcf8574_put (lcd_t *lcd, int lines);
 int _pcf8574_get (lcd_t *lcd, int rs);
-int _pcf8574_check (int i2c_handle, int addr);
+int _pcf8574_check (i2c_t i2c, int addr);
 
 #ifdef __cplusplus
 }

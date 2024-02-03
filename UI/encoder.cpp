@@ -1,46 +1,25 @@
-#include <iostream>
-
-#include <lgpio.h>
+#include <wiringPi.h>
 #include "encoder.hpp"
 
 static bool encoder_btn_pressed = 0;
 
-void handle_enc_btn_interrupts(int num_alerts, lgGpioAlert_p alerts, void *userdata)
+void handle_enc_btn_interrupts()
 {
-	for (size_t i = 0; i < num_alerts; i++)
+	static uint16_t last_interrupt = 0;
+	uint16_t interrupt_time = millis();
+	if (interrupt_time - last_interrupt > 50 && !digitalRead(encoder_button_pin))
 	{
-		lgGpioReport_t &alert_report = alerts[i].report;
-		/*
-		* typedef struct
-		*	{
-    * 	uint64_t timestamp; // alert time in nanoseconds
-    * 	uint8_t chip;       // gpiochip device number
-    * 	uint8_t gpio;       // offset into gpio device
-    * 	uint8_t level;      // 0=low, 1=high, 2=watchdog
-   	* 	uint8_t flags;      // none defined, ignore report if non-zero
-		* } lgGpioReport_t;
-		*/
-
-
-		static uint64_t last_interrupt_ns = 0;
-		if (alert_report.timestamp - last_interrupt_ns > 50 * 1000*1000 && !alert_report.level)
-		{
-			encoder_btn_pressed = 1;
-		}
-		last_interrupt_ns = alert_report.timestamp;
+		encoder_btn_pressed = 1;
 	}
+	last_interrupt = interrupt_time;
 }
 
 static int16_t encoder_pos = 0;
 
-void handle_enc_interrupts(int num_alerts, lgGpioAlert_p alerts, void *userdata) // TODO: rewrite, register less interrupts
+void handle_enc_interrupts() // TODO: rewrite, register less interrupts
 {
-	std::cout << "yuuh" << std::endl;
-
-	int gpio_chip_handle = *static_cast<int*>(userdata);
-
 	static bool encoder_pins_last_state[2] = {0, 0};
-	bool state[2] = {(bool)lgGpioRead(gpio_chip_handle, encoder_pins[0]), (bool)lgGpioRead(gpio_chip_handle, encoder_pins[1])};
+	bool state[2] = {(bool)digitalRead(encoder_pins[0]), (bool)digitalRead(encoder_pins[1])};
 
 	// bool A_rising = state[0] && !encoder_pins_last_state[0];
 	// bool B_rising = state[1] && !encoder_pins_last_state[1];

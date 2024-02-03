@@ -87,7 +87,7 @@ public:
     std::vector<std::string> args;
 
     void parse(std::string string);
-    void execute(std::string string, menu_option &root);
+    void execute(std::string string, zmq::socket_t &subscriber, menu_option &root, lcd_t *lcd);
 };
 
 void Command::parse(std::string string)
@@ -128,7 +128,7 @@ void Command::parse(std::string string)
     std::cout << std::endl;
 }
 
-void Command::execute(std::string string, menu_option &root, lcd_t *lcd)
+void Command::execute(std::string string, zmq::socket_t &subscriber, menu_option &root, lcd_t *lcd)
 {
     this->parse(string);
     std::cout << "executing" << std::endl;
@@ -225,12 +225,12 @@ void Command::execute(std::string string, menu_option &root, lcd_t *lcd)
             lcd_pos(lcd, 0, 0);
             lcd_print(lcd, "press btn to dismiss");
             lcd_pos(lcd, 1, 0);
-            lcd_printf("%.*s", SCREEN_WIDTH, display_string.substr(scroll));
-            gpioDelay(200000); // micros -> 0.2s
+            lcd_printf(lcd, "%.*s", SCREEN_WIDTH, display_string.substr(scroll));
+            delay(200); // 0.2s
         }
         if (received.size() > 0) {
             Command new_command;
-            new_command.execute(received.to_string(), root, lcd);
+            new_command.execute(received.to_string(), subscriber, root, lcd);
         }
     }
     else
@@ -252,14 +252,13 @@ int main()
 
     // TODO: add SIGINT handler + cleanup function
 
-    int gpio_chip_handle = lgGpiochipOpen(GPIO_CHIP_NUM);
-    if (gpio_chip_handle < 0) {
+    if (wiringPiSetupGpio() < 0) {
         std::cout << "Failed to open gpio chip" << std::endl;
         return 1;
     }
     /* Create a LCD given SCL, SDA and I2C address, 4 lines */
     /* PCF8574 has default address 0x27 */
-    lcd_t *lcd = lcd_create(gpio_chip_handle, 1, 0x27, SCREEN_HEIGHT);
+    lcd_t *lcd = lcd_create(LCD_SCL_PIN, LCD_SDA_PIN, 0x27, SCREEN_HEIGHT);
 
     if (lcd == NULL)
     {
@@ -269,13 +268,17 @@ int main()
 
     lcd_init(lcd);
 
-    lgGpioClaimInput(gpio_chip_handle, LG_SET_PULL_UP, encoder_pins[0]);
-    lgGpioClaimInput(gpio_chip_handle, LG_SET_PULL_UP, encoder_pins[1]);
-    lgGpioClaimInput(gpio_chip_handle, LG_SET_PULL_UP, encoder_button_pin);
+    pinMode(encoder_pins[0], INPUT);
+    pinMode(encoder_pins[1], INPUT);
+    pinMode(encoder_button_pin, INPUT);
 
-    lgGpioSetAlertsFunc(gpio_chip_handle, encoder_pins[0], *handle_enc_interrupts, &gpio_chip_handle);
-    lgGpioSetAlertsFunc(gpio_chip_handle, encoder_pins[1], *handle_enc_interrupts, &gpio_chip_handle);
-    lgGpioSetAlertsFunc(gpio_chip_handle, encoder_button_pin, *handle_enc_btn_interrupts, NULL);
+    pullUpDnControl(encoder_pins[0], PUD_UP);
+    pullUpDnControl(encoder_pins[1], PUD_UP);
+    pullUpDnControl(encoder_button_pin, PUD_UP);
+
+    wiringPiISR(encoder_pins[0], INT_EDGE_BOTH, *handle_enc_interrupts);
+    wiringPiISR(encoder_pins[1], INT_EDGE_BOTH, *handle_enc_interrupts);
+    wiringPiISR(encoder_button_pin, INT_EDGE_BOTH, *handle_enc_btn_interrupts);
 
     lcd_create_char(lcd, PARENT_CHAR_NUM, parent_char);
     lcd_create_char(lcd, INVERTED_SPACE_CHAR_NUM, inverted_space_char);
@@ -374,12 +377,12 @@ int main()
     {
         // interact with user via OLED LCD and a rotary encoder
 
-        lcd_backlight_dim(lcd, brightness_val);
+        lcd_backlight_dim(lcd, brightness_val / 100.f);
 
         while (subscriber.recv(received, zmq::recv_flags::dontwait))
         {
             Command command;
-            command.execute(received.to_string(), root, lcd);
+            command.execute(received.to_string(), subscriber, root, lcd);
 
             subscriber.recv(received, zmq::recv_flags::dontwait);
         }
