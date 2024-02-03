@@ -207,8 +207,10 @@ bool IldaReader::read_sections_from_file(zmq::socket_t &publisher)
         if (section.format != ILDA_COLOR_PALETTE)
         {
             this->sections_from_file.push_back(section);
-            std::cout << "reading sections; amount: " << sections_from_file.size() << std::endl;
-            publish_message(publisher, "DISPLAY: read frames" + std::to_string(sections_from_file.size()));
+            if (sections_from_file.size() % 10 == 0) {
+                std::cout << "reading sections; amount: " << sections_from_file.size() << std::endl;
+                publish_message(publisher, "DISPLAY: read frames " + std::to_string(sections_from_file.size()) + "+");
+            }
         }
     }
     return 0;

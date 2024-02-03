@@ -216,22 +216,34 @@ void Command::execute(std::string string, zmq::socket_t &subscriber, menu_option
         std::cout << root.nested_menu_options[2].name << std::endl;
     }
     else if (this->first_word == "DISPLAY:") {
-        std::string display_string = "";
-        for (auto &&word : this->args) {
-            display_string += word + " ";
-        }
+        std::string display_string = this->received_string.substr(std::string("DISPLAY:").length());
         zmq::message_t received;
-        for (size_t scroll = 0; !get_encoder_btn_pressed() && subscriber.recv(received, zmq::recv_flags::dontwait); scroll = (scroll + 1) % (display_string.length() - SCREEN_WIDTH)) {
-            lcd_pos(lcd, 0, 0);
-            lcd_print(lcd, "press btn to dismiss");
-            lcd_pos(lcd, 1, 0);
-            lcd_printf(lcd, "%.*s", SCREEN_WIDTH, display_string.substr(scroll));
-            delay(200); // 0.2s
+        std::cout << "displaying \"" << display_string << "\"" << std::endl;
+        root.redraw = 1;
+        while (true) {
+            for (size_t scroll = 0; !get_encoder_btn_pressed(); scroll = (scroll + 1) % (display_string.length() - SCREEN_WIDTH)) {
+                if (subscriber.recv(received, zmq::recv_flags::dontwait)) break;
+                lcd_clear(lcd);
+                lcd_pos(lcd, 0, 0);
+                lcd_print(lcd, "press btn to dismiss");
+                lcd_pos(lcd, 1, 0);
+                lcd_printf(lcd, "%.*s", SCREEN_WIDTH, (display_string.length() < SCREEN_WIDTH) ? display_string.c_str() : display_string.substr(scroll).c_str());
+                delay(200); // 0.2s to draw and bin all the other display messages
+            }
+            if (received.size() > 0) {
+                if (received.to_string().substr(0, 8) == "DISPLAY:") {
+                    display_string = received.to_string().substr(8);
+                }
+                else {
+                    Command new_command;
+                    new_command.execute(received.to_string(), subscriber, root, lcd);
+                    break;
+                }
+            }
         }
-        if (received.size() > 0) {
-            Command new_command;
-            new_command.execute(received.to_string(), subscriber, root, lcd);
-        }
+    }
+    else if (this->first_word == "ALERT:") {
+
     }
     else
     {

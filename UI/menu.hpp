@@ -156,6 +156,12 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
   uint8_t &menu_selected = parent_menu_option.nest_selected;
   uint8_t &menu_scroll = parent_menu_option.nest_scroll;
 
+  if (parent_menu_option.redraw == 1)
+  {
+    redraw = 1;
+    parent_menu_option.redraw = 0;
+  }
+
 #ifdef DEBUG
   if (redraw)
   {
