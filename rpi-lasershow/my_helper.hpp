@@ -61,7 +61,35 @@ struct options_struct
         laser_red_br_offset = stoi(lines[11]);
         laser_green_br_offset = stoi(lines[12]);
         laser_blue_br_offset = stoi(lines[13]);
+
+        std::cout <<
+        "#internal file for lasershow executable - automatically generated" << std::endl <<
+        "#lines begining with # will be ignored" << std::endl <<
+        "#bool" << std::endl <<
+        "repeat=" << std::to_string(repeat) << std::endl <<
+        "#int (microseconds)" << std::endl <<
+        "pointDelay=" << std::to_string(pointDelay) << std::endl <<
+        "#uint16_t (milliseconds)" << std::endl <<
+        "targetFrameTime=" << std::to_string(targetFrameTime) << std::endl <<
+        "#bool (if true projections of any size (width, height) are scaled up to the whole screen)" << std::endl <<
+        "scale_up=" << std::to_string(scale_up) << std::endl <<
+        "#bool (if true and (scale_up == true) the projection width and height is a single value calculated from both width and height, if false and (scale_up == true) vertical and horizontal dimensions are calculated separately)" << std::endl <<
+        "scale_up_proportionally=" << std::to_string(scale_up_proportionally) << std::endl <<
+        "#float (-1 -- +1)" << std::endl <<
+        "trapezoid_horizontal=" << std::to_string(trapezoid_horizontal) << std::endl <<
+        "trapezoid_vertical=" << std::to_string(trapezoid_vertical) << std::endl <<
+        "#float" << std::endl <<
+        "#diode brightness calculation = static_cast<int>(options.laser_brightness * options.laser_red_brightness * (current_point.color[0] + options.laser_red_br_offset))" << std::endl <<
+        "laser_brightness=" << std::to_string(laser_brightness) << std::endl <<
+        "laser_red_brightness=" << std::to_string(laser_red_brightness) << std::endl <<
+        "laser_green_brightness=" << std::to_string(laser_green_brightness) << std::endl <<
+        "laser_blue_brightness=" << std::to_string(laser_blue_brightness) << std::endl <<
+        "#uint8_t" << std::endl <<
+        "laser_red_br_offset=" << std::to_string(laser_red_br_offset) << std::endl <<
+        "laser_green_br_offset=" << std::to_string(laser_green_br_offset) << std::endl <<
+        "laser_blue_br_offset=" << std::to_string(laser_blue_br_offset) << std::endl;
       }
+      ifile.close();
       return 0;
     }
     else {

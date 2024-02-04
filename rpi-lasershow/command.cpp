@@ -56,9 +56,11 @@ void Command::parse(const std::map<command_type, std::string> &command_dict, std
   }
   std::cout << std::endl;
 }
-//return: 0 - continue projection / continue doing nothing, 1 - stop projecting and wait for another command, 2 - restart projecting with a new file
+//return: 0 - continue projection / continue doing nothing, 1 - STOP projecting and wait for another command, 2 - restart PROJECTing with a new file, 3 - recalculate points
 int Command::execute(std::string string, zmq::socket_t &publisher, options_struct &options)
 {
+  int to_return = 0;
+
   std::map<command_type, std::string> command_dict{
       {PROJECT, "PROJECT"},
       {STOP, "STOP"},
@@ -188,11 +190,25 @@ int Command::execute(std::string string, zmq::socket_t &publisher, options_struc
           {
             options.trapezoid_horizontal = stof(this->args[2]);
             publish_message(publisher, "INFO: OPTION trapezoid_horizontal " + std::to_string(options.trapezoid_horizontal));
+            to_return = 3;
           }
           else if (this->args[1] == "trapezoid_vertical")
           {
             options.trapezoid_vertical = stof(this->args[2]);
             publish_message(publisher, "INFO: OPTION trapezoid_vertical " + std::to_string(options.trapezoid_vertical));
+            to_return = 3;
+          }
+          else if (this->args[1] == "scale_up")
+          {
+            options.scale_up = stoi(this->args[2]);
+            publish_message(publisher, "INFO: OPTION scale_up " + std::to_string(options.scale_up));
+            to_return = 3;
+          }
+          else if (this->args[1] == "scale_up_proportionally")
+          {
+            options.scale_up_proportionally = stoi(this->args[2]);
+            publish_message(publisher, "INFO: OPTION scale_up_proportionally " + std::to_string(options.scale_up_proportionally));
+            to_return = 3;
           }
           else
           {
@@ -200,6 +216,12 @@ int Command::execute(std::string string, zmq::socket_t &publisher, options_struc
             publish_message(publisher, "ERROR: EINVAL \"" + received_string + "\"");
             return -1;
           }
+        }
+        else
+        {
+          std::cout << "invalid args: \"" << received_string << "\"" << std::endl;
+          publish_message(publisher, "ERROR: EINVAL \"" + received_string + "\"");
+          return -1;
         }
       }
       options.saveToFile("./lasershow.cfg");
@@ -219,5 +241,5 @@ int Command::execute(std::string string, zmq::socket_t &publisher, options_struc
     break;
   }
 
-  return 0;
+  return to_return;
 }
