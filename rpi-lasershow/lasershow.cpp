@@ -67,8 +67,7 @@ void calculate_points(zmq::socket_t &publisher, options_struct options, IldaRead
         // find furthest points in all frames and all directions (x+, x-, y+, y-)
         for (size_t i = 0; i < ildaReader.sections_from_file.size(); i++) {
             for (size_t u = 0; u < ildaReader.sections_from_file[i].points.size(); u++) {
-                std::cout <<
-                "point" << u << "lx:" << lowest_x << "hx:" << highest_x << "ly:" << lowest_y << "hy:" << highest_y << std::endl;
+                // std::cout << "point" << u << "lx:" << lowest_x << "hx:" << highest_x << "ly:" << lowest_y << "hy:" << highest_y << std::endl;
                 if (ildaReader.sections_from_file[i].points[u].x > highest_x) {
                     highest_x = ildaReader.sections_from_file[i].points[u].x;
                 }
@@ -100,8 +99,6 @@ void calculate_points(zmq::socket_t &publisher, options_struct options, IldaRead
         }
     }
 
-    std::cout << "a" << std::endl;
-
     ildaReader.projection_sections = ildaReader.sections_from_file;
     for (size_t i = 0; i < ildaReader.projection_sections.size(); i++) {
         section& current_section = ildaReader.projection_sections[i];
@@ -112,14 +109,18 @@ void calculate_points(zmq::socket_t &publisher, options_struct options, IldaRead
                 current_point.x = map(current_point.x, lowest_x, highest_x, 0, DAC_RAW_MAX);
                 current_point.y = map(current_point.y, lowest_y, highest_y, 0, DAC_RAW_MAX);
             }
-    std::cout << "c" << std::endl;
 
             int calc_coord_x = current_point.x;
             int calc_coord_y = current_point.y;
 
             if (options.trapezoid_horizontal != 0) {
-                // calc_coord_x = ;
-                std::cout << "you dumb fuck you did the wrong one" << std::endl;
+                float tr = fabs(options.trapezoid_horizontal);
+                
+                int y = (options.trapezoid_horizontal > 0) ? current_point.y : (DAC_RAW_MAX - current_point.y);
+                float ycoef = static_cast<float>(y) / DAC_RAW_MAX;
+                int offset = tr * (DAC_RAW_MAX / 2) * ycoef;
+
+                calc_coord_x = map(current_point.x, 0, DAC_RAW_MAX, 0 + offset, DAC_RAW_MAX - offset);
             }
             if (options.trapezoid_vertical != 0) {
                 float tr = fabs(options.trapezoid_vertical);
@@ -129,10 +130,6 @@ void calculate_points(zmq::socket_t &publisher, options_struct options, IldaRead
                 int offset = tr * (DAC_RAW_MAX / 2) * xcoef;
 
                 calc_coord_y = map(current_point.y, 0, DAC_RAW_MAX, 0 + offset, DAC_RAW_MAX - offset);
-
-                // std::cout << "[" << current_point.x << "," << current_point.y << "] " << "tr:" << tr << ",y:" << y << ",x:" << x << ",xcoef:" << xcoef << "->" << total_coef;
-
-                // std::cout << " --- Yfinal=" << calc_coord_y << std::endl;
             }
             current_point.x = calc_coord_x;
             current_point.y = calc_coord_y;
