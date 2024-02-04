@@ -28,9 +28,10 @@ int main()
   zmq::message_t msg_to_send;
 
   options_struct options;
-  if (options.loadFromFile("./lasershow.cfg"))
+  if (options.loadFromFile(publisher, "./lasershow.cfg"))
   {
     std::cout << "options couldnt be loaded from file" << std::endl;
+    publish_message(publisher, "ALERT: options load fail");
   }
 
   publish_message(publisher, "INFO: lasershow ready");
