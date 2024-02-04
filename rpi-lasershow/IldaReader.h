@@ -3,6 +3,7 @@
 #include "colorPalette.hpp"
 #include "FormatData.h"
 
+#include "zmq.hpp"
 #include <string>
 #include <fstream>
 
@@ -44,8 +45,8 @@ class IldaReader
 {
 public:
     IldaReader();
-    bool read_sections_from_file();
-    bool readFile(std::string fileName);
+    bool read_sections_from_file(zmq::socket_t &publisher);
+    bool readFile(zmq::socket_t &publisher, std::string fileName);
     void closeFile();
 
     std::ifstream file;

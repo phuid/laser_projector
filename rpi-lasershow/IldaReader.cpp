@@ -5,6 +5,8 @@
 #include <string>
 #include <bitset>
 
+#include "my_helper.hpp"
+
 #include <iostream> //debug
 
 int16_t combine_bytes(char first, char second)
@@ -21,7 +23,7 @@ int map(int x, int in_min, int in_max, int out_min, int out_max)
 IldaReader::IldaReader() {}
 
 // return: 0-success, 1-error
-bool IldaReader::readFile(std::string fileName)
+bool IldaReader::readFile(zmq::socket_t &publisher, std::string fileName)
 {
     // Open file.
     this->file = std::ifstream(fileName, std::ifstream::binary);
@@ -35,7 +37,7 @@ bool IldaReader::readFile(std::string fileName)
     this->file_size = this->file.tellg();
     this->file.seekg(0);
 
-    bool return_val = read_sections_from_file();
+    bool return_val = read_sections_from_file(publisher);
     this->closeFile();
     return return_val;
 }
@@ -76,7 +78,7 @@ bool section::read_header(char buf[FormatData::NUMBER_OF_HEADER_BYTES])
 }
 
 // return: 0-success, 1-error
-bool IldaReader::read_sections_from_file()
+bool IldaReader::read_sections_from_file(zmq::socket_t &publisher)
 {
     this->sections_from_file.clear();
     this->current_frame_index = 0;
@@ -118,13 +120,13 @@ bool IldaReader::read_sections_from_file()
 
             char buf[FormatData::NUMBER_OF_RECORD_BYTES[section.format]];
             this->file.read(buf, FormatData::NUMBER_OF_RECORD_BYTES[section.format]);
-            std::cout << "format:" << section.format << std::endl;
-            std::cout << "buffer:";
-            for (size_t i = 0; i < FormatData::NUMBER_OF_RECORD_BYTES[section.format]; i++)
-            {
-                std::cout << std::bitset<8>(buf[i]) << " ";
-            }
-            std::cout << std::endl;
+            // std::cout << "format:" << section.format << std::endl;
+            // std::cout << "buffer:";
+            // for (size_t i = 0; i < FormatData::NUMBER_OF_RECORD_BYTES[section.format]; i++)
+            // {
+            //     std::cout << std::bitset<8>(buf[i]) << " ";
+            // }
+            // std::cout << std::endl;
             uint8_t color_index;
 
             switch (section.format)
@@ -185,7 +187,7 @@ bool IldaReader::read_sections_from_file()
 
             if (section.format != ILDA_COLOR_PALETTE)
             {
-                std::cout << "status:" << std::bitset<8>(point.status) << std::endl;
+                // std::cout << "status:" << std::bitset<8>(point.status) << std::endl;
                 // if (point.status) exit(1);
                 // ILDA format has a weird way of storing values. Positive numbers are stored nomally
                 // but negative numbers are stored in second part of 'unsigned short' (>32768) so e.g.
@@ -205,6 +207,10 @@ bool IldaReader::read_sections_from_file()
         if (section.format != ILDA_COLOR_PALETTE)
         {
             this->sections_from_file.push_back(section);
+            if (sections_from_file.size() % 10 == 0) {
+                std::cout << "reading sections; amount: " << sections_from_file.size() << std::endl;
+                publish_message(publisher, "DISPLAY: read frames " + std::to_string(sections_from_file.size()) + "+");
+            }
         }
     }
     return 0;

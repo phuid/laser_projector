@@ -7,9 +7,9 @@
 const uint8_t encoder_pins[2] = {ENCODER_PINS[0], ENCODER_PINS[1]};
 const uint8_t encoder_button_pin = ENCODER_BUTTON_PIN;
 
-void handle_enc_btn_interrupts(int num_alerts, lgGpioAlert_p alerts, void *userdata);
+void handle_enc_btn_interrupts();
 
-void handle_enc_interrupts(int num_alerts, lgGpioAlert_p alerts, void *userdata);
+void handle_enc_interrupts();
 
 bool get_encoder_btn_pressed();
 int16_t get_encoder_pos();

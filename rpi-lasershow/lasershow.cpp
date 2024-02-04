@@ -37,7 +37,7 @@ void lasershow_cleanup(int sig)
     adcdac.close_dac();
     gpioTerminate();
     printf("lasershow cleanup done.\n\r");
-    publish_message("lasershow cleanup done.");
+    publish_message("INFO: lasershow cleanup done.");
     if (sig != 0)
     {
         printf("stopped on interrupt\n\r");
@@ -52,6 +52,7 @@ void lasershow_start(zmq::socket_t &publisher, IldaReader &ildaReader, std::chro
 }
 
 void calculate_points(zmq::socket_t &publisher, options_struct options, IldaReader &ildaReader) {
+    publish_message(publisher, "DISPLAY: recalculating points...");
     for (size_t i = 0; i < ildaReader.sections_from_file.size(); i++) {
         section current_section = ildaReader.sections_from_file[i];
         for (size_t u = 0; u < current_section.points.size(); u++) {
@@ -80,7 +81,7 @@ void calculate_points(zmq::socket_t &publisher, options_struct options, IldaRead
             // TODO: PWM insteal of digitalwrite
             if (current_point.laser_on) // blanking bit (moving the mirrors with laser off)
             {
-                std::cout << "r:" << static_cast<int>(current_point.color[0]) << "g:" << static_cast<int>(current_point.color[1]) << "b:" << static_cast<int>(current_point.color[2]) << "-->";
+                // std::cout << "r:" << static_cast<int>(current_point.color[0]) << "g:" << static_cast<int>(current_point.color[1]) << "b:" << static_cast<int>(current_point.color[2]) << "-->";
                 int calc_brs[3] = {
                     static_cast<int>(options.laser_brightness * options.laser_red_brightness * (current_point.color[0] + options.laser_red_br_offset)),
                     static_cast<int>(options.laser_brightness * options.laser_green_brightness * (current_point.color[1] + options.laser_green_br_offset)),
@@ -96,7 +97,7 @@ void calculate_points(zmq::socket_t &publisher, options_struct options, IldaRead
                 for (uint8_t i = 0; i < 3; i++){
                     current_point.color[i] = calc_brs[i];
                     }
-                std::cout << "r:" << static_cast<int>(current_point.color[0]) << "g:" << static_cast<int>(current_point.color[1]) << "b:" << static_cast<int>(current_point.color[2]) << std::endl;
+                // std::cout << "r:" << static_cast<int>(current_point.color[0]) << "g:" << static_cast<int>(current_point.color[1]) << "b:" << static_cast<int>(current_point.color[2]) << std::endl;
                 // std::cout << current_point_index << ":" << static_cast<int>(current_point.red) << "," << static_cast<int>(current_point.green) << "," << static_cast<int>(current_point.blue) << "," << std::endl;
             }
             else
@@ -137,7 +138,7 @@ bool lasershow_init(zmq::socket_t &publisher, options_struct options, IldaReader
     }
     adcdac.set_dac_gain(2);
 
-    if (ildaReader.readFile(options.project_filename) == 0)
+    if (ildaReader.readFile(publisher, options.project_filename) == 0)
     {
         printf("Provided file is a valid ILDA file.\n\r");
         publish_message(publisher, "INFO: succesful file read");
@@ -165,8 +166,8 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options, IldaReader 
 {
     if (ildaReader.current_frame_index < ildaReader.projection_sections.size())
     {
-        std::cout << "position\t" << ildaReader.current_frame_index + 1 << "\tof\t" << ildaReader.projection_sections.size() << std::endl;
-        publish_message(publisher, "INFO: POS " + std::to_string(ildaReader.current_frame_index + 1) + " OF " + std::to_string(ildaReader.projection_sections.size()));
+        std::cout << "frame\t" << ildaReader.current_frame_index + 1 << "\tof\t" << ildaReader.projection_sections.size() << std::endl;
+        publish_message(publisher, "INFO: FRAME " + std::to_string(ildaReader.current_frame_index + 1) + " OF " + std::to_string(ildaReader.projection_sections.size()));
         uint16_t current_point_index = 0;
         while (true) // always broken by time check
         {
@@ -182,7 +183,7 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options, IldaReader 
 
             // Maybe wait a while there.
             if (options.pointDelay > 0)
-                usleep(options.pointDelay);
+                gpioDelay(options.pointDelay);
             // check the time and move on to the next frame
             if (options.targetFrameTime < std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start).count())
             {

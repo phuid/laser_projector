@@ -87,7 +87,7 @@ public:
     std::vector<std::string> args;
 
     void parse(std::string string);
-    void execute(std::string string, menu_option &root);
+    void execute(std::string string, zmq::socket_t &subscriber, menu_option &root, lcd_t *lcd);
 };
 
 void Command::parse(std::string string)
@@ -128,7 +128,7 @@ void Command::parse(std::string string)
     std::cout << std::endl;
 }
 
-void Command::execute(std::string string, menu_option &root)
+void Command::execute(std::string string, zmq::socket_t &subscriber, menu_option &root, lcd_t *lcd)
 {
     this->parse(string);
     std::cout << "executing" << std::endl;
@@ -137,7 +137,7 @@ void Command::execute(std::string string, menu_option &root)
     {
         if (this->args.size() >= 1)
         {
-            if (this->args[0] == "POS")
+            if (this->args[0] == "FRAME")
             {
                 if (this->args.size() >= 4)
                 {
@@ -215,6 +215,48 @@ void Command::execute(std::string string, menu_option &root)
         root.nested_menu_options[2].redraw = 1;
         std::cout << root.nested_menu_options[2].name << std::endl;
     }
+    else if (this->first_word == "DISPLAY:") {
+        std::string display_string = this->received_string.substr(std::string("DISPLAY:").length());
+        zmq::message_t received;
+        std::cout << "displaying \"" << display_string << "\"" << std::endl;
+        root.redraw = 1;
+        while (true) {
+            for (size_t scroll = 0; !get_encoder_btn_pressed(); scroll = (scroll + 1) % (display_string.length() - SCREEN_WIDTH)) {
+                if (subscriber.recv(received, zmq::recv_flags::dontwait)) break;
+                lcd_clear(lcd);
+                lcd_pos(lcd, 0, 0);
+                lcd_print(lcd, "press btn to dismiss");
+                lcd_pos(lcd, 1, 0);
+                lcd_printf(lcd, "%.*s", SCREEN_WIDTH, (display_string.length() < SCREEN_WIDTH) ? display_string.c_str() : display_string.substr(scroll).c_str());
+                delay(200); // 0.2s to draw and bin all the other display messages
+            }
+            if (received.size() > 0) {
+                if (received.to_string().substr(0, 8) == "DISPLAY:") {
+                    display_string = received.to_string().substr(8);
+                }
+                else {
+                    Command new_command;
+                    new_command.execute(received.to_string(), subscriber, root, lcd);
+                    break;
+                }
+            }
+        }
+    }
+    else if (this->first_word == "ALERT:") // cant be replaced by new command, user has to dismiss it
+    {
+        std::string display_string = this->received_string.substr(std::string("ALERT:").length());
+        zmq::message_t received;
+        std::cout << "displaying \"" << display_string << "\"" << std::endl;
+        root.redraw = 1;
+        for (size_t scroll = 0; !get_encoder_btn_pressed(); scroll = (scroll + 1) % (display_string.length() - SCREEN_WIDTH)) {
+            lcd_clear(lcd);
+            lcd_pos(lcd, 0, 0);
+            lcd_print(lcd, "press btn to dismiss");
+            lcd_pos(lcd, 1, 0);
+            lcd_printf(lcd, "%.*s", SCREEN_WIDTH, (display_string.length() < SCREEN_WIDTH) ? display_string.c_str() : display_string.substr(scroll).c_str());
+            delay(200); // 0.2s to draw and bin all the other display messages
+        }
+    }
     else
     {
         std::cout << "!!unknown response first word: \"" << this->first_word << "\"" << std::endl;
@@ -234,14 +276,13 @@ int main()
 
     // TODO: add SIGINT handler + cleanup function
 
-    int gpio_chip_handle = lgGpiochipOpen(GPIO_CHIP_NUM);
-    if (gpio_chip_handle < 0) {
+    if (wiringPiSetupGpio() < 0) {
         std::cout << "Failed to open gpio chip" << std::endl;
         return 1;
     }
     /* Create a LCD given SCL, SDA and I2C address, 4 lines */
     /* PCF8574 has default address 0x27 */
-    lcd_t *lcd = lcd_create(gpio_chip_handle, 1, 0x27, SCREEN_HEIGHT);
+    lcd_t *lcd = lcd_create(LCD_SCL_PIN, LCD_SDA_PIN, 0x27, SCREEN_HEIGHT);
 
     if (lcd == NULL)
     {
@@ -251,13 +292,17 @@ int main()
 
     lcd_init(lcd);
 
-    lgGpioClaimInput(gpio_chip_handle, LG_SET_PULL_UP, encoder_pins[0]);
-    lgGpioClaimInput(gpio_chip_handle, LG_SET_PULL_UP, encoder_pins[1]);
-    lgGpioClaimInput(gpio_chip_handle, LG_SET_PULL_UP, encoder_button_pin);
+    pinMode(encoder_pins[0], INPUT);
+    pinMode(encoder_pins[1], INPUT);
+    pinMode(encoder_button_pin, INPUT);
 
-    lgGpioSetAlertsFunc(gpio_chip_handle, encoder_pins[0], *handle_enc_interrupts, &gpio_chip_handle);
-    lgGpioSetAlertsFunc(gpio_chip_handle, encoder_pins[1], *handle_enc_interrupts, &gpio_chip_handle);
-    lgGpioSetAlertsFunc(gpio_chip_handle, encoder_button_pin, *handle_enc_btn_interrupts, NULL);
+    pullUpDnControl(encoder_pins[0], PUD_UP);
+    pullUpDnControl(encoder_pins[1], PUD_UP);
+    pullUpDnControl(encoder_button_pin, PUD_UP);
+
+    wiringPiISR(encoder_pins[0], INT_EDGE_BOTH, *handle_enc_interrupts);
+    wiringPiISR(encoder_pins[1], INT_EDGE_BOTH, *handle_enc_interrupts);
+    wiringPiISR(encoder_button_pin, INT_EDGE_BOTH, *handle_enc_btn_interrupts);
 
     lcd_create_char(lcd, PARENT_CHAR_NUM, parent_char);
     lcd_create_char(lcd, INVERTED_SPACE_CHAR_NUM, inverted_space_char);
@@ -356,13 +401,12 @@ int main()
     {
         // interact with user via OLED LCD and a rotary encoder
 
-        lcd_backlight_dim(lcd, brightness_val);
+        lcd_backlight_dim(lcd, brightness_val / 100.f);
 
-        subscriber.recv(received, zmq::recv_flags::dontwait);
-        while (received.size() > 0)
+        while (subscriber.recv(received, zmq::recv_flags::dontwait))
         {
             Command command;
-            command.execute(received.to_string(), root);
+            command.execute(received.to_string(), subscriber, root, lcd);
 
             subscriber.recv(received, zmq::recv_flags::dontwait);
         }

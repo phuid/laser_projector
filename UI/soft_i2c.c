@@ -160,4 +160,3 @@ uint8_t i2c_read_byte(i2c_t port) {
 
 	return byte;
 }
-
