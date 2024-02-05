@@ -46,6 +46,9 @@
       </g>
     </svg>
   </form>
+  <div id="paintdiv">
+    <svg class="svg-icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M922.857143 0q40 0 70 26.571429t30 66.571429q0 36-25.714286 86.285714-189.714286 359.428571-265.714286 429.714286-55.428571 52-124.571429 52-72 0-123.714286-52.857143t-51.714286-125.428571q0-73.142857 52.571429-121.142857l364.571429-330.857143q33.714286-30.857143 74.285714-30.857143zm-519.428571 590.857143q22.285714 43.428571 60.857143 74.285714t86 43.428571l0.571429 40.571429q2.285714 121.714286-74 198.285714t-199.142857 76.571429q-70.285714 0-124.571429-26.571429t-87.142857-72.857143-49.428571-104.571429-16.571429-125.714286q4 2.857143 23.428571 17.142857t35.428571 25.428571 33.714286 20.857143 26.285714 9.714286q23.428571 0 31.428571-21.142857 14.285714-37.714286 32.857143-64.285714t39.714286-43.428571 50.285714-27.142857 58.857143-14.571429 71.428571-6z"  /></svg>
+  </div>
   <div class='swiper swiperstyle'>
     <div class='swiper-wrapper width100'>
       <div id="ssh-terminal-container" class="terminal-container swiper-slide" onclick="focusOnTextArea(this)">
@@ -59,16 +62,16 @@
     <!-- <div class="swiper-button-prev landscape-invisible"></div>
     <div class="swiper-button-next landscape-invisible"></div> -->
   </div>
-  <div id="queue">hellyea</div>
   <div id="settings">yeahyfashjgfhSEETTINGS</div>
+  <div id="queue">hellyea</div>
   <div id="nowplaying" class="flex-container">
-    <div id="settingsbtn" onclick="toggledisplay(this)">s</div>
-    <div id="shufflebtn">sh</div>
-    <div id="back"> << </div>
-    <div id="play">></div>
-    <div id="forward">>></div>
-    <div id="repeatbtn">r</div>
-    <div id="queuebtn" onclick="toggledisplay(this)">=</div>
+    <div class="nowplaying-button" id="settingsbtn" onclick="toggledisplay(document.getElementById('settings')); this.classList.toggle('saturate')">s</div>
+    <div class="nowplaying-button" id="shufflebtn">sh</div>
+    <div class="nowplaying-button" id="back"> << </div>
+    <div class="nowplaying-button" id="play">></div>
+    <div class="nowplaying-button" id="forward">>></div>
+    <div class="nowplaying-button" id="repeatbtn">r</div>
+    <div class="nowplaying-button" id="queuebtn" onclick="toggledisplay(document.getElementById('queue')); this.classList.toggle('saturate')">=</div>
   </div>
   <form id="projectionform" action="project" method="post" enctype="multipart/form-data">
     <select id="lastpatharea" name="filename" placeholder="name of ild file here"></select>

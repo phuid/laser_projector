@@ -1,4 +1,5 @@
 function toggledisplay(el) {
+  console.log("changing display on", el);
   if (el.style.display != "block") {
     el.style.display = "block";
   }

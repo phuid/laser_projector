@@ -12,9 +12,14 @@
   overflow-y: scroll;
 }
 
+html {
+  overflow: hidden;
+}
+
 body {
   width: 100vh;
   height: 100vh;
+  overflow: hidden;
 }
 
 input[type="textarea"] {
@@ -61,7 +66,7 @@ svg {
   font-family: Inconsolata, monospace;
     border: 1px solid var(--text-2);
     background-color: var(--background-2);
-    overflow: scroll;
+    overflow: hidden;
 }
 
 .width100 {
@@ -76,11 +81,17 @@ svg {
 
 #queue {
   background-color: black;
-  /* display: none; */
+  display: none;
 }
 #settings {
   background-color: black;
-  /* display: none; */
+  display: none;
+}
+.nowplaying-button {
+  z-index: 20;
+}
+.saturate {
+  filter: saturate(4);
 }
 
 @media screen and (orientation: landscape) {
