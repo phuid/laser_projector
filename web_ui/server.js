@@ -294,6 +294,6 @@ wifiman_receiver.on("message", (msg) => {
   io.sockets.emit("WIFIMANmsg", msg.toString() + "\n\r");
 });
 
-let port = 5000;
+let port = 3001;
 console.log("Listening on http://localhost:" + port);
 server.listen(port);

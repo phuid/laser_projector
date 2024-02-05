@@ -89,7 +89,16 @@ svg {
 }
 .nowplaying-button {
   z-index: 20;
+  flex: 1;
+  height: calc(50% - 2vh);
+  margin: 1vh;
+  border-radius: 20%;
 }
+.nowplaying-button:hover {
+  background-color: hsl(220, 13%, 18%);
+  border-color: aquamarine;
+}
+
 .saturate {
   filter: saturate(4);
 }
