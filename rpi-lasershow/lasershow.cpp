@@ -53,27 +53,83 @@ void lasershow_start(zmq::socket_t &publisher, IldaReader &ildaReader, std::chro
 
 void calculate_points(zmq::socket_t &publisher, options_struct options, IldaReader &ildaReader) {
     publish_message(publisher, "DISPLAY: recalculating points...");
-    for (size_t i = 0; i < ildaReader.sections_from_file.size(); i++) {
-        section current_section = ildaReader.sections_from_file[i];
+
+    int lowest_x;
+    int highest_x;
+    int lowest_y;
+    int highest_y;
+
+    if (options.scale_up) {
+        lowest_x = ildaReader.sections_from_file[0].points[0].x;
+        highest_x = ildaReader.sections_from_file[0].points[0].x;
+        lowest_y = ildaReader.sections_from_file[0].points[0].y;
+        highest_y = ildaReader.sections_from_file[0].points[0].y;
+        // find furthest points in all frames and all directions (x+, x-, y+, y-)
+        for (size_t i = 0; i < ildaReader.sections_from_file.size(); i++) {
+            for (size_t u = 0; u < ildaReader.sections_from_file[i].points.size(); u++) {
+                // std::cout << "point" << u << "lx:" << lowest_x << "hx:" << highest_x << "ly:" << lowest_y << "hy:" << highest_y << std::endl;
+                if (ildaReader.sections_from_file[i].points[u].x > highest_x) {
+                    highest_x = ildaReader.sections_from_file[i].points[u].x;
+                }
+                else if (ildaReader.sections_from_file[i].points[u].x < lowest_x) {
+                    lowest_x = ildaReader.sections_from_file[i].points[u].x;
+                }
+
+                if (ildaReader.sections_from_file[i].points[u].y > highest_y) {
+                    highest_y = ildaReader.sections_from_file[i].points[u].y;
+                }
+                else if (ildaReader.sections_from_file[i].points[u].y < lowest_y) {
+                    lowest_y = ildaReader.sections_from_file[i].points[u].y;
+                }
+            }
+        }
+        if (options.scale_up_proportionally) {
+            if (lowest_x > lowest_y) {
+                lowest_x = lowest_y;
+            }
+            else { //idc if theyre the same - then nothing changes
+                lowest_y = lowest_x;
+            }
+            if (highest_x < highest_y) {
+                highest_x = highest_y;
+            }
+            else { //idc if theyre the same - then nothing changes
+                highest_y = highest_x;
+            }
+        }
+    }
+
+    ildaReader.projection_sections = ildaReader.sections_from_file;
+    for (size_t i = 0; i < ildaReader.projection_sections.size(); i++) {
+        section& current_section = ildaReader.projection_sections[i];
         for (size_t u = 0; u < current_section.points.size(); u++) {
             point &current_point = current_section.points[u];
+
+            if (options.scale_up) {
+                current_point.x = map(current_point.x, lowest_x, highest_x, 0, DAC_RAW_MAX);
+                current_point.y = map(current_point.y, lowest_y, highest_y, 0, DAC_RAW_MAX);
+            }
+
             int calc_coord_x = current_point.x;
             int calc_coord_y = current_point.y;
 
             if (options.trapezoid_horizontal != 0) {
-                // calc_coord_x = ;
-                std::cout << "you dumb fuck you did the wrong one" << std::endl;
+                float tr = fabs(options.trapezoid_horizontal);
+                
+                int y = (options.trapezoid_horizontal > 0) ? current_point.y : (DAC_RAW_MAX - current_point.y);
+                float ycoef = static_cast<float>(y) / DAC_RAW_MAX;
+                int offset = tr * (DAC_RAW_MAX / 2) * ycoef;
+
+                calc_coord_x = map(current_point.x, 0, DAC_RAW_MAX, 0 + offset, DAC_RAW_MAX - offset);
             }
             if (options.trapezoid_vertical != 0) {
                 float tr = fabs(options.trapezoid_vertical);
-                float y = (current_point.y - (DAC_RAW_MAX / 2));
+                
                 int x = (options.trapezoid_vertical > 0) ? current_point.x : (DAC_RAW_MAX - current_point.x);
                 float xcoef = static_cast<float>(x) / DAC_RAW_MAX;
-                float total_coef = (1 - (tr + (xcoef * (TRAPEZOID_MAX - tr))));
-                std::cout << "[" << current_point.x << "," << current_point.y << "] " << "tr:" << tr << ",y:" << y << ",x:" << x << ",xcoef:" << xcoef << "->" << total_coef;
+                int offset = tr * (DAC_RAW_MAX / 2) * xcoef;
 
-                calc_coord_y = (DAC_RAW_MAX / 2) + (y * total_coef);
-                std::cout << " --- Yfinal=" << calc_coord_y << std::endl;
+                calc_coord_y = map(current_point.y, 0, DAC_RAW_MAX, 0 + offset, DAC_RAW_MAX - offset);
             }
             current_point.x = calc_coord_x;
             current_point.y = calc_coord_y;
@@ -109,7 +165,6 @@ void calculate_points(zmq::socket_t &publisher, options_struct options, IldaRead
                 // std::cout << current_point_index << ":" << "---------" << std::endl;
             }
         }
-        ildaReader.projection_sections.push_back(current_section);
     }
 }
 
@@ -138,13 +193,18 @@ bool lasershow_init(zmq::socket_t &publisher, options_struct options, IldaReader
     }
     adcdac.set_dac_gain(2);
 
-    if (ildaReader.readFile(publisher, options.project_filename) == 0)
+    if (ildaReader.readFile(publisher, options.project_filename) == 0 && ildaReader.sections_from_file.size() != 0)
     {
-        printf("Provided file is a valid ILDA file.\n\r");
+        printf("succesful file read\n\r");
         publish_message(publisher, "INFO: succesful file read");
     }
     else
     {
+        if (ildaReader.sections_from_file.size() == 0) {
+            printf("no frames loaded, stopped file opening\n\r");
+            publish_message(publisher, "INFO: no frames loaded, stopped file opening");
+            return 1;
+        }
         printf("Error opening ILDA file.\n\rfilename: %s", options.project_filename.c_str());
         publish_message(publisher, "ERROR: EINVAL error opening ILDA filename: \"" + options.project_filename + "\"");
         return 1;

@@ -17,6 +17,10 @@ int16_t combine_bytes(char first, char second)
 // Helper function to map a value between two value ranges.
 int map(int x, int in_min, int in_max, int out_min, int out_max)
 {
+    // std::cout << "x:" <<x << "in(min/max)" << in_min << "/" << in_max << "out(min/max)" << out_min << "/" << out_max << std::endl;
+    if (in_min == in_max){
+        return in_min; //dont divide by 0
+    }
     return ((x - in_min) * (out_max - out_min) / (in_max - in_min)) + out_min;
 }
 
@@ -197,7 +201,7 @@ bool IldaReader::read_sections_from_file(zmq::socket_t &publisher)
                 if (point.y > 32768)
                     point.y = point.y - 65536;
 
-                // Map ILDA values to DAC value range and store the data to array.
+                // Map ILDA values to DAC value range and store the data to vector
                 point.x = map(point.x, -32768, +32767, 0, 4095);
                 point.y = map(point.y, -32768, +32767, 0, 4095);
 

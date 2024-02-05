@@ -28,9 +28,10 @@ int main()
   zmq::message_t msg_to_send;
 
   options_struct options;
-  if (options.loadFromFile("./lasershow.cfg"))
+  if (options.loadFromFile(publisher, "./lasershow.cfg"))
   {
     std::cout << "options couldnt be loaded from file" << std::endl;
+    publish_message(publisher, "ALERT: options load fail");
   }
 
   publish_message(publisher, "INFO: lasershow ready");
@@ -46,9 +47,13 @@ int main()
     {
       // options.project_filename = "";
       command_receiver.recv(received, zmq::recv_flags::none); // blocking
-      if (command.execute(received.to_string(), publisher, options) == 0)
+      int exec_val = command.execute(received.to_string(), publisher, options);
+      if (exec_val == 0 || exec_val == 1)
       {
         continue;
+      }
+      else if (exec_val == 3) {
+        calculate_points(publisher, options, ildaReader);
       }
     }
     else
@@ -77,6 +82,7 @@ int main()
         while (received.size() > 0)
         {
           int exec_val = command.execute(received.to_string(), publisher, options);
+          std::cout << "exec_val: " << exec_val << std::endl;
           if (exec_val == 1)
           {
             options.repeat = 0; // dont start projecting again
@@ -89,6 +95,9 @@ int main()
             options.repeat = 0;
             first_repeat = 1;
             break;
+          }
+          else if (exec_val == 3) {
+            calculate_points(publisher, options, ildaReader);
           }
           command_receiver.recv(received, zmq::recv_flags::dontwait);
         }
