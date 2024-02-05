@@ -14,11 +14,15 @@
 
 html {
   overflow: hidden;
+  padding: 0;
+  margin: 0;
 }
 
 body {
-  width: 100vh;
+  width: 100vw;
   height: 100vh;
+  padding: 0;
+  margin: 0;
   overflow: hidden;
 }
 
@@ -87,14 +91,12 @@ svg {
   background-color: black;
   display: none;
 }
-.nowplaying-button {
+#nowplaying > div {
   z-index: 20;
-  flex: 1;
-  height: calc(50% - 2vh);
-  margin: 1vh;
   border-radius: 20%;
+  /* border: 1px aqua solid; */
 }
-.nowplaying-button:hover {
+#nowplaying > div:hover {
   background-color: hsl(220, 13%, 18%);
   border-color: aquamarine;
 }
@@ -106,9 +108,9 @@ svg {
 @media screen and (orientation: landscape) {
   .swiperstyle {
     position: absolute;
-    top: 10vh;
+    top: 10%;
     left: 0;
-    height: 90vh;
+    height: 90%;
     right: 0;
     z-index: 6;
     padding: 10px;
@@ -123,7 +125,7 @@ svg {
     left: 0;
     top: 0;
     width: 50%;
-    bottom: 11vh;
+    bottom: 15%;
   }
   
   #lasershow-terminal-container {
@@ -131,15 +133,15 @@ svg {
     left: 50%;
     top: 0;
     width: 50%;
-    height: 50%;
+    height: 45%;
   }
   
   #wifiman-terminal-container {
     position: absolute;
     left: 50%;
-    top: 50%;
+    top: 45%;
     width: 50%;
-    height: 50%;
+    height: 45%;
   }
   
   #fileupload {
@@ -232,16 +234,19 @@ svg {
     position: absolute;
     left: 0;
     right: 50%;
-    top: 90vh;
-    height: 10vh;
+    top: 90%;
+    height: 10%;
     flex-direction: row;
     justify-content: space-evenly;
   }
 
   #nowplaying > div {
-    height: 100%;
+    height: 2vh;
+    margin: 1%;
     text-align: center;
-    padding: calc(5vh - 0.5rem) 0;
+    flex-grow: 0.105;
+    /* height: 80%; */
+    padding: calc(4% - 0.5rem) 0;
   }
   
   #queue {
@@ -249,14 +254,14 @@ svg {
     left: 0;
     right: 50%;
     bottom: 10vh;
-    top: 10vh;
+    top: 11vh;
     z-index: 12;
   }
   #settings {
     position: absolute;
     left: 0;
     right: 50%;
-    bottom: 10vh;
+    bottom: 11vh;
     top: 10vh;
     z-index: 12;
   }
