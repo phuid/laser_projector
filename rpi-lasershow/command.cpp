@@ -3,6 +3,7 @@
 #include <iostream>
 #include "my_helper.hpp"
 #include "command.hpp"
+#include "IldaReader.h"
 
 command_type find_key(std::map<command_type, std::string> dict, std::string value)
 {
@@ -57,7 +58,7 @@ void Command::parse(const std::map<command_type, std::string> &command_dict, std
   std::cout << std::endl;
 }
 //return: 0 - continue projection / continue doing nothing, 1 - STOP projecting and wait for another command, 2 - restart PROJECTing with a new file, 3 - recalculate points
-int Command::execute(std::string string, zmq::socket_t &publisher, options_struct &options)
+int Command::execute(std::string string, zmq::socket_t &publisher, options_struct &options, IldaReader &ildaReader)
 {
   int to_return = 0;
 
@@ -131,6 +132,61 @@ int Command::execute(std::string string, zmq::socket_t &publisher, options_struc
           options.trapezoid_vertical = tmp_options.trapezoid_vertical;
           publish_message(publisher, "INFO: OPTION trapezoid_vertical " + std::to_string(options.trapezoid_vertical));
         }
+        else if (this->args[1] == "scale_x")
+        {
+          options.scale_x = tmp_options.scale_x;
+          publish_message(publisher, "INFO: OPTION scale_x " + std::to_string(options.scale_x));
+        }
+        else if (this->args[1] == "scale_y")
+        {
+          options.scale_y = tmp_options.scale_y;
+          publish_message(publisher, "INFO: OPTION scale_y " + std::to_string(options.scale_y));
+        }
+        else if (this->args[1] == "move_x")
+        {
+          options.move_x = tmp_options.move_x;
+          publish_message(publisher, "INFO: OPTION move_x " + std::to_string(options.move_x));
+        }
+        else if (this->args[1] == "move_y")
+        {
+          options.move_y = tmp_options.move_y;
+          publish_message(publisher, "INFO: OPTION move_y " + std::to_string(options.move_y));
+        }
+        else if (this->args[1] == "laser_brightness")
+        {
+          options.laser_brightness = tmp_options.laser_brightness;
+          publish_message(publisher, "INFO: OPTION laser_brightness " + std::to_string(options.laser_brightness));
+        }
+        else if (this->args[1] == "laser_red_brightness")
+        {
+          options.laser_red_brightness = tmp_options.laser_red_brightness;
+          publish_message(publisher, "INFO: OPTION laser_red_brightness " + std::to_string(options.laser_red_brightness));
+        }
+        else if (this->args[1] == "laser_green_brightness")
+        {
+          options.laser_green_brightness = tmp_options.laser_green_brightness;
+          publish_message(publisher, "INFO: OPTION laser_green_brightness " + std::to_string(options.laser_green_brightness));
+        }
+        else if (this->args[1] == "laser_blue_brightness")
+        {
+          options.laser_blue_brightness = tmp_options.laser_blue_brightness;
+          publish_message(publisher, "INFO: OPTION laser_blue_brightness " + std::to_string(options.laser_blue_brightness));
+        }
+        else if (this->args[1] == "laser_red_br_offset")
+        {
+          options.laser_red_br_offset = tmp_options.laser_red_br_offset;
+          publish_message(publisher, "INFO: OPTION laser_red_br_offset " + std::to_string(options.laser_red_br_offset));
+        }
+        else if (this->args[1] == "laser_green_br_offset")
+        {
+          options.laser_green_br_offset = tmp_options.laser_green_br_offset;
+          publish_message(publisher, "INFO: OPTION laser_green_br_offset " + std::to_string(options.laser_green_br_offset));
+        }
+        else if (this->args[1] == "laser_blue_br_offset")
+        {
+          options.laser_blue_br_offset = tmp_options.laser_blue_br_offset;
+          publish_message(publisher, "INFO: OPTION laser_blue_br_offset " + std::to_string(options.laser_blue_br_offset));
+        }
         else
         {
           std::cout << "invalid args: \"" << received_string << "\"" << std::endl;
@@ -159,6 +215,53 @@ int Command::execute(std::string string, zmq::socket_t &publisher, options_struc
         else if (this->args[1] == "trapezoid_vertical")
         {
           publish_message(publisher, "INFO: OPTION trapezoid_vertical " + std::to_string(options.trapezoid_vertical));
+        }
+        else if (this->args[1] == "scale_x")
+        {
+          publish_message(publisher, "INFO: OPTION scale_x " + std::to_string(options.scale_x));
+        }
+        else if (this->args[1] == "scale_y")
+        {
+          publish_message(publisher, "INFO: OPTION scale_y " + std::to_string(options.scale_y));
+        }
+        else if (this->args[1] == "move_x")
+        {
+          publish_message(publisher, "INFO: OPTION move_x " + std::to_string(options.move_x));
+        }
+        else if (this->args[1] == "move_y")
+        {
+          publish_message(publisher, "INFO: OPTION move_y " + std::to_string(options.move_y));
+        }
+        else if (this->args[1] == "laser_brightness")
+        {
+          publish_message(publisher, "INFO: OPTION laser_brightness " + std::to_string(options.laser_brightness));
+        }
+        else if (this->args[1] == "laser_red_brightness")
+        {
+          publish_message(publisher, "INFO: OPTION laser_red_brightness " + std::to_string(options.laser_red_brightness));
+        }
+        else if (this->args[1] == "laser_green_brightness")
+        {
+          publish_message(publisher, "INFO: OPTION laser_green_brightness " + std::to_string(options.laser_green_brightness));
+        }
+        else if (this->args[1] == "laser_blue_brightness")
+        {
+          publish_message(publisher, "INFO: OPTION laser_blue_brightness " + std::to_string(options.laser_blue_brightness));
+        }
+        else if (this->args[1] == "laser_red_br_offset")
+        {
+          publish_message(publisher, "INFO: OPTION laser_red_br_offset " + std::to_string(options.laser_red_br_offset));
+        }
+        else if (this->args[1] == "laser_green_br_offset")
+        {
+          publish_message(publisher, "INFO: OPTION laser_green_br_offset " + std::to_string(options.laser_green_br_offset));
+        }
+        else if (this->args[1] == "laser_blue_br_offset")
+        {
+          publish_message(publisher, "INFO: OPTION laser_blue_br_offset " + std::to_string(options.laser_blue_br_offset));
+        }
+        else if (this->args[1] == "current_frame") {
+          publish_message(publisher, "INFO: OPTION current_frame " + std::to_string(IldaReader.current_frame_index));
         }
         else
         {
@@ -198,17 +301,83 @@ int Command::execute(std::string string, zmq::socket_t &publisher, options_struc
             publish_message(publisher, "INFO: OPTION trapezoid_vertical " + std::to_string(options.trapezoid_vertical));
             to_return = 3;
           }
-          else if (this->args[1] == "scale_up")
+          else if (this->args[1] == "scale_x")
           {
             options.scale_up = stoi(this->args[2]);
-            publish_message(publisher, "INFO: OPTION scale_up " + std::to_string(options.scale_up));
+            publish_message(publisher, "INFO: OPTION scale_x " + std::to_string(options.scale_x));
             to_return = 3;
           }
-          else if (this->args[1] == "scale_up_proportionally")
+          else if (this->args[1] == "scale_y")
           {
             options.scale_up_proportionally = stoi(this->args[2]);
-            publish_message(publisher, "INFO: OPTION scale_up_proportionally " + std::to_string(options.scale_up_proportionally));
+            publish_message(publisher, "INFO: OPTION scale_y " + std::to_string(options.scale_y));
             to_return = 3;
+          }
+          else if (this->args[1] == "move_x")
+          {
+            options.move_up = stoi(this->args[2]);
+            publish_message(publisher, "INFO: OPTION move_x " + std::to_string(options.move_x));
+            to_return = 3;
+          }
+          else if (this->args[1] == "move_y")
+          {
+            options.move_up_proportionally = stoi(this->args[2]);
+            publish_message(publisher, "INFO: OPTION move_y " + std::to_string(options.move_y));
+            to_return = 3;
+          }
+          else if (this->args[1] == "laser_brightness")
+          {
+            options.laser_brightness = stof(this->args[2]);
+            publish_message(publisher, "INFO: OPTION laser_brightness " + std::to_string(options.laser_brightness));
+            to_return = 3;
+          }
+          else if (this->args[1] == "laser_red_brightness")
+          {
+            options.laser_red_brightness = stof(this->args[2]);
+            publish_message(publisher, "INFO: OPTION laser_red_brightness " + std::to_string(options.laser_red_brightness));
+            to_return = 3;
+          }
+          else if (this->args[1] == "laser_green_brightness")
+          {
+            options.laser_green_brightness = stof(this->args[2]);
+            publish_message(publisher, "INFO: OPTION laser_green_brightness " + std::to_string(options.laser_green_brightness));
+            to_return = 3;
+          }
+          else if (this->args[1] == "laser_blue_brightness")
+          {
+            options.laser_blue_brightness = stof(this->args[2]);
+            publish_message(publisher, "INFO: OPTION laser_blue_brightness " + std::to_string(options.laser_blue_brightness));
+            to_return = 3;
+          }
+          else if (this->args[1] == "laser_red_br_offset")
+          {
+            options.laser_red_br_offset = stoi(this->args[2]);
+            publish_message(publisher, "INFO: OPTION laser_red_br_offset " + std::to_string(options.laser_red_br_offset));
+            to_return = 3;
+          }
+          else if (this->args[1] == "laser_green_br_offset")
+          {
+            options.laser_green_br_offset = stoi(this->args[2]);
+            publish_message(publisher, "INFO: OPTION laser_green_br_offset " + std::to_string(options.laser_green_br_offset));
+            to_return = 3;
+          }
+          else if (this->args[1] == "laser_blue_br_offset")
+          {
+            options.laser_blue_br_offset = stoi(this->args[2]);
+            publish_message(publisher, "INFO: OPTION laser_blue_br_offset " + std::to_string(options.laser_blue_br_offset));
+            to_return = 3;
+          }
+          else if (this->args[1] == "current_frame") {
+            ildaReader.current_frame_index = stou(this->args[2]); //maybe stoul
+            options.start = std::chrono::system_clock::now() - std::chrono::milliseconds(ildaReader.current_frame_index * options.targetFrameTime);
+            publish_message(publisher, "INFO: OPTION current_frame " + std::to_string(IldaReader.current_frame_index));
+            to_return = 0;
+          }
+          else if (this->args[1] == "current_projection_time") {
+            options.start = std::chrono::system_clock::now() - std::chrono::milliseconds(stou(this->args[2]));
+            IldaReader.current_frame_index = (std::chrono::system_clock::now() - options.start) / std::chrono::milliseconds(options.targetFrameTime);
+            publish_message(publisher, "INFO: OPTION current_frame " + std::to_string(IldaReader.current_frame_index));
+            to_return = 0;
           }
           else
           {

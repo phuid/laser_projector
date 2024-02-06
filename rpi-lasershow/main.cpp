@@ -37,7 +37,6 @@ int main()
   publish_message(publisher, "INFO: lasershow ready");
 
   IldaReader ildaReader;
-  std::chrono::time_point<std::chrono::system_clock> start;
 
   bool pass_next_command_read = 0;
   while (true)
@@ -61,7 +60,7 @@ int main()
       pass_next_command_read = 0;
     }
 
-    if (lasershow_init(publisher, options, ildaReader, start) != 0)
+    if (lasershow_init(publisher, options, ildaReader) != 0)
     {
       std::cout << "failed to init lasershow" << std::endl;
       publish_message(publisher, "ERROR: failed to init lasershow");
@@ -72,7 +71,7 @@ int main()
     while (options.repeat || first_repeat)
     {
       first_repeat = 0;
-      lasershow_start(publisher, ildaReader, start);
+      lasershow_start(publisher, ildaReader, options);
 
       while (first_repeat == 0) // also used just as a break flag (if 1 break)
       {
