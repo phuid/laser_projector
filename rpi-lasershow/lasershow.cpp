@@ -248,13 +248,12 @@ bool lasershow_init(zmq::socket_t &publisher, options_struct options, IldaReader
         gpioSetPWMfrequency(LASER_PINS[i], 100000);
     }
 
-    if (adcdac.open_dac() == -1)
+    if (!adcdac.open_dac())
     {
         printf("Failed to initialize MCP4822.\n\r");
-        publish_message(publisher, "ERROR: OTHER MCP4822 init fail");
+        publish_message(publisher, "ERROR: OTHER mpc4822 init fail");
         return 1;
     }
-    adcdac.set_dac_gain(2);
 
     if (ildaReader.readFile(publisher, options.project_filename) == 0 && ildaReader.sections_from_file.size() != 0)
     {
