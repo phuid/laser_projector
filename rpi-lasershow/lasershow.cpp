@@ -300,18 +300,16 @@ uint16_t get_frame_by_time(zmq::socket_t &publisher, const options_struct &optio
 // return: 0-success, 1-error, 2-end of projection
 int lasershow_loop(zmq::socket_t &publisher, options_struct options, IldaReader &ildaReader)
 {
-    if (options.time_accurate_framing && !options.paused)
+    if (!options.paused)
     {
-        IldaReader.current_frame_index = get_frame_by_time(publisher, options);
+        ildaReader.current_frame_index++;
     }
     if (ildaReader.current_frame_index < ildaReader.projection_sections.size())
     {
         std::cout << "frame\t" << ildaReader.current_frame_index + 1 << "\tof\t" << ildaReader.projection_sections.size() << std::endl;
         publish_message(publisher, "INFO: FRAME " + std::to_string(ildaReader.current_frame_index + 1) + " OF " + std::to_string(ildaReader.projection_sections.size()));
-        uint16_t current_point_index = 0;
-        while (true) // always broken by time check
+        for (point &current_point : ildaReader.projection_sections[ildaReader.current_frame_index].points) // always broken by time check
         {
-            point &current_point = ildaReader.projection_sections[ildaReader.current_frame_index].points[current_point_index];
             // std::cout << "points[" << current_point_index << "]: x:" << current_point.x << ", y:" << current_point.y << ", R:" << static_cast<int>(current_point.red) << ", G:" << static_cast<int>(current_point.green) << ", B:" << static_cast<int>(current_point.blue) << std::endl;
             // Move galvos to x,y position.
             adcdac.set_dac_raw(current_point.x, 1);
@@ -334,18 +332,6 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options, IldaReader 
                 }
 
                 break;
-            }
-            current_point_index = (current_point_index + 1) % ildaReader.projection_sections[ildaReader.current_frame_index].points.size();
-        }
-        if (!options.paused)
-        {
-            if (options.time_accurate_framing)
-            {
-                IldaReader.start = std::chrono::system_clock::now() + std::chrono::milliseconds(options.targetFrameTime * IldaReader.current_frame_index);
-            }
-            else
-            {
-                ildaReader.current_frame_index++;
             }
         }
 
