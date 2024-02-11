@@ -21,37 +21,37 @@ void handle_enc_interrupts() // TODO: rewrite, register less interrupts
 	static bool encoder_pins_last_state[2] = {0, 0};
 	bool state[2] = {(bool)digitalRead(encoder_pins[0]), (bool)digitalRead(encoder_pins[1])};
 
-	// bool A_rising = state[0] && !encoder_pins_last_state[0];
-	// bool B_rising = state[1] && !encoder_pins_last_state[1];
+	bool A_rising = state[0] && !encoder_pins_last_state[0];
+	bool B_rising = state[1] && !encoder_pins_last_state[1];
 
 	bool A_falling = !state[0] && encoder_pins_last_state[0];
-	// bool B_falling = !state[1] && encoder_pins_last_state[1];
+	bool B_falling = !state[1] && encoder_pins_last_state[1];
 
-	if (/*A_rising  || B_rising ||*/ A_falling /* || B_falling*/) // dont need high precision, my encoder has feelable steps and 4 interrupts in each
+	if (A_rising  || B_rising || A_falling  || B_falling) // dont need high precision, my encoder has feelable steps and 4 interrupts in each
 	{
 
 		bool dir = 0;
 
-		// if (A_rising && !state[1])
-		// {
-		// 	dir = !dir;
-		// 	// else do nothing
-		// }
-		/*else */ if (/* A_falling && */ state[1])
+		if (A_rising && !state[1])
 		{
 			dir = !dir;
 			// else do nothing
 		}
-		// if (B_rising && state[0])
-		// {
-		// 	dir = !dir;
-		// 	// else do nothing
-		// }
-		// else if (B_falling && !state[0])
-		// {
-		// 	dir = !dir;
-		// 	// else do nothing
-		// }
+		else  if ( A_falling &&  state[1])
+		{
+			dir = !dir;
+			// else do nothing
+		}
+		if (B_rising && state[0])
+		{
+			dir = !dir;
+			// else do nothing
+		}
+		else if (B_falling && !state[0])
+		{
+			dir = !dir;
+			// else do nothing
+		}
 
 		// std::cout << "state: " << state[0] << state[1];
 		// std::cout << ", dir: " << dir << std::endl;
@@ -69,7 +69,7 @@ bool get_encoder_btn_pressed()
 
 int16_t get_encoder_pos()
 {
-	return encoder_pos;
+	return encoder_pos / INTERRUPTS_PER_ENCODER_STEP; // 4 interrupts per step
 }
 
 void clear_encoder_btn_pressed(bool set)
