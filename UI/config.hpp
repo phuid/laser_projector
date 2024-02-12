@@ -11,3 +11,5 @@ constexpr uint8_t LCD_SCL_PIN = 3;
 
 constexpr uint8_t SCREEN_HEIGHT = 4;
 constexpr uint8_t SCREEN_WIDTH = 20;
+
+constexpr uint8_t INTERRUPTS_PER_ENCODER_STEP = 4;

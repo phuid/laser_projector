@@ -62,66 +62,63 @@ void calculate_points(zmq::socket_t &publisher, options_struct options, IldaRead
 
     ildaReader.projection_sections = ildaReader.sections_from_file;
 
-    
-        lowest_x = ildaReader.sections_from_file[0].points[0].x;
-        highest_x = ildaReader.sections_from_file[0].points[0].x;
-        lowest_y = ildaReader.sections_from_file[0].points[0].y;
-        highest_y = ildaReader.sections_from_file[0].points[0].y;
-        // find furthest points in all frames and all directions (x+, x-, y+, y-)
-        for (size_t i = 0; i < ildaReader.sections_from_file.size(); i++)
+    lowest_x = ildaReader.sections_from_file[0].points[0].x;
+    highest_x = ildaReader.sections_from_file[0].points[0].x;
+    lowest_y = ildaReader.sections_from_file[0].points[0].y;
+    highest_y = ildaReader.sections_from_file[0].points[0].y;
+    // find furthest points in all frames and all directions (x+, x-, y+, y-)
+    for (size_t i = 0; i < ildaReader.sections_from_file.size(); i++)
+    {
+        for (size_t u = 0; u < ildaReader.sections_from_file[i].points.size(); u++)
         {
-            for (size_t u = 0; u < ildaReader.sections_from_file[i].points.size(); u++)
+            // std::cout << "point" << u << "lx:" << lowest_x << "hx:" << highest_x << "ly:" << lowest_y << "hy:" << highest_y << std::endl;
+            if (ildaReader.sections_from_file[i].points[u].x > highest_x)
             {
-                // std::cout << "point" << u << "lx:" << lowest_x << "hx:" << highest_x << "ly:" << lowest_y << "hy:" << highest_y << std::endl;
-                if (ildaReader.sections_from_file[i].points[u].x > highest_x)
-                {
-                    highest_x = ildaReader.sections_from_file[i].points[u].x;
-                }
-                else if (ildaReader.sections_from_file[i].points[u].x < lowest_x)
-                {
-                    lowest_x = ildaReader.sections_from_file[i].points[u].x;
-                }
+                highest_x = ildaReader.sections_from_file[i].points[u].x;
+            }
+            else if (ildaReader.sections_from_file[i].points[u].x < lowest_x)
+            {
+                lowest_x = ildaReader.sections_from_file[i].points[u].x;
+            }
 
-                if (ildaReader.sections_from_file[i].points[u].y > highest_y)
-                {
-                    highest_y = ildaReader.sections_from_file[i].points[u].y;
-                }
-                else if (ildaReader.sections_from_file[i].points[u].y < lowest_y)
-                {
-                    lowest_y = ildaReader.sections_from_file[i].points[u].y;
-                }
+            if (ildaReader.sections_from_file[i].points[u].y > highest_y)
+            {
+                highest_y = ildaReader.sections_from_file[i].points[u].y;
+            }
+            else if (ildaReader.sections_from_file[i].points[u].y < lowest_y)
+            {
+                lowest_y = ildaReader.sections_from_file[i].points[u].y;
             }
         }
+    }
 
-        //center the image -- also needed for scaling
-        int center_x = (lowest_x + highest_x) / 2;
-        int center_y = (lowest_y + highest_y) / 2;
+    // center the image -- also needed for scaling
+    int center_x = (lowest_x + highest_x) / 2;
+    int center_y = (lowest_y + highest_y) / 2;
 
-        for (size_t i = 0; i < ildaReader.sections_from_file.size(); i++)
+    for (size_t i = 0; i < ildaReader.sections_from_file.size(); i++)
+    {
+        for (size_t u = 0; u < ildaReader.sections_from_file[i].points.size(); u++)
         {
-            for (size_t u = 0; u < ildaReader.sections_from_file[i].points.size(); u++)
-            {
-                ildaReader.sections_from_file[i].points[u].x = ildaReader.sections_from_file[i].points[u].x + ((DAC_RAW_MAX / 2) - center_x);
-                ildaReader.sections_from_file[i].points[u].y = ildaReader.sections_from_file[i].points[u].y + ((DAC_RAW_MAX / 2) - center_y);
-            }
+            ildaReader.sections_from_file[i].points[u].x = ildaReader.sections_from_file[i].points[u].x + ((DAC_RAW_MAX / 2) - center_x);
+            ildaReader.sections_from_file[i].points[u].y = ildaReader.sections_from_file[i].points[u].y + ((DAC_RAW_MAX / 2) - center_y);
         }
+    }
 
-
-        // if (options.scale_up_proportionally) {
-        //     if (lowest_x > lowest_y) {
-        //         lowest_x = lowest_y;
-        //     }
-        //     else { //idc if theyre the same - then nothing changes
-        //         lowest_y = lowest_x;
-        //     }
-        //     if (highest_x < highest_y) {
-        //         highest_x = highest_y;
-        //     }
-        //     else { //idc if theyre the same - then nothing changes
-        //         highest_y = highest_x;
-        //     }
-        // }
-    
+    // if (options.scale_up_proportionally) {
+    //     if (lowest_x > lowest_y) {
+    //         lowest_x = lowest_y;
+    //     }
+    //     else { //idc if theyre the same - then nothing changes
+    //         lowest_y = lowest_x;
+    //     }
+    //     if (highest_x < highest_y) {
+    //         highest_x = highest_y;
+    //     }
+    //     else { //idc if theyre the same - then nothing changes
+    //         highest_y = highest_x;
+    //     }
+    // }
 
     for (size_t i = 0; i < ildaReader.projection_sections.size(); i++)
     {
@@ -254,13 +251,12 @@ bool lasershow_init(zmq::socket_t &publisher, options_struct &options, IldaReade
         gpioSetPWMfrequency(LASER_PINS[i], 100000);
     }
 
-    if (adcdac.open_dac() == -1)
+    if (!adcdac.open_dac())
     {
         printf("Failed to initialize MCP4822.\n\r");
-        publish_message(publisher, "ERROR: OTHER MCP4822 init fail");
+        publish_message(publisher, "ERROR: OTHER mpc4822 init fail");
         return 1;
     }
-    adcdac.set_dac_gain(2);
 
     if (ildaReader.readFile(publisher, options.project_filename) == 0 && ildaReader.sections_from_file.size() != 0)
     {
@@ -310,7 +306,7 @@ uint16_t get_frame_by_time(zmq::socket_t &publisher, const options_struct &optio
 // return: 0-success, 1-error, 2-end of projection
 int lasershow_loop(zmq::socket_t &publisher, options_struct options, IldaReader &ildaReader)
 {
-    if (options.time_accurate_framing)
+    if (!options.paused)
     {
         ildaReader.current_frame_index = get_frame_by_time(publisher, options);
     }
@@ -318,10 +314,8 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options, IldaReader 
     {
         std::cout << "frame\t" << ildaReader.current_frame_index + 1 << "\tof\t" << ildaReader.projection_sections.size() << std::endl;
         publish_message(publisher, "INFO: FRAME " + std::to_string(ildaReader.current_frame_index + 1) + " OF " + std::to_string(ildaReader.projection_sections.size()));
-        uint16_t current_point_index = 0;
-        while (true) // always broken by time check
+        for (point &current_point : ildaReader.projection_sections[ildaReader.current_frame_index].points) // always broken by time check
         {
-            point &current_point = ildaReader.projection_sections[ildaReader.current_frame_index].points[current_point_index];
             // std::cout << "points[" << current_point_index << "]: x:" << current_point.x << ", y:" << current_point.y << ", R:" << static_cast<int>(current_point.red) << ", G:" << static_cast<int>(current_point.green) << ", B:" << static_cast<int>(current_point.blue) << std::endl;
             // Move galvos to x,y position.
             adcdac.set_dac_raw(current_point.x, 1);
@@ -342,11 +336,6 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options, IldaReader 
                 for (size_t i = 0; i < 3; i++)
                 {
                     gpioWrite(LASER_PINS[i], 0);
-                }
-                if (!options.paused)
-                {
-                    ildaReader.current_frame_index++;
-                    current_point_index = 0;
                 }
 
                 break;

@@ -75,7 +75,7 @@ any process can send a command into the socket and all processes will read respo
     - `repeat`
     - `trapeziod_horizontal`
     - `trapeziod_vertical`
-  - `value` only read when using `write` parameter, message won't be processed and `INVALID_CMD` error will be set back through the socket if other modes are used and value is specified
+  - `value` only read when using `write` parameter
 
 ###### responses:
 lasershow exec can write to the socket at any time

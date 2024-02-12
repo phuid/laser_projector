@@ -25,7 +25,6 @@ int main()
   command_receiver.set(zmq::sockopt::subscribe, "");
 
   zmq::message_t received;
-  zmq::message_t msg_to_send;
 
   options_struct options;
   if (options.loadFromFile(publisher, "./lasershow.cfg"))
@@ -93,7 +92,8 @@ int main()
             first_repeat = 1;
             break;
           }
-          else if (exec_val == 3) {
+          else if (exec_val == 3)
+          {
             calculate_points(publisher, options, ildaReader);
           }
           command_receiver.recv(received, zmq::recv_flags::dontwait);
@@ -115,7 +115,7 @@ int main()
       if (options.paused == 1) // stopped
         break;
     }
-      lasershow_cleanup(0);
-      publish_message(publisher, "INFO: lasershow cleanup");
+    lasershow_cleanup(0);
+    publish_message(publisher, "INFO: lasershow cleanup");
   }
 }
