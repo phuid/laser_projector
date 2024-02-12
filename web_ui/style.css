@@ -105,12 +105,21 @@ svg {
   filter: saturate(4);
 }
 
+#settings {
+  overflow: scroll;
+}
+
+#settings > table {
+  width: 90%;
+}
+
 @media screen and (orientation: landscape) {
   .swiperstyle {
     position: absolute;
     top: 10%;
     left: 0;
-    height: 90%;
+    /* height: 90%; */
+    bottom: 12%;
     right: 0;
     z-index: 6;
     padding: 10px;
@@ -125,7 +134,7 @@ svg {
     left: 0;
     top: 0;
     width: 50%;
-    bottom: 15%;
+    bottom: 0;
   }
   
   #lasershow-terminal-container {
@@ -133,15 +142,15 @@ svg {
     left: 50%;
     top: 0;
     width: 50%;
-    height: 45%;
+    height: 50%;
   }
   
   #wifiman-terminal-container {
     position: absolute;
     left: 50%;
-    top: 45%;
+    top: 50%;
     width: 50%;
-    height: 45%;
+    bottom: 0%;
   }
   
   #fileupload {
@@ -193,7 +202,7 @@ svg {
     z-index: 2;
   }
 
-  input {
+  .forminput {
     font-size: 2rem;
     width: 100%;
   }
@@ -240,13 +249,13 @@ svg {
     justify-content: space-evenly;
   }
 
-  #nowplaying > div {
-    height: 2vh;
+  #nowplaying > div, #progress > div {
+    height: 4vh;
+    width: 4vh;
     margin: 1%;
     text-align: center;
-    flex-grow: 0.105;
     /* height: 80%; */
-    padding: calc(4% - 0.5rem) 0;
+    padding: calc(4vh - 1rem);
   }
   
   #queue {
@@ -264,6 +273,20 @@ svg {
     bottom: 11vh;
     top: 10vh;
     z-index: 12;
+  }
+
+  #progress {
+    position: absolute;
+    left: 50%;
+    right: 0;
+    top: 90%;
+    height: 10%;
+  }
+
+  #current_frame {
+    flex-grow: 100;
+    flex-direction: row;
+    justify-content: space-evenly;
   }
 }
 

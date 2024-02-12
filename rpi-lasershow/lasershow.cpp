@@ -130,20 +130,22 @@ void calculate_points(zmq::socket_t &publisher, options_struct options, IldaRead
         {
             point &current_point = current_section.points[u];
 
-            if (options.scale)
+            if (options.scale_x != 1)
             {
                 current_point.x = map(current_point.x, lowest_x, highest_x, (DAC_RAW_MAX / 2) - options.scale_x * ((DAC_RAW_MAX / 2) - lowest_x), (DAC_RAW_MAX / 2) + options.scale_x * (highest_x - (DAC_RAW_MAX / 2)));
-                current_point.y = map(current_point.y, lowest_y, highest_y, (DAC_RAW_MAX / 2) - options.scale_y * ((DAC_RAW_MAX / 2) - lowest_y), (DAC_RAW_MAX / 2) + options.scale_y * (highest_y - (DAC_RAW_MAX / 2)));
-
                 lowest_x = map(lowest_x, lowest_x, highest_x, (DAC_RAW_MAX / 2) - options.scale_x * ((DAC_RAW_MAX / 2) - lowest_x), (DAC_RAW_MAX / 2) + options.scale_x * (highest_x - (DAC_RAW_MAX / 2)));
-                lowest_y = map(lowest_y, lowest_y, highest_y, (DAC_RAW_MAX / 2) - options.scale_y * ((DAC_RAW_MAX / 2) - lowest_y), (DAC_RAW_MAX / 2) + options.scale_y * (highest_y - (DAC_RAW_MAX / 2)));
                 highest_x = map(highest_x, lowest_x, highest_x, (DAC_RAW_MAX / 2) - options.scale_x * ((DAC_RAW_MAX / 2) - lowest_x), (DAC_RAW_MAX / 2) + options.scale_x * (highest_x - (DAC_RAW_MAX / 2)));
+            }
+            if (options.scale_y != 1)
+            {
+                current_point.y = map(current_point.y, lowest_y, highest_y, (DAC_RAW_MAX / 2) - options.scale_y * ((DAC_RAW_MAX / 2) - lowest_y), (DAC_RAW_MAX / 2) + options.scale_y * (highest_y - (DAC_RAW_MAX / 2)));
+                lowest_y = map(lowest_y, lowest_y, highest_y, (DAC_RAW_MAX / 2) - options.scale_y * ((DAC_RAW_MAX / 2) - lowest_y), (DAC_RAW_MAX / 2) + options.scale_y * (highest_y - (DAC_RAW_MAX / 2)));
                 highest_y = map(highest_y, lowest_y, highest_y, (DAC_RAW_MAX / 2) - options.scale_y * ((DAC_RAW_MAX / 2) - lowest_y), (DAC_RAW_MAX / 2) + options.scale_y * (highest_y - (DAC_RAW_MAX / 2)));
             }
-            if (options.move_x != 0 && options.move_y != 0)
+
+            if (options.move_x != 0)
             {
                 int move_x = options.move_x;
-                int move_y = options.move_y;
 
                 // check if the translation doesnt go out of bounds ? set to max possible value
                 if (highest_x + options.move_x > DAC_RAW_MAX)
@@ -156,6 +158,12 @@ void calculate_points(zmq::socket_t &publisher, options_struct options, IldaRead
                     publish_message(publisher, "WARN: translation set to min possible value");
                     move_x = -lowest_x;
                 }
+
+                current_point.x = current_point.x + move_x;
+            }
+            if (options.move_y != 0)
+            {
+                int move_y = options.move_y;
                 if (highest_y + options.move_y > DAC_RAW_MAX)
                 {
                     publish_message(publisher, "WARN: translation set to max possible value");
@@ -166,8 +174,6 @@ void calculate_points(zmq::socket_t &publisher, options_struct options, IldaRead
                     publish_message(publisher, "WARN: translation set to min possible value");
                     move_y = -lowest_y;
                 }
-
-                current_point.x = current_point.x + move_x;
                 current_point.y = current_point.y + move_y;
             }
 
@@ -231,7 +237,7 @@ void calculate_points(zmq::socket_t &publisher, options_struct options, IldaRead
     }
 }
 
-bool lasershow_init(zmq::socket_t &publisher, options_struct options, IldaReader &ildaReader, options_struct &options)
+bool lasershow_init(zmq::socket_t &publisher, options_struct &options, IldaReader &ildaReader)
 {
     // Setup hardware communication stuff.
     if (gpioInitialise() < 0)
@@ -288,15 +294,15 @@ bool lasershow_init(zmq::socket_t &publisher, options_struct options, IldaReader
 uint16_t get_frame_by_time(zmq::socket_t &publisher, const options_struct &options)
 {
     uint16_t frame_index = 0;
-    uint16_t frame_time = options.targetFrameTime;
+    uint16_t frame_time = options.target_frame_time;
     if (frame_time < 1)
     {
-        publish_message(publisher, "WARNING: frame index calculaed from targetFrameTime 1, instead of 0, which is the actual value.");
+        publish_message(publisher, "WARNING: frame index calculaed from target_frame_time 1, instead of 0, which is the actual value.");
         frame_time = 1;
     }
     std::chrono::time_point<std::chrono::system_clock> current_time = std::chrono::system_clock::now();
     int64_t millis_since_start = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - options.start).count();
-    frame_index = millis_since_start / options.frame_time;
+    frame_index = millis_since_start / options.target_frame_time;
 
     return frame_index;
 }
@@ -306,7 +312,7 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options, IldaReader 
 {
     if (options.time_accurate_framing)
     {
-        IldaReader.current_frame_index = get_frame_by_time(publisher, options);
+        ildaReader.current_frame_index = get_frame_by_time(publisher, options);
     }
     if (ildaReader.current_frame_index < ildaReader.projection_sections.size())
     {
@@ -327,12 +333,12 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options, IldaReader 
             }
 
             // Maybe wait a while there.
-            if (options.pointDelay > 0)
-                gpioDelay(options.pointDelay);
+            if (options.point_delay > 0)
+                gpioDelay(options.point_delay);
             // check the time and move on to the next frame
-            if (!options.alwaysProjectFullFrames && options.targetFrameTime * (IldaReader.current_frame_index + 1) < std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start).count())
+            if (!options.always_project_full_frames && options.target_frame_time * (ildaReader.current_frame_index + 1) < std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - options.start).count())
             {
-                start = std::chrono::system_clock::now();
+                options.start = std::chrono::system_clock::now();
                 for (size_t i = 0; i < 3; i++)
                 {
                     gpioWrite(LASER_PINS[i], 0);
@@ -351,7 +357,8 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options, IldaReader 
             ildaReader.current_frame_index++;
         }
         else {
-            IldaReader.start = std::chrono::system_clock::now() + std::chrono::milliseconds(options.targetFrameTime * IldaReader.current_frame_index);
+            options.start = std::chrono::system_clock::now() - std::chrono::milliseconds(options.target_frame_time * ildaReader.current_frame_index);
+            std::cout << "time:" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - options.start).count() << std::endl;
         }
 
         return 0;

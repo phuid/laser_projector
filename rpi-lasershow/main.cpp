@@ -46,14 +46,12 @@ int main()
     {
       // options.project_filename = "";
       command_receiver.recv(received, zmq::recv_flags::none); // blocking
-      int exec_val = command.execute(received.to_string(), publisher, options);
-      if (exec_val == 0 || exec_val == 1)
+      int exec_val = command.execute(received.to_string(), publisher, options, ildaReader);
+      if (exec_val != 2) 
       {
         continue;
       }
-      else if (exec_val == 3) {
-        calculate_points(publisher, options, ildaReader);
-      }
+      //else PROJECT
     }
     else
     {
@@ -80,7 +78,7 @@ int main()
         command_receiver.recv(received, zmq::recv_flags::dontwait);
         while (received.size() > 0)
         {
-          int exec_val = command.execute(received.to_string(), publisher, options);
+          int exec_val = command.execute(received.to_string(), publisher, options, ildaReader);
           std::cout << "exec_val: " << exec_val << std::endl;
           if (exec_val == 1)
           {
@@ -103,7 +101,7 @@ int main()
         if (first_repeat == 0)
         {
           // draw, if an error or end of file is reached, break
-          int loop_val = lasershow_loop(publisher, options, ildaReader, start);
+          int loop_val = lasershow_loop(publisher, options, ildaReader);
           if (loop_val == 2)
             break;
           else if (loop_val == 1)

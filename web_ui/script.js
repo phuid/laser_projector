@@ -119,6 +119,21 @@ socket.on("sshdata", function (data) {
 socket.on("LASERSHOWmsg", function (data) {
   console.log(data);
   terminals.lasershow.term.write(data.replace(/\n/g, "\n\r"));
+
+  const words = data.split(" ");
+
+  if (words.length > 0) {
+    if (words[0] == "INFO:") {
+      if (words.length > 1) {
+        if (words[1] == "OPTION") {
+          if (words.length > 3) {
+            document.getElementById(words[2]).value = Number(words[3]);
+            document.getElementById(words[2] + "-output").innerHTML = Number(words[3]);
+          }
+        }
+      }
+    }
+  }
 });
 // Backend -> Browser
 socket.on("WIFIMANmsg", function (data) {
@@ -129,7 +144,19 @@ socket.on("alert", (alert) => {
   alert(alert);
 });
 
+function setMyVal(el) {
+  socket.emit("LASERSHOWdata", "OPTION write " + el.id + " " + el.value.toString());
+  terminals.lasershow.term.write("OPTION write " + el.id + " " + el.value.toString() + "\n\r");
+}
+
+function readsettings() {
+  Object.entries(document.getElementById("settings").getElementsByTagName("input")).forEach(el => {
+    socket.emit("LASERSHOWdata", "OPTION read " + el[1].id);
+  });
+}
+
 $("#fileupload").submit(function (e) {
+  console.log("upload");
   e.preventDefault(); // prevent actual form submit
   var postData = new FormData(this);
   $.ajax({
@@ -168,6 +195,24 @@ $("#projectsvg").on("click", () => {
   $.ajax({
     type: "POST",
     url: "/project",
+    data: postData,
+    contentType: false, //this is requireded please see answers above
+    processData: false, //this is requireded please see answers above
+    success: function (data) {
+      terminals.ssh.write("\n" + data);
+    },
+    error: function (data) {
+      alert("ERROR\n" + data);
+    },
+  });
+});
+
+$("#uploadsvg").on("click", () => {
+  console.log("upload");
+  var postData = new FormData(document.getElementById("fileupload"));
+  $.ajax({
+    type: "POST",
+    url: "/fileupload",
     data: postData,
     contentType: false, //this is requireded please see answers above
     processData: false, //this is requireded please see answers above

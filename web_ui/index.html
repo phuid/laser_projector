@@ -24,8 +24,8 @@
 
 <body>
   <form id="fileupload" action="fileupload" method="post" enctype="multipart/form-data">
-    <input type="file" id="filetoupload" name="filetoupload"><br>
-    <input id="uploadbutton" class="button" type="submit" value="upload">
+    <input class="forminput" type="file" id="filetoupload" name="filetoupload"><br>
+    <input id="uploadbutton" class="button forminput type=" submit" value="upload">
     <svg version="1.1" id="uploadsvg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
       x="0px" y="0px" viewBox="0 0 300 300" style="enable-background:new 0 0 300 300;" xml:space="preserve">
       <g>
@@ -47,7 +47,11 @@
     </svg>
   </form>
   <div id="paintdiv">
-    <svg class="svg-icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M922.857143 0q40 0 70 26.571429t30 66.571429q0 36-25.714286 86.285714-189.714286 359.428571-265.714286 429.714286-55.428571 52-124.571429 52-72 0-123.714286-52.857143t-51.714286-125.428571q0-73.142857 52.571429-121.142857l364.571429-330.857143q33.714286-30.857143 74.285714-30.857143zm-519.428571 590.857143q22.285714 43.428571 60.857143 74.285714t86 43.428571l0.571429 40.571429q2.285714 121.714286-74 198.285714t-199.142857 76.571429q-70.285714 0-124.571429-26.571429t-87.142857-72.857143-49.428571-104.571429-16.571429-125.714286q4 2.857143 23.428571 17.142857t35.428571 25.428571 33.714286 20.857143 26.285714 9.714286q23.428571 0 31.428571-21.142857 14.285714-37.714286 32.857143-64.285714t39.714286-43.428571 50.285714-27.142857 58.857143-14.571429 71.428571-6z"  /></svg>
+    <svg class="svg-icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;"
+      viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M922.857143 0q40 0 70 26.571429t30 66.571429q0 36-25.714286 86.285714-189.714286 359.428571-265.714286 429.714286-55.428571 52-124.571429 52-72 0-123.714286-52.857143t-51.714286-125.428571q0-73.142857 52.571429-121.142857l364.571429-330.857143q33.714286-30.857143 74.285714-30.857143zm-519.428571 590.857143q22.285714 43.428571 60.857143 74.285714t86 43.428571l0.571429 40.571429q2.285714 121.714286-74 198.285714t-199.142857 76.571429q-70.285714 0-124.571429-26.571429t-87.142857-72.857143-49.428571-104.571429-16.571429-125.714286q4 2.857143 23.428571 17.142857t35.428571 25.428571 33.714286 20.857143 26.285714 9.714286q23.428571 0 31.428571-21.142857 14.285714-37.714286 32.857143-64.285714t39.714286-43.428571 50.285714-27.142857 58.857143-14.571429 71.428571-6z" />
+    </svg>
   </div>
   <div class='swiper swiperstyle'>
     <div class='swiper-wrapper width100'>
@@ -62,27 +66,183 @@
     <!-- <div class="swiper-button-prev landscape-invisible"></div>
     <div class="swiper-button-next landscape-invisible"></div> -->
   </div>
-  <div id="settings">yeahyfashjgfhSEETTINGS</div>
+  <table id="settings">
+    <tr class="option">
+      <td class="options-name">
+        point_delay
+      </td>
+      <td>
+        <input oninput="setMyVal(this)" id="point_delay" type="number">
+    </tr>
+    <tr class="option">
+      <td class="options-name">
+        target_frame_time
+      </td>
+      <td>
+        <input oninput="setMyVal(this)" id="target_frame_time" type="number">
+    </tr>
+    <tr class="option">
+      <td class="options-name">
+        time_accurate_framing
+      </td>
+      <td>
+        <input oninput="setMyVal(this)" id="time_accurate_framing" type="checkbox">
+        </div>
+    <tr>
+    <tr class="option">
+      <td class="options-name">
+        trapezoid_vertical
+      </td>
+      <td>
+        <input oninput="setMyVal(this)" id="trapezoid_vertical" type="range" min="-1" max="1" value="0" step="0.001">
+      </td>
+      <td id="trapezoid_vertical-output"></td>
+    </tr>
+    <tr class="option">
+      <td class="options-name">
+        trapezoid_horizontal
+      </td>
+      <td>
+        <input oninput="setMyVal(this)" id="trapezoid_horizontal" type="range" min="-1" max="1" value="0" step="0.001">
+      </td>
+      <td id="trapezoid_horizontal-output"></td>
+    </tr>
+    <tr class="option">
+      <td class="options-name">
+        scale_x
+      </td>
+      <td>
+        <input oninput="setMyVal(this)" id="scale_x" type="range" min="-1" max="1" value="0" step="0.001">
+      </td>
+      <td id="scale_x-output"></td>
+    </tr>
+    <tr class="option">
+      <td class="options-name">
+        scale_y
+      </td>
+      <td>
+        <input oninput="setMyVal(this)" id="scale_y" type="range" min="-1" max="1" value="0" step="0.001">
+      </td>
+      <td id="scale_y-output"></td>
+    </tr>
+    <tr class="option">
+      <td class="options-name">
+        move_x
+      </td>
+      <td>
+        <input oninput="setMyVal(this)" id="move_x" type="range" min="-1" max="1" value="0" step="0.001">
+      </td>
+      <td id="move_x-output"></td>
+    </tr>
+    <tr class="option">
+      <td class="options-name">
+        move_y
+      </td>
+      <td>
+        <input oninput="setMyVal(this)" id="move_y" type="range" min="-1" max="1" value="0" step="0.001">
+      </td>
+      <td id="move_y-output"></td>
+      </div>
+    <tr>
+    <tr class="option">
+      <td class="options-name">
+        laser_brightness
+      </td>
+      <td>
+        <input oninput="setMyVal(this)" id="laser_brightness" type="range" min="0" max="1" value="0.3" step="0.001">
+      </td>
+      <td id="laser_brightness-output"></td>
+    </tr>
+    <tr class="option">
+      <td class="options-name">
+        laser_red_brightness
+      </td>
+      <td>
+        <input oninput="setMyVal(this)" id="laser_red_brightness" type="range" min="0" max="1" value="1" step="0.001">
+      </td>
+      <td id="laser_red_brightness-output"></td>
+    </tr>
+    <tr class="option">
+      <td class="options-name">
+        laser_green_brightness
+      </td>
+      <td>
+        <input oninput="setMyVal(this)" id="laser_green_brightness" type="range" min="0" max="1" value="1" step="0.001">
+      </td>
+      <td id="laser_green_brightness-output"></td>
+    </tr>
+    <tr class="option">
+      <td class="options-name">
+        laser_blue_brightness
+      </td>
+      <td>
+        <input oninput="setMyVal(this)" id="laser_blue_brightness" type="range" min="0" max="1" value="1" step="0.001">
+      </td>
+      <td id="laser_blue_brightness-output"></td>
+      </div>
+    <tr>
+    <tr class="option">
+      <td class="options-name">
+        laser_red_br_offset
+      </td>
+      <td>
+        <input oninput="setMyVal(this)" id="laser_red_br_offset" type="range" min="-255" max="255" value="0" step="1">
+      </td>
+      <td id="laser_red_br_offset-output"></td>
+    </tr>
+    <tr class="option">
+      <td class="options-name">
+        laser_green_br_offset
+      </td>
+      <td>
+        <input oninput="setMyVal(this)" id="laser_green_br_offset" type="range" min="-255" max="255" value="0" step="1">
+      </td>
+      <td id="laser_green_br_offset-output"></td>
+    </tr>
+    <tr class="option">
+      <td class="options-name">
+        laser_blue_br_offset
+      </td>
+      <td>
+        <input oninput="setMyVal(this)" id="laser_blue_br_offset" type="range" min="-255" max="255" value="0" step="1">
+      </td>
+      <td id="laser_blue_br_offset-output"></td>
+    </tr>
+  </table>
   <div id="queue">hellyea</div>
   <div id="nowplaying" class="flex-container">
-    <div id="settingsbtn" onclick="toggledisplay(document.getElementById('settings')); this.classList.toggle('saturate')">s</div>
+    <div id="settingsbtn"
+      onclick="toggledisplay(document.getElementById('settings')); this.classList.toggle('saturate'); readsettings();">s</div>
     <div id="shufflebtn">sh</div>
-    <div id="back"> << </div>
-    <div id="play">></div>
-    <div id="forward">>></div>
-    <div id="repeatbtn">r</div>
-    <div id="queuebtn" onclick="toggledisplay(document.getElementById('queue')); this.classList.toggle('saturate')">=</div>
-  </div>
-  <form id="projectionform" action="project" method="post" enctype="multipart/form-data">
-    <select id="lastpatharea" name="filename" placeholder="name of ild file here"></select>
-    <input id="projectbutton" type="submit" />
-    <svg id="projectsvg" width="20px" height="20px" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path fill-rule="evenodd" clip-rule="evenodd"
-        d="M1.68542 6.65868C0.758716 6.96758 0.779177 8.28543 1.71502 8.56541L9.20844 10.8072L11.6551 18.5165C11.948 19.4394 13.2507 19.4488 13.5569 18.5302L18.8602 2.62029C19.1208 1.83853 18.3771 1.09479 17.5953 1.35538L1.68542 6.65868ZM5.31842 7.55586L16.3304 3.8852L12.6316 14.9817L10.9548 9.69826C10.8547 9.38295 10.6052 9.13754 10.2883 9.04272L5.31842 7.55586Z"
-        fill="currentColor" />
-      <path d="M17.7674 1.43951L18.8105 2.51742L9.98262 11.0605L8.93948 9.98265L17.7674 1.43951Z" fill="currentColor" />
-    </svg>
-  </form>
+    <div id="back">
+      << </div>
+        <div id="play">></div>
+        <div id="forward">>></div>
+        <div id="repeatbtn">r</div>
+        <div id="queuebtn" onclick="toggledisplay(document.getElementById('queue')); this.classList.toggle('saturate')">
+          =</div>
+    </div>
+
+    <div id="progress" class="flex-container">
+      <div>filename</div>
+      <div id="current_frame-output">0</div>
+      <input oninput="setMyVal(this)" id="current_frame" type="range" min="0" max="0" value="0" step="1">
+      <div id="current_frame-max">0</div>
+    </div>
+
+
+    <form id="projectionform" action="project" method="post" enctype="multipart/form-data">
+      <select id="lastpatharea" name="filename" placeholder="name of ild file here"></select>
+      <input id="projectbutton" class="forminput" type="submit" />
+      <svg id="projectsvg" width="20px" height="20px" viewBox="0 0 20 20" fill="none"
+        xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" clip-rule="evenodd"
+          d="M1.68542 6.65868C0.758716 6.96758 0.779177 8.28543 1.71502 8.56541L9.20844 10.8072L11.6551 18.5165C11.948 19.4394 13.2507 19.4488 13.5569 18.5302L18.8602 2.62029C19.1208 1.83853 18.3771 1.09479 17.5953 1.35538L1.68542 6.65868ZM5.31842 7.55586L16.3304 3.8852L12.6316 14.9817L10.9548 9.69826C10.8547 9.38295 10.6052 9.13754 10.2883 9.04272L5.31842 7.55586Z"
+          fill="currentColor" />
+        <path d="M17.7674 1.43951L18.8105 2.51742L9.98262 11.0605L8.93948 9.98265L17.7674 1.43951Z"
+          fill="currentColor" />
+      </svg>
+    </form>
 
 </body>
 
