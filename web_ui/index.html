@@ -58,8 +58,10 @@
       <div id="ssh-terminal-container" class="terminal-container swiper-slide" onclick="focusOnTextArea(this)">
       </div>
       <div id="lasershow-terminal-container" class="terminal-container swiper-slide" onclick="focusOnTextArea(this)">
+        <div id="ls_input" class="console-input">lasershow $ </div>
       </div>
       <div id="wifiman-terminal-container" class="terminal-container swiper-slide" onclick="focusOnTextArea(this)">
+        <div id="wifiman_input" class="console-input">wifi_manager $ </div>
       </div>
     </div>
     <div class="swiper-pagination landscape-invisible"></div>
@@ -224,7 +226,7 @@
     </div>
 
     <div id="progress" class="flex-container">
-      <div>filename</div>
+      <div id="current_filename">filename</div>
       <div id="current_frame-output">0</div>
       <input oninput="setMyVal(this)" id="current_frame" type="range" min="0" max="0" value="0" step="1">
       <div id="current_frame-max">0</div>

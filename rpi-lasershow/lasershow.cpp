@@ -340,12 +340,8 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options, IldaReader 
 
                 break;
             }
-            current_point_index = (current_point_index + 1) % ildaReader.projection_sections[ildaReader.current_frame_index].points.size();
         }
-        if (!options.paused) {
-            ildaReader.current_frame_index++;
-        }
-        else {
+        if (options.paused) {
             options.start = std::chrono::system_clock::now() - std::chrono::milliseconds(options.target_frame_time * ildaReader.current_frame_index);
             std::cout << "time:" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - options.start).count() << std::endl;
         }

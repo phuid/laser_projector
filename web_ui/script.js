@@ -2,8 +2,7 @@ function toggledisplay(el) {
   console.log("changing display on", el);
   if (el.style.display != "block") {
     el.style.display = "block";
-  }
-  else {
+  } else {
     el.style.display = "none";
   }
 }
@@ -12,7 +11,8 @@ class terminal {
   constructor(container_id) {
     this.container = document.getElementById(container_id);
     this.term = new Terminal({
-      cursorBlink: true,
+      cursorBlink: container_id == "ssh-terminal-container",
+      cursorWidth: container_id == "ssh-terminal-container",
       allowTransparency: true,
       drawBoldTextInBrightColors: true,
       fontSize:
@@ -45,18 +45,27 @@ if (screen.availHeight > screen.availWidth) {
       clickable: true,
     },
   });
-}
-else {
-  console.log("landscape detected - removing swiper classes")
-  const classes_to_remove_in_landscape = ["swiper", "swiper-wrapper", "swiper-slide", "swiper-pagination", "swiper-button-prev", "swiper-button-next"];
+} else {
+  console.log("landscape detected - removing swiper classes");
+  const classes_to_remove_in_landscape = [
+    "swiper",
+    "swiper-wrapper",
+    "swiper-slide",
+    "swiper-pagination",
+    "swiper-button-prev",
+    "swiper-button-next",
+  ];
   classes_to_remove_in_landscape.forEach((classname) => {
-    for (var i = 0; i < document.getElementsByClassName(classname).length; i++){
+    for (
+      var i = 0;
+      i < document.getElementsByClassName(classname).length;
+      i++
+    ) {
       console.log(document.getElementsByClassName(classname)[i]);
-      document.getElementsByClassName(classname)[i].classList.remove(classname)
+      document.getElementsByClassName(classname)[i].classList.remove(classname);
     }
   });
 }
-
 
 var terminals = {
   ssh: new terminal("ssh-terminal-container"),
@@ -83,32 +92,33 @@ terminals.ssh.term.onData(function (ev) {
 });
 
 // Browser -> Backend
-lasershow_line = ""
+lasershow_line = "";
 terminals.lasershow.term.onData(function (ev) {
   string = ev.toString();
   lasershow_line += string;
   if (string.match(/\n|\r/gi) != null) {
-    lasershow_line = lasershow_line.replace(/\n|\r/gi, "")
+    lasershow_line = lasershow_line.replace(/\n|\r/gi, "");
     socket.emit("LASERSHOWdata", lasershow_line);
-    terminals.lasershow.term.write("\n\r> ");
+    terminals.lasershow.term.write("lasershow $ " + lasershow_line + "\n\r");
+    document.getElementById("ls_input").innerHTML = "lasershow $ ";
     lasershow_line = "";
-  } else {
-    terminals.lasershow.term.write(ev);
   }
+  document.getElementById("ls_input").innerHTML =
+    "lasershow $ " + lasershow_line;
 });
 // Browser -> Backend
-wifiman_line = ""
+wifiman_line = "";
 terminals.wifiman.term.onData(function (ev) {
   string = ev.toString();
   wifiman_line += string;
   if (string.match(/\n|\r/g) != null) {
-    wifiman_line = wifiman_line.replace(/\n|\r/g, "")
+    wifiman_line = wifiman_line.replace(/\n|\r/g, "");
     socket.emit("WIFIMANdata", wifiman_line);
-    terminals.wifiman.term.write("\n\r> ");
+    terminals.wifiman.term.write("wifi_manager $ " + wifiman_line + "\n\r");
     wifiman_line = "";
-  } else {
-    terminals.wifiman.term.write(ev);
   }
+  document.getElementById("wifiman_input").innerHTML =
+    "wifi_manager $ " + wifiman_line;
 });
 
 // Backend -> Browser
@@ -125,11 +135,23 @@ socket.on("LASERSHOWmsg", function (data) {
   if (words.length > 0) {
     if (words[0] == "INFO:") {
       if (words.length > 1) {
-        if (words[1] == "OPTION") {
-          if (words.length > 3) {
-            document.getElementById(words[2]).value = Number(words[3]);
-            document.getElementById(words[2] + "-output").innerHTML = Number(words[3]);
-          }
+        if (words[1] == "OPTION" && words.length > 3) {
+          document.getElementById(words[2]).value = Number(words[3]);
+          document.getElementById(words[2] + "-output").innerHTML = Number(
+            words[3]
+          );
+        } else if (words[1] == "FRAME" && words.length > 4) {
+          document.getElementById("current_frame").value = Number(words[2]);
+          document.getElementById("current_frame-output").innerHTML = Number(
+            words[2]
+          );
+          document.getElementById("current_frame").max = Number(words[4]);
+          document.getElementById("current_frame-max").innerHTML = Number(
+            words[4]
+          );
+        } else if (words[1] == "PROJECT" && words.length > 2) {
+          split_dirs = words[2].split("/");
+          document.getElementById("current_filename").innerHTML = split_dirs[split_dirs.length - 1];
         }
       }
     }
@@ -145,12 +167,19 @@ socket.on("alert", (alert) => {
 });
 
 function setMyVal(el) {
-  socket.emit("LASERSHOWdata", "OPTION write " + el.id + " " + el.value.toString());
-  terminals.lasershow.term.write("OPTION write " + el.id + " " + el.value.toString() + "\n\r");
+  socket.emit(
+    "LASERSHOWdata",
+    "OPTION write " + el.id + " " + el.value.toString()
+  );
+  terminals.lasershow.term.write(
+    "> OPTION write " + el.id + " " + el.value.toString() + "\n\r"
+  );
 }
 
 function readsettings() {
-  Object.entries(document.getElementById("settings").getElementsByTagName("input")).forEach(el => {
+  Object.entries(
+    document.getElementById("settings").getElementsByTagName("input")
+  ).forEach((el) => {
     socket.emit("LASERSHOWdata", "OPTION read " + el[1].id);
   });
 }

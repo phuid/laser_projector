@@ -113,6 +113,16 @@ svg {
   width: 90%;
 }
 
+.console-input {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  height: 1rem;
+  background-color: var(--text-1);
+  color: var(--background-1);
+}
+
 @media screen and (orientation: landscape) {
   .swiperstyle {
     position: absolute;
