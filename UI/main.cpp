@@ -282,12 +282,22 @@ int main()
     }
     /* Create a LCD given SCL, SDA and I2C address, 4 lines */
     /* PCF8574 has default address 0x27 */
-    lcd_t *lcd = lcd_create(LCD_SCL_PIN, LCD_SDA_PIN, 0x27, SCREEN_HEIGHT);
 
-    if (lcd == NULL)
+    lcd_t *lcd = lcd_create(LCD_SCL_PIN, LCD_SDA_PIN, 0x27, SCREEN_HEIGHT);
+    for (int8_t i = 10; i >= 0; i++){
+
+    lcd = lcd_create(LCD_SCL_PIN, LCD_SDA_PIN, 0x27, SCREEN_HEIGHT);
+    if (lcd != NULL)
     {
-        printf("Cannot set-up LCD.\n");
+        break;
+    }
+        printf("Cannot set-up LCD. remaining attempts: %d\n", i);
+        if (i == 0)
+        {
+            printf("exit");
         return 1;
+        }
+        delay(1000);
     }
 
     lcd_init(lcd);
@@ -369,7 +379,7 @@ int main()
                         .name = "point_delay",
                         .command_name = "point_delay",
                         .style = VALUE,
-                        .value = {0, 0, 10000, 10},
+                        .value = {0, 0, 10000, 1},
                     },
                     {
                         .name = "target_frame_time",
