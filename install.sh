@@ -263,6 +263,8 @@ else
     fi
 fi
 
+sudo apt-get install dnsmasq -y
+
 echo -e "${On_IWhite}##${Color_Off} configuring AP ${On_IWhite}##${Color_Off}"
 
 # echo -e "${On_IWhite}###${Color_Off} diverting ${Yellow}dhcpcd${Color_Off} config to custom file ${On_IWhite}##${Color_Off}"

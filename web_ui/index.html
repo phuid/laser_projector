@@ -68,181 +68,218 @@
     <!-- <div class="swiper-button-prev landscape-invisible"></div>
       <div class="swiper-button-next landscape-invisible"></div> -->
   </div>
-  <table id="settings">
-
-    <tr class="option">
-      <td class="options-name">
-        batterry_voltage
-      </td>
-      <td>
-        <input oninput="setMyVal(this)" id="battery_voltage" type="number" style="display: none;">
-        <div id="battery_voltage-output"></div>
-      </td>
-    </tr>
-
-    <tr class="option">
-      <td class="options-name">
-        point_delay
-      </td>
-      <td>
-        <input oninput="setMyVal(this)" id="point_delay" type="number">
-    </tr>
-    <tr class="option">
-      <td class="options-name">
-        target_frame_time
-      </td>
-      <td>
-        <input oninput="setMyVal(this)" id="target_frame_time" type="number">
-    </tr>
-    <tr class="option">
-      <td class="options-name">
-        time_accurate_framing
-      </td>
-      <td>
-        <input oninput="setMyVal(this)" id="time_accurate_framing" type="checkbox">
-        </div>
-    <tr>
-    <tr class="option">
-      <td class="options-name">
-        trapezoid_vertical
-      </td>
-      <td>
-        <input oninput="setMyVal(this)" id="trapezoid_vertical" type="range" min="-1" max="1" value="0" step="0.001">
-      </td>
-      <td id="trapezoid_vertical-output"></td>
-    </tr>
-    <tr class="option">
-      <td class="options-name">
-        trapezoid_horizontal
-      </td>
-      <td>
-        <input oninput="setMyVal(this)" id="trapezoid_horizontal" type="range" min="-1" max="1" value="0" step="0.001">
-      </td>
-      <td id="trapezoid_horizontal-output"></td>
-    </tr>
-    <tr class="option">
-      <td class="options-name">
-        scale_x
-      </td>
-      <td>
-        <input oninput="setMyVal(this)" id="scale_x" type="range" min="0" max="10" value="0" step="0.1">
-      </td>
-      <td id="scale_x-output"></td>
-    </tr>
-    <tr class="option">
-      <td class="options-name">
-        scale_y
-      </td>
-      <td>
-        <input oninput="setMyVal(this)" id="scale_y" type="range" min="0" max="10" value="0" step="0.1">
-      </td>
-      <td id="scale_y-output"></td>
-    </tr>
-    <tr class="option">
-      <td class="options-name">
-        move_x
-      </td>
-      <td>
-        <input oninput="setMyVal(this)" id="move_x" type="range" min="-1" max="1" value="0" step="0.001">
-      </td>
-      <td id="move_x-output"></td>
-    </tr>
-    <tr class="option">
-      <td class="options-name">
-        move_y
-      </td>
-      <td>
-        <input oninput="setMyVal(this)" id="move_y" type="range" min="-1" max="1" value="0" step="0.001">
-      </td>
-      <td id="move_y-output"></td>
-      </div>
-    <tr>
-    <tr class="option">
-      <td class="options-name">
-        laser_brightness
-      </td>
-      <td>
-        <input oninput="setMyVal(this)" id="laser_brightness" type="range" min="0" max="1" value="0.3" step="0.001">
-      </td>
-      <td id="laser_brightness-output"></td>
-    </tr>
-    <tr class="option">
-      <td class="options-name">
-        laser_red_brightness
-      </td>
-      <td>
-        <input oninput="setMyVal(this)" id="laser_red_brightness" type="range" min="0" max="1" value="1" step="0.001">
-      </td>
-      <td id="laser_red_brightness-output"></td>
-    </tr>
-    <tr class="option">
-      <td class="options-name">
-        laser_green_brightness
-      </td>
-      <td>
-        <input oninput="setMyVal(this)" id="laser_green_brightness" type="range" min="0" max="1" value="1" step="0.001">
-      </td>
-      <td id="laser_green_brightness-output"></td>
-    </tr>
-    <tr class="option">
-      <td class="options-name">
-        laser_blue_brightness
-      </td>
-      <td>
-        <input oninput="setMyVal(this)" id="laser_blue_brightness" type="range" min="0" max="1" value="1" step="0.001">
-      </td>
-      <td id="laser_blue_brightness-output"></td>
-      </div>
-    <tr>
-    <tr class="option">
-      <td class="options-name">
-        laser_red_br_offset
-      </td>
-      <td>
-        <input oninput="setMyVal(this)" id="laser_red_br_offset" type="range" min="-255" max="255" value="0" step="1">
-      </td>
-      <td id="laser_red_br_offset-output"></td>
-    </tr>
-    <tr class="option">
-      <td class="options-name">
-        laser_green_br_offset
-      </td>
-      <td>
-        <input oninput="setMyVal(this)" id="laser_green_br_offset" type="range" min="-255" max="255" value="0" step="1">
-      </td>
-      <td id="laser_green_br_offset-output"></td>
-    </tr>
-    <tr class="option">
-      <td class="options-name">
-        laser_blue_br_offset
-      </td>
-      <td>
-        <input oninput="setMyVal(this)" id="laser_blue_br_offset" type="range" min="-255" max="255" value="0" step="1">
-      </td>
-      <td id="laser_blue_br_offset-output"></td>
-    </tr>
-    <tr class="option">
-      <td></td>
-      <td><input onclick="socket.emit('LASERSHOWdata', 'SHUTDOWN');" id="soft_shutdown" type="button" value="soft shutdown"></td>
-    </tr>
-    <tr class="option">
-      <td></td>
-      <td><input onclick="socket.emit('sshdata', 'sudo shutdown now');" id="soft_shutdown" type="button" value="hard shutdown"></td>
-    </tr>
-  </table>
+  <div id="settings">
+    <table id="LsSettings">
+      <tr class="option">
+        <td class="options-name">
+          point delay
+        </td>
+        <td>
+          <input oninput="setMyVal(this)" id="point_delay" type="number">
+      </tr>
+      <tr class="option">
+        <td class="options-name">
+          target frame time
+        </td>
+        <td>
+          <input oninput="setMyVal(this)" id="target_frame_time" type="number">
+      </tr>
+      <tr class="option">
+        <td class="options-name">
+          time accurate framing
+        </td>
+        <td>
+          <input oninput="setMyVal(this)" id="time_accurate_framing" type="checkbox">
+        </td>
+      </tr>
+      <tr>
+      <tr class="option">
+        <td class="options-name">
+          trapezoid vertical
+        </td>
+        <td>
+          <input oninput="setMyVal(this)" id="trapezoid_vertical" type="range" min="-1" max="1" value="0" step="0.001">
+        </td>
+        <td id="trapezoid_vertical-output"></td>
+      </tr>
+      <tr class="option">
+        <td class="options-name">
+          trapezoid horizontal
+        </td>
+        <td>
+          <input oninput="setMyVal(this)" id="trapezoid_horizontal" type="range" min="-1" max="1" value="0"
+            step="0.001">
+        </td>
+        <td id="trapezoid_horizontal-output"></td>
+      </tr>
+      <tr class="option">
+        <td class="options-name">
+          scale x
+        </td>
+        <td>
+          <input oninput="setMyVal(this)" id="scale_x" type="range" min="0" max="10" value="0" step="0.1">
+        </td>
+        <td id="scale_x-output"></td>
+      </tr>
+      <tr class="option">
+        <td class="options-name">
+          scale y
+        </td>
+        <td>
+          <input oninput="setMyVal(this)" id="scale_y" type="range" min="0" max="10" value="0" step="0.1">
+        </td>
+        <td id="scale_y-output"></td>
+      </tr>
+      <tr class="option">
+        <td class="options-name">
+          move x
+        </td>
+        <td>
+          <input oninput="setMyVal(this)" id="move_x" type="range" min="-1" max="1" value="0" step="0.001">
+        </td>
+        <td id="move_x-output"></td>
+      </tr>
+      <tr class="option">
+        <td class="options-name">
+          move y
+        </td>
+        <td>
+          <input oninput="setMyVal(this)" id="move_y" type="range" min="-1" max="1" value="0" step="0.001">
+        </td>
+        <td id="move_y-output"></td>
+      <tr>
+      <tr class="option">
+        <td class="options-name">
+          laser brightness
+        </td>
+        <td>
+          <input oninput="setMyVal(this)" id="laser_brightness" type="range" min="0" max="1" value="0.3" step="0.001">
+        </td>
+        <td id="laser_brightness-output"></td>
+      </tr>
+      <tr class="option">
+        <td class="options-name">
+          laser red brightness
+        </td>
+        <td>
+          <input oninput="setMyVal(this)" id="laser_red_brightness" type="range" min="0" max="1" value="1" step="0.001">
+        </td>
+        <td id="laser_red_brightness-output"></td>
+      </tr>
+      <tr class="option">
+        <td class="options-name">
+          laser green brightness
+        </td>
+        <td>
+          <input oninput="setMyVal(this)" id="laser_green_brightness" type="range" min="0" max="1" value="1"
+            step="0.001">
+        </td>
+        <td id="laser_green_brightness-output"></td>
+      </tr>
+      <tr class="option">
+        <td class="options-name">
+          laser blue brightness
+        </td>
+        <td>
+          <input oninput="setMyVal(this)" id="laser_blue_brightness" type="range" min="0" max="1" value="1"
+            step="0.001">
+        </td>
+        <td id="laser_blue_brightness-output"></td>
+      <tr>
+      <tr class="option">
+        <td class="options-name">
+          laser red br offset
+        </td>
+        <td>
+          <input oninput="setMyVal(this)" id="laser_red_br_offset" type="range" min="-255" max="255" value="0" step="1">
+        </td>
+        <td id="laser_red_br_offset-output"></td>
+      </tr>
+      <tr class="option">
+        <td class="options-name">
+          laser green br offset
+        </td>
+        <td>
+          <input oninput="setMyVal(this)" id="laser_green_br_offset" type="range" min="-255" max="255" value="0"
+            step="1">
+        </td>
+        <td id="laser_green_br_offset-output"></td>
+      </tr>
+      <tr class="option">
+        <td class="options-name">
+          laser blue br offset
+        </td>
+        <td>
+          <input oninput="setMyVal(this)" id="laser_blue_br_offset" type="range" min="-255" max="255" value="0"
+            step="1">
+        </td>
+        <td id="laser_blue_br_offset-output"></td>
+      </tr>
+      <tr class="option">
+        <td></td>
+        <td><input onclick="socket.emit('LASERSHOWdata', 'SHUTDOWN');" id="soft_shutdown" type="button"
+            value="soft shutdown"></td>
+      </tr>
+      <tr class="option">
+        <td></td>
+        <td><input onclick="socket.emit('sshdata', 'sudo shutdown now');" id="soft_shutdown" type="button"
+            value="hard shutdown"></td>
+      </tr>
+      <tr class="option">
+        <td class="options-name">
+          batterry voltage
+        </td>
+        <td>
+          <input oninput="setMyVal(this)" id="battery_voltage" type="number" style="display: none;">
+          <div id="battery_voltage-output"></div>
+        </td>
+      </tr>
+    </table>
+    <table id="WMSettings">
+      <tr class="option">
+        <td>wifi setting</td>
+        <td>
+          <select value="" id="wifi setting" oninput="socket.emit('WIFIMANdata', 'write ' + this.value); terminals.wifiman.term.write('write ' + this.value + '\n\r')">
+            <option value="wlan-down">WiFi OFF</option>
+            <option value="wifi">WiFi</option>
+            <option value="hotspot">Access Point</option>
+          </select>
+        </td>
+        <td></td>
+      </tr>
+      <tr class="option">
+        <td>wifi mode</td>
+        <td><output id="mode"></td>
+      </tr>
+      <tr class="option">
+        <td>wifi ssid</td>
+        <td><output id="wifi_ssid"></td>
+      </tr>
+      <tr class="option">
+        <td>hostname</td>
+        <td><output id="hostname"></td>
+      </tr>
+    </table>
+  </div>
   <div id="queue">hellyea</div>
   <div id="nowplaying" class="flex-container">
     <div id="settingsbtn"
-      onclick="toggledisplay(document.getElementById('settings')); this.classList.toggle('saturate'); readsettings();">s
+      onclick="toggledisplay(document.getElementById('settings')); this.classList.toggle('saturate'); readLsSettings(); readWMSettings();">
+      <svg id="settingssvg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m19.9 12.66a1 1 0 0 1 0-1.32l1.28-1.44a1 1 0 0 0 .12-1.17l-2-3.46a1 1 0 0 0 -1.07-.48l-1.88.38a1 1 0 0 1 -1.15-.66l-.61-1.83a1 1 0 0 0 -.95-.68h-4a1 1 0 0 0 -1 .68l-.56 1.83a1 1 0 0 1 -1.15.66l-1.93-.38a1 1 0 0 0 -1 .48l-2 3.46a1 1 0 0 0 .1 1.17l1.27 1.44a1 1 0 0 1 0 1.32l-1.27 1.44a1 1 0 0 0 -.1 1.17l2 3.46a1 1 0 0 0 1.07.48l1.88-.38a1 1 0 0 1 1.15.66l.61 1.83a1 1 0 0 0 1 .68h4a1 1 0 0 0 .95-.68l.61-1.83a1 1 0 0 1 1.15-.66l1.88.38a1 1 0 0 0 1.07-.48l2-3.46a1 1 0 0 0 -.12-1.17zm-1.49 1.34.8.9-1.28 2.22-1.18-.24a3 3 0 0 0 -3.45 2l-.38 1.12h-2.56l-.36-1.14a3 3 0 0 0 -3.45-2l-1.18.24-1.3-2.21.8-.9a3 3 0 0 0 0-4l-.8-.9 1.28-2.2 1.18.24a3 3 0 0 0 3.45-2l.38-1.13h2.56l.38 1.14a3 3 0 0 0 3.45 2l1.18-.24 1.28 2.22-.8.9a3 3 0 0 0 0 3.98zm-6.77-6a4 4 0 1 0 4 4 4 4 0 0 0 -4-4zm0 6a2 2 0 1 1 2-2 2 2 0 0 1 -2 2z"/></svg>
     </div>
-    <div id="shufflebtn">sh</div>
+    <div id="shufflebtn">
+      <svg id="shufflesvg" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="m17.5857864 18h-.5857864c-1.9329829-.0179688-3.1676811-.5821031-4.2245178-1.8928479.3923553-.5640985.7606707-1.1901849 1.1154604-1.8787227.8403477 1.3112968 1.6714187 1.7581427 3.1183671 1.7716139l.5765075-.0000125-1.292924-1.292924 1.4142136-1.4142136 3.7071068 3.7071068-3.7071068 3.7071068-1.4142136-1.4142136zm.0000308-10.00003079-.5765075-.00001255c-2.0201697.01880805-2.8398344.88237544-4.1603362 3.76386564-.1483842.3246262-.2273037.4970667-.3011826.6566909-1.7718884 3.8283771-3.58408574 5.5184126-7.5477909 5.5794868h-2v-2l1.98456341.0001192c3.01322603-.0465195 4.2640967-1.2130679 5.74820179-4.4196546.0717851-.1551003.1485686-.3228736.2980353-.6498572 1.6129646-3.51967839 2.9253067-4.90231169 5.9691995-4.9306074h.5857864l-1.2928932-1.29289322 1.4142136-1.41421356 3.7071068 3.70710678-3.7071068 3.7071068-1.4142136-1.41421358zm-8.2890581 1.91517919c-1.04290721-1.34021115-2.27462553-1.88381067-4.31219569-1.91526755l-1.98456341.00011915v-2h2c2.39017643.03682871 3.99800451.66599321 5.2864139 1.99918708-.33602503.57322233-.6618687 1.21120783-.9896548 1.91596132z" fill-rule="evenodd"/></svg>
+    </div>
     <div id="back">
       << </div>
-    <div id="play" onclick="socket.emit('LASERSHOWdata', 'PAUSE');">></div>
+        <div id="play" onclick="socket.emit('LASERSHOWdata', 'PAUSE');">></div>
         <div id="forward">>></div>
-        <div id="repeatbtn">r</div>
+        <div id="repeatbtn">
+          <svg id="repeatsvg" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.924 5.617a.997.997 0 0 0-.217-.324l-3-3a1 1 0 1 0-1.414 1.414L17.586 5H8a5 5 0 0 0-5 5v2a1 1 0 1 0 2 0v-2a3 3 0 0 1 3-3h9.586l-1.293 1.293a1 1 0 0 0 1.414 1.414l3-3A.997.997 0 0 0 21 6m-.076-.383a.996.996 0 0 1 .076.38l-.076-.38zm-17.848 12a.997.997 0 0 0 .217 1.09l3 3a1 1 0 0 0 1.414-1.414L6.414 19H16a5 5 0 0 0 5-5v-2a1 1 0 1 0-2 0v2a3 3 0 0 1-3 3H6.414l1.293-1.293a1 1 0 1 0-1.414-1.414l-3 3m-.217.324a.997.997 0 0 1 .215-.322l-.215.322z"/></svg>
+        </div>
         <div id="queuebtn" onclick="toggledisplay(document.getElementById('queue')); this.classList.toggle('saturate')">
-          =</div>
+          <svg id="queuesvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M22,4H2A1,1,0,0,0,1,5v6a1,1,0,0,0,1,1H22a1,1,0,0,0,1-1V5A1,1,0,0,0,22,4Zm-1,6H3V6H21Zm2,5a1,1,0,0,1-1,1H2a1,1,0,0,1,0-2H22A1,1,0,0,1,23,15Zm0,4a1,1,0,0,1-1,1H2a1,1,0,0,1,0-2H22A1,1,0,0,1,23,19Z"/></svg>
+        </div>
     </div>
 
     <div id="progress" class="flex-container">

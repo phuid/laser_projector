@@ -178,6 +178,16 @@ socket.on("LASERSHOWmsg", function (data) {
 // Backend -> Browser
 socket.on("WIFIMANmsg", function (data) {
   terminals.wifiman.term.write(data.replace(/\n/g, "\n\r"));
+  console.log(data);
+
+  pos = data.indexOf(":");
+  id = data.substring(0, pos);
+  data = data.substring(pos + 2);
+
+  if (data.length > 0) {
+    document.getElementById(id).value = data.trim();
+    console.log(document.getElementById(id));
+  }
 });
 
 socket.on("alert", (alert) => {
@@ -194,12 +204,16 @@ function setMyVal(el) {
   );
 }
 
-function readsettings() {
+function readLsSettings() {
   Object.entries(
-    document.getElementById("settings").getElementsByTagName("input")
+    document.getElementById("LsSettings").getElementsByTagName("input")
   ).forEach((el) => {
     socket.emit("LASERSHOWdata", "OPTION read " + el[1].id);
   });
+}
+
+function readWMSettings() {
+  socket.emit("WIFIMANdata", "read");
 }
 
 $("#fileupload").submit(function (e) {

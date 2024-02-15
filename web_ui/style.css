@@ -38,7 +38,7 @@ input[type="textarea"] {
 }
 
 input[type="file"]::-webkit-file-upload-button {
-  background-color: var(--foreground-1);
+  background-color: var(--foreground-2);
   color: var(--text-button);
   border-radius: 2rem;
   border: none;
@@ -60,8 +60,8 @@ input[type="submit"] {
   display: none;
 }
 
-svg {
-  background-color: var(--background-2);
+#uploadsvg, #projectsvg {
+  background-color: var(--foreground-1);
   color: var(--text-button);
   border: none;
   border-radius: 2rem;
@@ -103,7 +103,13 @@ svg {
 }
 
 .saturate {
-  filter: saturate(4);
+  filter: saturate(2.5);
+}
+select {
+  background-color: var(--foreground-1);
+  color: var(--text-1);
+  border: 0px;
+  border-radius: calc(5%);
 }
 
 #settings {
@@ -197,6 +203,19 @@ svg {
     height: 100%;
   }
 
+  input[type="range"] {
+    width: 100%;
+  }
+
+  td {
+    padding: 0 1rem;
+    height: 1.3rem;
+  }
+
+  #settings {
+    padding-top: 1rem;
+  }
+
   #fileupload input[type="submit"] {
     height: 10vh;
     width: 20%;
@@ -207,11 +226,17 @@ svg {
 
   #uploadsvg {
     position: absolute;
-    right: 1vh;
-    top: 1vh;
+    right: 0vh;
+    top: 0vh;
     height: 10vh;
     width: 20%;
     z-index: 2;
+  }
+
+  #repeatsvg, #shufflesvg, #settingssvg, #queuesvg {
+    fill: var(--text-2);
+    height: 70%;
+    width: 70%;
   }
 
   .forminput {
@@ -274,7 +299,7 @@ svg {
     position: absolute;
     left: 0;
     right: 50%;
-    bottom: 10vh;
+    bottom: 12vh;
     top: 11vh;
     z-index: 12;
   }
@@ -282,7 +307,7 @@ svg {
     position: absolute;
     left: 0;
     right: 50%;
-    bottom: 11vh;
+    bottom: 12vh;
     top: 10vh;
     z-index: 12;
   }
