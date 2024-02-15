@@ -26,6 +26,13 @@ body {
   overflow: hidden;
 }
 
+input {
+  background-color: var(--foreground-2);
+  color: var(--text-1);
+  border: none;
+  border-radius: 2rem;
+}
+
 input[type="textarea"] {
   color: var(--text-1);
 }
@@ -46,12 +53,6 @@ input[type="file"]::file-selector-button {
 
 input[type="submit"] {
   color: var(--text-button);
-}
-
-input {
-  background-color: var(--foreground-2);
-  border: none;
-  border-radius: 2rem;
 }
 
 #uploadbutton,
@@ -109,8 +110,9 @@ svg {
   overflow: scroll;
 }
 
-#settings > table {
+#settings > table, tbody {
   width: 90%;
+  table-layout: fixed;
 }
 
 .console-input {

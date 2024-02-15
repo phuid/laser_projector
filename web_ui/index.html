@@ -66,9 +66,20 @@
     </div>
     <div class="swiper-pagination landscape-invisible"></div>
     <!-- <div class="swiper-button-prev landscape-invisible"></div>
-    <div class="swiper-button-next landscape-invisible"></div> -->
+      <div class="swiper-button-next landscape-invisible"></div> -->
   </div>
   <table id="settings">
+
+    <tr class="option">
+      <td class="options-name">
+        batterry_voltage
+      </td>
+      <td>
+        <input oninput="setMyVal(this)" id="battery_voltage" type="number" style="display: none;">
+        <div id="battery_voltage-output"></div>
+      </td>
+    </tr>
+
     <tr class="option">
       <td class="options-name">
         point_delay
@@ -210,15 +221,24 @@
       </td>
       <td id="laser_blue_br_offset-output"></td>
     </tr>
+    <tr class="option">
+      <td></td>
+      <td><input onclick="socket.emit('LASERSHOWdata', 'SHUTDOWN');" id="soft_shutdown" type="button" value="soft shutdown"></td>
+    </tr>
+    <tr class="option">
+      <td></td>
+      <td><input onclick="socket.emit('sshdata', 'sudo shutdown now');" id="soft_shutdown" type="button" value="hard shutdown"></td>
+    </tr>
   </table>
   <div id="queue">hellyea</div>
   <div id="nowplaying" class="flex-container">
     <div id="settingsbtn"
-      onclick="toggledisplay(document.getElementById('settings')); this.classList.toggle('saturate'); readsettings();">s</div>
+      onclick="toggledisplay(document.getElementById('settings')); this.classList.toggle('saturate'); readsettings();">s
+    </div>
     <div id="shufflebtn">sh</div>
     <div id="back">
       << </div>
-        <div id="play">></div>
+    <div id="play" onclick="socket.emit('LASERSHOWdata', 'PAUSE');">></div>
         <div id="forward">>></div>
         <div id="repeatbtn">r</div>
         <div id="queuebtn" onclick="toggledisplay(document.getElementById('queue')); this.classList.toggle('saturate')">

@@ -136,10 +136,15 @@ socket.on("LASERSHOWmsg", function (data) {
     if (words[0] == "INFO:") {
       if (words.length > 1) {
         if (words[1] == "OPTION" && words.length > 3) {
+          if (words[2] == "time_accurate_framing") {
+            document.getElementById("time_accurate_framing").checked = Number(words[3]);
+          }
+          else {
           document.getElementById(words[2]).value = Number(words[3]);
           document.getElementById(words[2] + "-output").innerHTML = Number(
             words[3]
           );
+          }
         } else if (words[1] == "FRAME" && words.length > 4) {
           document.getElementById("current_frame").value = Number(words[2]);
           document.getElementById("current_frame-output").innerHTML = Number(
@@ -152,6 +157,19 @@ socket.on("LASERSHOWmsg", function (data) {
         } else if (words[1] == "PROJECT" && words.length > 2) {
           split_dirs = words[2].split("/");
           document.getElementById("current_filename").innerHTML = split_dirs[split_dirs.length - 1];
+          document.getElementById("play").innerHTML = ">";
+          document.getElementById("play").classlist.add("saturate");
+        }
+        else if (words[1] == "PAUSE" && words.length > 2) {
+          console.log(words[2])
+          if (words[2] == "0") {
+            document.getElementById("play").innerHTML = ">";
+            document.getElementById("play").classlist.add("saturate");
+          }
+          else {
+            document.getElementById("play").innerHTML = "||";
+            document.getElementById("play").classlist.remove("saturate");
+          }
         }
       }
     }

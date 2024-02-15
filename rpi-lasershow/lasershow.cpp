@@ -267,14 +267,6 @@ void calculate_points(zmq::socket_t &publisher, options_struct options, IldaRead
 
 bool lasershow_init(zmq::socket_t &publisher, options_struct &options, IldaReader &ildaReader)
 {
-    // Setup hardware communication stuff.
-    if (gpioInitialise() < 0)
-    {
-        // pigpio initialisation failed.
-        std::cout << "init fail" << std::endl;
-        return 1;
-    }
-
     for (size_t i = 0; i < 3; i++)
     {
         gpioSetMode(LASER_PINS[i], PI_OUTPUT);

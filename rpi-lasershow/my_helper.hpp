@@ -5,6 +5,13 @@
 #include <iostream>
 #include <chrono>
 
+constexpr unsigned CS = 16;
+constexpr unsigned MISO = 19;
+constexpr unsigned SCLK = 21;
+
+
+uint8_t bat_raw ();
+
 void publish_message(zmq::socket_t &publisher, std::string message_string);
 void publish_message(std::string message_string);
 

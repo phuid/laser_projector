@@ -11,6 +11,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <pigpio.h>
 
 int main()
 {
@@ -36,6 +37,20 @@ int main()
   publish_message(publisher, "INFO: lasershow ready");
 
   IldaReader ildaReader;
+
+  if (gpioInitialise() < 0)
+  {
+    // pigpio initialisation failed.
+    std::cout << "init fail" << std::endl;
+    return 1;
+  }
+
+  gpioSetMode(SCLK, PI_OUTPUT);
+  gpioSetMode(CS, PI_OUTPUT);
+  gpioSetMode(MISO, PI_INPUT);
+
+  //needed to set the pins
+  std::cout << "start bat_voltage:" << static_cast<int>(bat_raw()) << std::endl;
 
   bool pass_next_command_read = 0;
   while (true)

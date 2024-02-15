@@ -196,7 +196,11 @@ int Command::execute(std::string string, zmq::socket_t &publisher, options_struc
       }
       else if (this->args[0] == "read")
       {
-        if (this->args[1] == "point_delay")
+        
+        if (this->args[1] == "current_frame") {
+          publish_message(publisher, "INFO: OPTION current_frame " + std::to_string(ildaReader.current_frame_index));
+        }
+        else if (this->args[1] == "point_delay")
         {
           publish_message(publisher, "INFO: OPTION point_delay " + std::to_string(options.point_delay));
         }
@@ -260,8 +264,12 @@ int Command::execute(std::string string, zmq::socket_t &publisher, options_struc
         {
           publish_message(publisher, "INFO: OPTION laser_blue_br_offset " + std::to_string(options.laser_blue_br_offset));
         }
-        else if (this->args[1] == "current_frame") {
-          publish_message(publisher, "INFO: OPTION current_frame " + std::to_string(ildaReader.current_frame_index));
+        else if (this->args[1] == "time_accurate_framing")
+        {
+          publish_message(publisher, "INFO: OPTION time_accurate_framing " + std::to_string(options.time_accurate_framing));
+        }
+        else if (this->args[1] == "battery_voltage") {
+          publish_message(publisher, "INFO: OPTION battery_voltage " + std::to_string((bat_raw() * (5.f / 256.f)) + 7.0));
         }
         else
         {
