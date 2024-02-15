@@ -61,6 +61,17 @@ char inverted_pointer_char[] = {
     0b00000,
 };
 #define INVERTED_POINTER_CHAR_NUM 3
+char under_pointer_char[] = {
+    0b10000,
+    0b10000,
+    0b10000,
+    0b10100,
+    0b10010,
+    0b01111,
+    0b00010,
+    0b00100,
+};
+#define UNDER_POINTER_CHAR_NUM 4
 
 template <typename T>
 struct menu_val
@@ -141,7 +152,7 @@ struct menu_option
   menu_val<float> value;
 
   bool has_function = 0;
-  void (*function)(zmq::socket_t &, menu_option &);
+  void (*function)(zmq::socket_t &, zmq::socket_t &, menu_option &);
 };
 
 #ifdef DEBUG
@@ -149,7 +160,7 @@ std::string dbg_nests = "";
 #endif
 
 // return 1 if back out of nest (pressed back option)
-bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &parent_menu_option, bool redraw = 0)
+bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, zmq::socket_t &wifiman_sender, menu_option &parent_menu_option, bool redraw = 0)
 {
   // TODO: use menu_option.redraw instead of redraw
   std::vector<menu_option> &menu = parent_menu_option.nested_menu_options;
@@ -189,10 +200,10 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
 #ifdef DEBUG
       dbg_nests += menu[menu_selected].name;
 #endif
-      if (menu_interact(lcd, command_sender, menu[menu_selected], redraw))
+      if (menu_interact(lcd, command_sender, wifiman_sender, menu[menu_selected], redraw))
       {
         parent_menu_option.nest_option_active = 0;                    // FIXME: does this ever get called?
-        menu_interact(lcd, command_sender, parent_menu_option, true); // redraw
+        menu_interact(lcd, command_sender, wifiman_sender, parent_menu_option, true); // redraw
       }
       break;
 
@@ -226,7 +237,7 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
         parent_menu_option.nest_option_active = 0;
         clear_encoder_btn_pressed();
         set_encoder_pos(0);
-        menu_interact(lcd, command_sender, parent_menu_option, true); // redraw
+        menu_interact(lcd, command_sender, wifiman_sender, parent_menu_option, true); // redraw
         // TODO: add return here and everywhere where this function is called
       }
       else
@@ -356,10 +367,10 @@ bool menu_interact(lcd_t *lcd, zmq::socket_t &command_sender, menu_option &paren
               if (menu[menu_selected].has_function)
               {
                 // TODO: handle function menu actions
-                menu[menu_selected].function(command_sender, parent_menu_option);
+                menu[menu_selected].function(command_sender, wifiman_sender, parent_menu_option);
               }
               lcd_clear(lcd);
-              menu_interact(lcd, command_sender, parent_menu_option, true); // redraw
+              menu_interact(lcd, command_sender, wifiman_sender, parent_menu_option, true); // redraw
               return 0;
               break;
             }
