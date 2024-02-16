@@ -20,7 +20,8 @@
 
 constexpr uint8_t LASER_PINS[3] = {22, 27, 17};
 
-constexpr int DAC_RAW_MAX = 4095;  // 12bit dac - 2^12 - 1 = 4096 - 1 = 4095
+constexpr int ILDA_MAX = 4095;
+constexpr int DAC_OUT_RAW_MAX = 4095; // 12bit dac - 2^12 - 1 = 4096 - 1 = 4095
 constexpr float TRAPEZOID_MAX = 1; // prolly defined in options
 
 // internals
@@ -100,14 +101,14 @@ void calculate_points(zmq::socket_t &publisher, options_struct options, IldaRead
     {
         for (size_t u = 0; u < ildaReader.sections_from_file[i].points.size(); u++)
         {
-            ildaReader.sections_from_file[i].points[u].x += ((DAC_RAW_MAX / 2) - center_x);
-            ildaReader.sections_from_file[i].points[u].y += ((DAC_RAW_MAX / 2) - center_y);
+            ildaReader.sections_from_file[i].points[u].x += ((ILDA_MAX / 2) - center_x);
+            ildaReader.sections_from_file[i].points[u].y += ((ILDA_MAX / 2) - center_y);
         }
     }
-    highest_x += ((DAC_RAW_MAX / 2) - center_x);
-    lowest_x += ((DAC_RAW_MAX / 2) - center_x);
-    highest_y += ((DAC_RAW_MAX / 2) - center_y);
-    lowest_y += ((DAC_RAW_MAX / 2) - center_y);
+    highest_x += ((ILDA_MAX / 2) - center_x);
+    lowest_x += ((ILDA_MAX / 2) - center_x);
+    highest_y += ((ILDA_MAX / 2) - center_y);
+    lowest_y += ((ILDA_MAX / 2) - center_y);
 
     // if (options.scale_up_proportionally) {
     //     if (lowest_x > lowest_y) {
@@ -123,14 +124,14 @@ void calculate_points(zmq::socket_t &publisher, options_struct options, IldaRead
     //         highest_y = highest_x;
     //     }
     // }
-    int move_x = options.move_x * DAC_RAW_MAX;
+    int move_x = options.move_x * ILDA_MAX;
     if (move_x != 0)
     {
         // check if the translation doesnt go out of bounds ? set to max possible value
-        if (highest_x + move_x > DAC_RAW_MAX)
+        if (highest_x + move_x > ILDA_MAX)
         {
             publish_message(publisher, "WARN: X translation set to max possible value");
-            move_x = DAC_RAW_MAX - highest_x;
+            move_x = ILDA_MAX - highest_x;
         }
         else if (lowest_x + move_x < 0)
         {
@@ -138,14 +139,14 @@ void calculate_points(zmq::socket_t &publisher, options_struct options, IldaRead
             move_x = -lowest_x;
         }
     }
-    int move_y = options.move_y * DAC_RAW_MAX;
+    int move_y = options.move_y * ILDA_MAX;
     if (move_y != 0)
     {
         std::cout << "highY: " << highest_y << "    moveY: " << move_y <<std::endl;
-        if (highest_y + move_y > DAC_RAW_MAX)
+        if (highest_y + move_y > ILDA_MAX)
         {
             publish_message(publisher, "WARN: Y translation set to max possible value");
-            move_y = DAC_RAW_MAX - highest_y;
+            move_y = ILDA_MAX - highest_y;
         }
         else if (lowest_y + move_y < 0)
         {
@@ -162,25 +163,25 @@ void calculate_points(zmq::socket_t &publisher, options_struct options, IldaRead
 
             if (options.scale_x != 1)
             {
-                current_point.x = (current_point.x - (DAC_RAW_MAX / 2)) * options.scale_x + (DAC_RAW_MAX / 2);
-                lowest_x = (lowest_x - (DAC_RAW_MAX / 2)) * options.scale_x + (DAC_RAW_MAX / 2);
-                highest_x = (highest_x - (DAC_RAW_MAX / 2)) * options.scale_x + (DAC_RAW_MAX / 2);
+                current_point.x = (current_point.x - (ILDA_MAX / 2)) * options.scale_x + (ILDA_MAX / 2);
+                lowest_x = (lowest_x - (ILDA_MAX / 2)) * options.scale_x + (ILDA_MAX / 2);
+                highest_x = (highest_x - (ILDA_MAX / 2)) * options.scale_x + (ILDA_MAX / 2);
                 // int s_l = lowest_x;
                 // int s_h = highest_x;
-                // current_point.x = map(current_point.x, lowest_x, highest_x, (DAC_RAW_MAX / 2) - options.scale_x * ((DAC_RAW_MAX / 2) - lowest_x), (DAC_RAW_MAX / 2) + options.scale_x * (highest_x - (DAC_RAW_MAX / 2)));
-                // lowest_x = map(lowest_x, s_l, s_h, (DAC_RAW_MAX / 2) - options.scale_x * ((DAC_RAW_MAX / 2) - lowest_x), (DAC_RAW_MAX / 2) + options.scale_x * (highest_x - (DAC_RAW_MAX / 2)));
-                // highest_x = map(highest_x, s_l, s_h, (DAC_RAW_MAX / 2) - options.scale_x * ((DAC_RAW_MAX / 2) - lowest_x), (DAC_RAW_MAX / 2) + options.scale_x * (highest_x - (DAC_RAW_MAX / 2)));
+                // current_point.x = map(current_point.x, lowest_x, highest_x, (ILDA_MAX / 2) - options.scale_x * ((ILDA_MAX / 2) - lowest_x), (ILDA_MAX / 2) + options.scale_x * (highest_x - (ILDA_MAX / 2)));
+                // lowest_x = map(lowest_x, s_l, s_h, (ILDA_MAX / 2) - options.scale_x * ((ILDA_MAX / 2) - lowest_x), (ILDA_MAX / 2) + options.scale_x * (highest_x - (ILDA_MAX / 2)));
+                // highest_x = map(highest_x, s_l, s_h, (ILDA_MAX / 2) - options.scale_x * ((ILDA_MAX / 2) - lowest_x), (ILDA_MAX / 2) + options.scale_x * (highest_x - (ILDA_MAX / 2)));
             }
             if (options.scale_y != 1)
             {
-                current_point.y = (current_point.y - (DAC_RAW_MAX / 2)) * options.scale_y + (DAC_RAW_MAX / 2);
-                lowest_y = (lowest_y - (DAC_RAW_MAX / 2)) * options.scale_y + (DAC_RAW_MAX / 2);
-                highest_y = (highest_y - (DAC_RAW_MAX / 2)) * options.scale_y + (DAC_RAW_MAX / 2);
+                current_point.y = (current_point.y - (ILDA_MAX / 2)) * options.scale_y + (ILDA_MAX / 2);
+                lowest_y = (lowest_y - (ILDA_MAX / 2)) * options.scale_y + (ILDA_MAX / 2);
+                highest_y = (highest_y - (ILDA_MAX / 2)) * options.scale_y + (ILDA_MAX / 2);
                 // int s_l = lowest_y;
                 // int s_h = highest_y;
-                // current_point.y = map(current_point.y, lowest_y, highest_y, (DAC_RAW_MAX / 2) - options.scale_y * ((DAC_RAW_MAX / 2) - lowest_y), (DAC_RAW_MAX / 2) + options.scale_y * (highest_y - (DAC_RAW_MAX / 2)));
-                // lowest_y = map(lowest_y, s_l, s_h, (DAC_RAW_MAX / 2) - options.scale_y * ((DAC_RAW_MAX / 2) - lowest_y), (DAC_RAW_MAX / 2) + options.scale_y * (highest_y - (DAC_RAW_MAX / 2)));
-                // highest_y = map(highest_y, s_l, s_h, (DAC_RAW_MAX / 2) - options.scale_y * ((DAC_RAW_MAX / 2) - lowest_y), (DAC_RAW_MAX / 2) + options.scale_y * (highest_y - (DAC_RAW_MAX / 2)));
+                // current_point.y = map(current_point.y, lowest_y, highest_y, (ILDA_MAX / 2) - options.scale_y * ((ILDA_MAX / 2) - lowest_y), (ILDA_MAX / 2) + options.scale_y * (highest_y - (ILDA_MAX / 2)));
+                // lowest_y = map(lowest_y, s_l, s_h, (ILDA_MAX / 2) - options.scale_y * ((ILDA_MAX / 2) - lowest_y), (ILDA_MAX / 2) + options.scale_y * (highest_y - (ILDA_MAX / 2)));
+                // highest_y = map(highest_y, s_l, s_h, (ILDA_MAX / 2) - options.scale_y * ((ILDA_MAX / 2) - lowest_y), (ILDA_MAX / 2) + options.scale_y * (highest_y - (ILDA_MAX / 2)));
             }
 
             if (move_x != 0)
@@ -199,33 +200,33 @@ void calculate_points(zmq::socket_t &publisher, options_struct options, IldaRead
             {
                 float tr = fabs(options.trapezoid_horizontal);
 
-                int y = (options.trapezoid_horizontal > 0) ? current_point.y : (DAC_RAW_MAX - current_point.y);
-                float ycoef = static_cast<float>(y) / DAC_RAW_MAX;
-                int offset = tr * (DAC_RAW_MAX / 2) * ycoef;
+                int y = (options.trapezoid_horizontal > 0) ? current_point.y : (ILDA_MAX - current_point.y);
+                float ycoef = static_cast<float>(y) / ILDA_MAX;
+                int offset = tr * (ILDA_MAX / 2) * ycoef;
 
-                calc_coord_x = map(current_point.x, 0, DAC_RAW_MAX, 0 + offset, DAC_RAW_MAX - offset);
+                calc_coord_x = map(current_point.x, 0, ILDA_MAX, 0 + offset, ILDA_MAX - offset);
             }
             if (options.trapezoid_vertical != 0)
             {
                 float tr = fabs(options.trapezoid_vertical);
 
-                int x = (options.trapezoid_vertical > 0) ? current_point.x : (DAC_RAW_MAX - current_point.x);
-                float xcoef = static_cast<float>(x) / DAC_RAW_MAX;
-                int offset = tr * (DAC_RAW_MAX / 2) * xcoef;
+                int x = (options.trapezoid_vertical > 0) ? current_point.x : (ILDA_MAX - current_point.x);
+                float xcoef = static_cast<float>(x) / ILDA_MAX;
+                int offset = tr * (ILDA_MAX / 2) * xcoef;
 
-                calc_coord_y = map(current_point.y, 0, DAC_RAW_MAX, 0 + offset, DAC_RAW_MAX - offset);
+                calc_coord_y = map(current_point.y, 0, ILDA_MAX, 0 + offset, ILDA_MAX - offset);
             }
             current_point.x = calc_coord_x;
             current_point.y = calc_coord_y;
 
-            if (current_point.x > DAC_RAW_MAX) {
-                current_point.x = DAC_RAW_MAX;
+            if (current_point.x > ILDA_MAX) {
+                current_point.x = ILDA_MAX;
             }
             else if (current_point.x < 0) {
                 current_point.x = 0;
             }
-            if (current_point.y > DAC_RAW_MAX) {
-                current_point.y = DAC_RAW_MAX;
+            if (current_point.y > ILDA_MAX) {
+                current_point.y = ILDA_MAX;
             }
             else if (current_point.y < 0) {
                 current_point.y = 0;
@@ -261,6 +262,10 @@ void calculate_points(zmq::socket_t &publisher, options_struct options, IldaRead
                 }
                 // std::cout << current_point_index << ":" << "---------" << std::endl;
             }
+            
+            // Map ILDA values to DAC value range and store the data to vector
+            current_point.x = map(current_point.x, 0, 65535, 0, 4095);
+            current_point.y = map(current_point.y, 0, 65535, 0, 4095);
         }
     }
 }
@@ -341,7 +346,7 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options, IldaReader 
         {
             // std::cout << "points[" << current_point_index << "]: x:" << current_point.x << ", y:" << current_point.y << ", R:" << static_cast<int>(current_point.red) << ", G:" << static_cast<int>(current_point.green) << ", B:" << static_cast<int>(current_point.blue) << std::endl;
             // Move galvos to x,y position.
-            adcdac.set_dac_raw(DAC_RAW_MAX - current_point.y, 1);
+            adcdac.set_dac_raw(DAC_OUT_RAW_MAX - current_point.y, 1);
             adcdac.set_dac_raw(current_point.x, 2);
 
             for (uint8_t i = 0; i < 3; i++)
