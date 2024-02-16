@@ -2,8 +2,7 @@ function toggledisplay(el) {
   console.log("changing display on", el);
   if (el.style.display != "block") {
     el.style.display = "block";
-  }
-  else {
+  } else {
     el.style.display = "none";
   }
 }
@@ -12,7 +11,8 @@ class terminal {
   constructor(container_id) {
     this.container = document.getElementById(container_id);
     this.term = new Terminal({
-      cursorBlink: true,
+      cursorBlink: container_id == "ssh-terminal-container",
+      cursorWidth: container_id == "ssh-terminal-container",
       allowTransparency: true,
       drawBoldTextInBrightColors: true,
       fontSize:
@@ -45,18 +45,27 @@ if (screen.availHeight > screen.availWidth) {
       clickable: true,
     },
   });
-}
-else {
-  console.log("landscape detected - removing swiper classes")
-  const classes_to_remove_in_landscape = ["swiper", "swiper-wrapper", "swiper-slide", "swiper-pagination", "swiper-button-prev", "swiper-button-next"];
+} else {
+  console.log("landscape detected - removing swiper classes");
+  const classes_to_remove_in_landscape = [
+    "swiper",
+    "swiper-wrapper",
+    "swiper-slide",
+    "swiper-pagination",
+    "swiper-button-prev",
+    "swiper-button-next",
+  ];
   classes_to_remove_in_landscape.forEach((classname) => {
-    for (var i = 0; i < document.getElementsByClassName(classname).length; i++){
+    for (
+      var i = 0;
+      i < document.getElementsByClassName(classname).length;
+      i++
+    ) {
       console.log(document.getElementsByClassName(classname)[i]);
-      document.getElementsByClassName(classname)[i].classList.remove(classname)
+      document.getElementsByClassName(classname)[i].classList.remove(classname);
     }
   });
 }
-
 
 var terminals = {
   ssh: new terminal("ssh-terminal-container"),
@@ -83,32 +92,33 @@ terminals.ssh.term.onData(function (ev) {
 });
 
 // Browser -> Backend
-lasershow_line = ""
+lasershow_line = "";
 terminals.lasershow.term.onData(function (ev) {
   string = ev.toString();
   lasershow_line += string;
   if (string.match(/\n|\r/gi) != null) {
-    lasershow_line = lasershow_line.replace(/\n|\r/gi, "")
+    lasershow_line = lasershow_line.replace(/\n|\r/gi, "");
     socket.emit("LASERSHOWdata", lasershow_line);
-    terminals.lasershow.term.write("\n\r> ");
+    terminals.lasershow.term.write("lasershow $ " + lasershow_line + "\n\r");
+    document.getElementById("ls_input").innerHTML = "lasershow $ ";
     lasershow_line = "";
-  } else {
-    terminals.lasershow.term.write(ev);
   }
+  document.getElementById("ls_input").innerHTML =
+    "lasershow $ " + lasershow_line;
 });
 // Browser -> Backend
-wifiman_line = ""
+wifiman_line = "";
 terminals.wifiman.term.onData(function (ev) {
   string = ev.toString();
   wifiman_line += string;
   if (string.match(/\n|\r/g) != null) {
-    wifiman_line = wifiman_line.replace(/\n|\r/g, "")
+    wifiman_line = wifiman_line.replace(/\n|\r/g, "");
     socket.emit("WIFIMANdata", wifiman_line);
-    terminals.wifiman.term.write("\n\r> ");
+    terminals.wifiman.term.write("wifi_manager $ " + wifiman_line + "\n\r");
     wifiman_line = "";
-  } else {
-    terminals.wifiman.term.write(ev);
   }
+  document.getElementById("wifiman_input").innerHTML =
+    "wifi_manager $ " + wifiman_line;
 });
 
 // Backend -> Browser
@@ -119,17 +129,95 @@ socket.on("sshdata", function (data) {
 socket.on("LASERSHOWmsg", function (data) {
   console.log(data);
   terminals.lasershow.term.write(data.replace(/\n/g, "\n\r"));
+
+  const words = data.split(" ");
+
+  if (words.length > 0) {
+    if (words[0] == "INFO:") {
+      if (words.length > 1) {
+        if (words[1] == "OPTION" && words.length > 3) {
+          if (words[2] == "time_accurate_framing") {
+            document.getElementById("time_accurate_framing").checked = Number(words[3]);
+          }
+          else {
+          document.getElementById(words[2]).value = Number(words[3]);
+          document.getElementById(words[2] + "-output").innerHTML = Number(
+            words[3]
+          );
+          }
+        } else if (words[1] == "FRAME" && words.length > 4) {
+          document.getElementById("current_frame").value = Number(words[2]);
+          document.getElementById("current_frame-output").innerHTML = Number(
+            words[2]
+          );
+          document.getElementById("current_frame").max = Number(words[4]);
+          document.getElementById("current_frame-max").innerHTML = Number(
+            words[4]
+          );
+        } else if (words[1] == "PROJECT" && words.length > 2) {
+          split_dirs = words[2].split("/");
+          document.getElementById("current_filename").innerHTML = split_dirs[split_dirs.length - 1];
+          document.getElementById("play").innerHTML = ">";
+          document.getElementById("play").classlist.add("saturate");
+        }
+        else if (words[1] == "PAUSE" && words.length > 2) {
+          console.log(words[2])
+          if (words[2] == "0") {
+            document.getElementById("play").innerHTML = ">";
+            document.getElementById("play").classlist.add("saturate");
+          }
+          else {
+            document.getElementById("play").innerHTML = "||";
+            document.getElementById("play").classlist.remove("saturate");
+          }
+        }
+      }
+    }
+  }
 });
 // Backend -> Browser
 socket.on("WIFIMANmsg", function (data) {
   terminals.wifiman.term.write(data.replace(/\n/g, "\n\r"));
+  console.log(data);
+
+  pos = data.indexOf(":");
+  id = data.substring(0, pos);
+  data = data.substring(pos + 2);
+
+  if (data.length > 0) {
+    document.getElementById(id).value = data.trim();
+    console.log(document.getElementById(id));
+  }
 });
 
 socket.on("alert", (alert) => {
   alert(alert);
 });
 
+function setMyVal(el) {
+  socket.emit(
+    "LASERSHOWdata",
+    "OPTION write " + el.id + " " + el.value.toString()
+  );
+  terminals.lasershow.term.write(
+    "> OPTION write " + el.id + " " + el.value.toString() + "\n\r"
+  );
+}
+
+function readLsSettings() {
+  Object.entries(
+    document.getElementById("LsSettings").getElementsByTagName("input")
+  ).forEach((el) => {
+    socket.emit("LASERSHOWdata", "OPTION read " + el[1].id);
+  });
+}
+
+function readWMSettings() {
+  socket.emit("WIFIMANdata", "read");
+}
+
 $("#fileupload").submit(function (e) {
+  console.log("upload");
   e.preventDefault(); // prevent actual form submit
   var postData = new FormData(this);
   $.ajax({
@@ -168,6 +256,24 @@ $("#projectsvg").on("click", () => {
   $.ajax({
     type: "POST",
     url: "/project",
+    data: postData,
+    contentType: false, //this is requireded please see answers above
+    processData: false, //this is requireded please see answers above
+    success: function (data) {
+      terminals.ssh.write("\n" + data);
+    },
+    error: function (data) {
+      alert("ERROR\n" + data);
+    },
+  });
+});
+
+$("#uploadsvg").on("click", () => {
+  console.log("upload");
+  var postData = new FormData(document.getElementById("fileupload"));
+  $.ajax({
+    type: "POST",
+    url: "/fileupload",
     data: postData,
     contentType: false, //this is requireded please see answers above
     processData: false, //this is requireded please see answers above

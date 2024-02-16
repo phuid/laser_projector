@@ -19,13 +19,17 @@
 
 constexpr int GPIO_CHIP_NUM = 4;
 
-void send_option_command(zmq::socket_t &command_sender, menu_option &parent)
+void wifiman_send(zmq::socket_t &command_sender, zmq::socket_t &wifiman_sender, menu_option &parent) {
+    send_command(wifiman_sender, parent.nested_menu_options[parent.nest_selected].command_name);
+}
+
+void send_option_command(zmq::socket_t &command_sender, zmq::socket_t &wifiman_sender, menu_option &parent)
 {
     send_command(command_sender, parent.nested_menu_options[parent.nest_selected].command_name);
     parent.nest_option_active = 0;
 }
 
-void read_options(zmq::socket_t &command_sender, menu_option &parent)
+void read_options(zmq::socket_t &command_sender, zmq::socket_t &wifiman_sender, menu_option &parent)
 {
     for (auto &&option : parent.nested_menu_options[parent.nest_selected].nested_menu_options)
     {
@@ -47,7 +51,7 @@ bool set_option(std::string name, float value, std::vector<menu_option> options)
     return 1;
 }
 
-void project(zmq::socket_t &command_sender, menu_option &parent)
+void project(zmq::socket_t &command_sender, zmq::socket_t &wifiman_sender, menu_option &parent)
 {
     std::string path = std::filesystem::current_path().generic_string() + "/../ild" + parent.nested_menu_options[parent.nest_selected].name;
 #ifdef DEBUG
@@ -58,7 +62,7 @@ void project(zmq::socket_t &command_sender, menu_option &parent)
     parent.redraw = 1;
 }
 
-void fill_with_files(zmq::socket_t &command_sender, menu_option &parent)
+void fill_with_files(zmq::socket_t &command_sender, zmq::socket_t &wifiman_sender, menu_option &parent)
 {
     std::cout << "searching for files" << std::endl;
     std::string dirpath = "../ild";
@@ -282,12 +286,22 @@ int main()
     }
     /* Create a LCD given SCL, SDA and I2C address, 4 lines */
     /* PCF8574 has default address 0x27 */
-    lcd_t *lcd = lcd_create(LCD_SCL_PIN, LCD_SDA_PIN, 0x27, SCREEN_HEIGHT);
 
-    if (lcd == NULL)
+    lcd_t *lcd = lcd_create(LCD_SCL_PIN, LCD_SDA_PIN, 0x27, SCREEN_HEIGHT);
+    for (int8_t i = 10; i >= 0; i++){
+
+    lcd = lcd_create(LCD_SCL_PIN, LCD_SDA_PIN, 0x27, SCREEN_HEIGHT);
+    if (lcd != NULL)
     {
-        printf("Cannot set-up LCD.\n");
+        break;
+    }
+        printf("Cannot set-up LCD. remaining attempts: %d\n", i);
+        if (i == 0)
+        {
+            printf("exit");
         return 1;
+        }
+        delay(1000);
     }
 
     lcd_init(lcd);
@@ -307,6 +321,7 @@ int main()
     lcd_create_char(lcd, PARENT_CHAR_NUM, parent_char);
     lcd_create_char(lcd, INVERTED_SPACE_CHAR_NUM, inverted_space_char);
     lcd_create_char(lcd, INVERTED_POINTER_CHAR_NUM, inverted_pointer_char);
+    lcd_create_char(lcd, UNDER_POINTER_CHAR_NUM, under_pointer_char);
 
     zmq::context_t ctx(1);
 
@@ -314,10 +329,17 @@ int main()
     subscriber.connect("tcp://localhost:5556");
     subscriber.set(zmq::sockopt::subscribe, "");
 
+    zmq::socket_t wifiman_subscriber(ctx, zmq::socket_type::sub);
+    wifiman_subscriber.connect("tcp://localhost:5558");
+    wifiman_subscriber.set(zmq::sockopt::subscribe, "");
+
     zmq::message_t received;
 
     zmq::socket_t command_sender(ctx, zmq::socket_type::pub);
     command_sender.connect("tcp://localhost:5557");
+
+    zmq::socket_t wifiman_sender(ctx, zmq::socket_type::pub);
+    wifiman_sender.connect("tcp://localhost:5559");
 
     menu_option root = {
         .name = "ROOT",
@@ -369,7 +391,7 @@ int main()
                         .name = "point_delay",
                         .command_name = "point_delay",
                         .style = VALUE,
-                        .value = {0, 0, 10000, 10},
+                        .value = {0, 0, 10000, 1},
                     },
                     {
                         .name = "target_frame_time",
@@ -381,20 +403,146 @@ int main()
                         .name = "trapezoid_horizontal",
                         .command_name = "trapezoid_horizontal",
                         .style = VALUE,
-                        .value = {0, -1.f, 1.f, 0.05},
+                        .value = {0, -1.f, 1.f, 0.01},
                     },
                     {
                         .name = "trapezoid_vertical",
                         .command_name = "trapezoid_vertical",
                         .style = VALUE,
-                        .value = {0, -1.f, 1.f, 0.05},
+                        .value = {0, -1.f, 1.f, 0.01},
                     },
+
+{ .name="time_accurate_framing",
+.command_name = "time_accurate_framing",
+.style = VALUE,
+.value = {1, 0.f, 1.f, 1}},
+{ .name="scale_x",
+.command_name = "scale_x",
+.style = VALUE,
+.value = {0, 0.f, 1.f, 0.01}},
+{ .name="scale_y",
+.command_name = "scale_y",
+.style = VALUE,
+.value = {0, 0.f, 1.f, 0.01}},
+{ .name="move_x",
+.command_name = "move_x",
+.style = VALUE,
+.value = {0, -1.f, 1.f, 0.01}},
+{ .name="move_y",
+.command_name = "move_y",
+.style = VALUE,
+.value = {0, -1.f, 1.f, 0.01}},
+{ .name="laser_brightness",
+.command_name = "laser_brightness",
+.style = VALUE,
+.value = {0, 0.f, 1.f, 0.01}},
+{ .name="laser_red_brightness",
+.command_name = "laser_red_brightness",
+.style = VALUE,
+.value = {0, 0.f, 1.f, 0.01}},
+{ .name="laser_green_brightness",
+.command_name = "laser_green_brightness",
+.style = VALUE,
+.value = {0, 0.f, 1.f, 0.01}},
+{ .name="laser_blue_brightness",
+.command_name = "laser_blue_brightness",
+.style = VALUE,
+.value = {0, 0.f, 1.f, 0.01}},
+{ .name="laser_red_br_offset",
+.command_name = "laser_red_br_offset",
+.style = VALUE,
+.value = {0, -255, 255, 1}},
+{ .name="laser_green_br_offset",
+.command_name = "laser_green_br_offset",
+.style = VALUE,
+.value = {0, -255, 255, 1}},
+{ .name="laser_blue_br_offset",
+.command_name = "laser_blue_br_offset",
+.style = VALUE,
+.value = {0, -255, 255, 1}}
+
                 },
                 .has_function = 1,
                 .function = read_options,
-            }}};
+            },
+            {
+                .name = "wifi options",
+                .command_name = "read",
+                .style = NESTED_MENU,
+                .nested_menu_options = {
+                    {
+                        .name = "SET MODE",
+                        .command_name = "", // so that wifiman receiving doesnt try to read undefined
+                        .style = NESTED_MENU,
+                        .nested_menu_options = {
+                            {
+                                .name = "WiFi OFF",
+                                .command_name = "write stealth",
+                                .style = TEXT,
+                                .has_function = 1,
+                                .function = wifiman_send
+                            },
+                            {
+                                .name = "WiFi",
+                                .command_name = "write wifi",
+                                .style = TEXT,
+                                .has_function = 1,
+                                .function = wifiman_send
+                            },
+                            {
+                                .name = "Access Point",
+                                .command_name = "write hotspot",
+                                .style = TEXT,
+                                .has_function = 1,
+                                .function = wifiman_send
+                            },
+                        }
+                    },
+                    {
+                        .name = "mode_set:",
+                        .style = TEXT,
+                    },
+                    {
+                        .name = "",
+                        .command_name = "wifi_setting",
+                        .style = TEXT,
+                    },
+                    {
+                        .name = "status:",
+                        .style = TEXT,
+                    },
+                    {
+                        .name = "",
+                        .command_name = "mode",
+                        .style = TEXT,
+                    },
+                    {
+                        .name = "SSID:",
+                        .style = TEXT,
+                    },
+                    {
+                        .name = "",
+                        .command_name = "wifi_ssid",
+                        .style = TEXT,
+                    },
+                    {
+                        .name = "hostname:",
+                        .style = TEXT,
+                    },
+                    {
+                        .name = "",
+                        .command_name = "hostname",
+                        .style = TEXT,
+                    }
+
+                },
+                .has_function = 1,
+                .function = wifiman_send,
+            }
+            }};
 
     float &brightness_val = root.nested_menu_options[6].nested_menu_options[0].value.num;
+    std::vector<menu_option> &wifiman_options_vector = root.nested_menu_options[7].nested_menu_options;
 
     bool first_redraw = 1;
     while (true)
@@ -407,11 +555,28 @@ int main()
         {
             Command command;
             command.execute(received.to_string(), subscriber, root, lcd);
+        }
+        while (wifiman_subscriber.recv(received, zmq::recv_flags::dontwait))
+        {
+            std::string rec_str = received.to_string();
 
-            subscriber.recv(received, zmq::recv_flags::dontwait);
+            size_t col_pos = rec_str.find(":");
+            if (col_pos != std::string::npos) {
+                std::string first = rec_str.substr(0, col_pos);
+
+                if (rec_str.length() > col_pos + 2) {
+                    std::string rest = rec_str.substr(col_pos + 2);
+                    std::cout << "first:\"" << first << "\", rest:\"" << rest << "\"" << std::endl;
+                    for (auto &&opt : wifiman_options_vector) {
+                        if (opt.command_name == first) {
+                            opt.name = "\4" + rest;
+                        }
+                    }
+                }
+            }
         }
 
-        menu_interact(lcd, command_sender, root, first_redraw);
+        menu_interact(lcd, command_sender, wifiman_sender, root, first_redraw);
         first_redraw = 0;
     }
 

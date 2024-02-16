@@ -263,6 +263,8 @@ else
     fi
 fi
 
+sudo apt-get install dnsmasq -y
+
 echo -e "${On_IWhite}##${Color_Off} configuring AP ${On_IWhite}##${Color_Off}"
 
 # echo -e "${On_IWhite}###${Color_Off} diverting ${Yellow}dhcpcd${Color_Off} config to custom file ${On_IWhite}##${Color_Off}"
@@ -417,20 +419,6 @@ sudo make -j4 install
 )
 
 
-echo -e "${On_IWhite}##${Color_Off} ${UWhite}compiling${Color_Off} lasershow executable... ${On_IWhite}##${Color_Off}"
-echo -e "${On_IBlack}++${Color_Off} (cd rpi-lasershow && make) ${On_IBlack}++${Color_Off}"
-# TODO: copy exec to root folder
-if !(out="$(cd rpi-lasershow && make)")
-then
-    echo -e "${Error}compilation resulted in an error${Error}${Color_Off}\ndetails:"
-    echo "$out"
-    err="${err}${Error}lasershow executable compilation resulted in an error${Error}${Color_Off}\ndetails:${out}\n"
-else
-    echo -e "${On_IWhite}##${Color_Off}                               ...${Green}success${Color_Off} ${On_IWhite}##${Color_Off}"
-    echo -e "${On_IWhite}##${Color_Off} cp rpi-lasershow/lasershow . ${On_IWhite}##${Color_Off}"
-    cp rpi-lasershow/lasershow .
-fi
-
 if which pm2 > /dev/null
 then
     echo -e "${On_IWhite}##${Color_Off} ${Yellow}pm2${Color_Off} is already installed, ${UWhite}skipping${Color_Off}... ${On_IWhite}##${Color_Off}"
@@ -440,15 +428,34 @@ else
     sudo npm install pm2 -g
 fi
 
-echo -e "${URed}pm2 -y confirm todo${Color_Off}"
-echo -e "${URed}pm2 -y confirm todo${Color_Off}"
-echo -e "${URed}pm2 -y confirm todo${Color_Off}"
-echo -e "${URed}pm2 -y confirm todo${Color_Off}"
-echo -e "${URed}pm2 -y confirm todo${Color_Off}"
-echo -e "${URed}pm2 -y confirm todo${Color_Off}"
-echo -e "${URed}pm2 -y confirm todo${Color_Off}\n\n\n"
 
-echo ""
+echo -e "${On_IWhite}##${Color_Off} ${UWhite}compiling${Color_Off} lasershow executable... ${On_IWhite}##${Color_Off}"
+echo -e "${On_IBlack}++${Color_Off} (cd rpi-lasershow && make) ${On_IBlack}++${Color_Off}"
+# TODO: copy exec to root folder
+if !(out="$(cd rpi-lasershow && make && sudo pm2 start ./bin/lasershow)")
+then
+    echo -e "${Error}compilation resulted in an error${Error}${Color_Off}\ndetails:"
+    echo "$out"
+    err="${err}${Error}lasershow executable compilation resulted in an error${Error}${Color_Off}\ndetails:${out}\n"
+else
+    echo -e "${On_IWhite}##${Color_Off}                               ...${Green}success${Color_Off} ${On_IWhite}##${Color_Off}"
+    echo -e "${On_IWhite}##${Color_Off} cp rpi-lasershow/lasershow . ${On_IWhite}##${Color_Off}"
+fi
+
+echo -e "${On_IWhite}##${Color_Off} ${UWhite}compiling${Color_Off} UI executable... ${On_IWhite}##${Color_Off}"
+echo -e "${On_IBlack}++${Color_Off} (cd UI && make && pm2 start ./bin/UI) ${On_IBlack}++${Color_Off}"
+# TODO: copy exec to root folder
+if !(out="$(cd rpi-lasershow && make && sudo pm2 start ./bin/UI)")
+then
+    echo -e "${Error}compilation resulted in an error${Error}${Color_Off}\ndetails:"
+    echo "$out"
+    err="${err}${Error}lasershow executable compilation resulted in an error${Error}${Color_Off}\ndetails:${out}\n"
+else
+    echo -e "${On_IWhite}##${Color_Off}                               ...${Green}success${Color_Off} ${On_IWhite}##${Color_Off}"
+    echo -e "${On_IWhite}##${Color_Off} cp rpi-lasershow/lasershow . ${On_IWhite}##${Color_Off}"
+fi
+sudo pm2 save
+
 
 #npm dependencies
 for i in {"discord_bot","web_ui","wifi_manager"}

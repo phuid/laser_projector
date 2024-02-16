@@ -11,6 +11,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <pigpio.h>
 
 int main()
 {
@@ -37,6 +38,20 @@ int main()
 
   IldaReader ildaReader;
 
+  if (gpioInitialise() < 0)
+  {
+    // pigpio initialisation failed.
+    std::cout << "init fail" << std::endl;
+    return 1;
+  }
+
+  gpioSetMode(SCLK, PI_OUTPUT);
+  gpioSetMode(CS, PI_OUTPUT);
+  gpioSetMode(MISO, PI_INPUT);
+
+  //needed to set the pins
+  std::cout << "start bat_voltage:" << static_cast<int>(bat_raw()) << std::endl;
+
   bool pass_next_command_read = 0;
   while (true)
   {
@@ -44,21 +59,13 @@ int main()
     if (!pass_next_command_read)
     {
       // options.project_filename = "";
-      if (command_receiver.recv(received, zmq::recv_flags::none)) // blocking
+      command_receiver.recv(received, zmq::recv_flags::none); // blocking
+      int exec_val = command.execute(received.to_string(), publisher, options, ildaReader);
+      if (exec_val != 2) 
       {
-        int exec_val = command.execute(received.to_string(), publisher, options);
-        if (exec_val == 0 || exec_val == 1)
-        {
-          continue;
-        }
-        else if (exec_val == 3)
-        {
-          calculate_points(publisher, options, ildaReader);
-        }
+        continue;
       }
-      else {
-        std::cerr << "failed reading message" << std::endl;
-      }
+      //else PROJECT
     }
     else
     {
@@ -85,7 +92,7 @@ int main()
         command_receiver.recv(received, zmq::recv_flags::dontwait);
         while (received.size() > 0)
         {
-          int exec_val = command.execute(received.to_string(), publisher, options);
+          int exec_val = command.execute(received.to_string(), publisher, options, ildaReader);
           std::cout << "exec_val: " << exec_val << std::endl;
           if (exec_val == 1)
           {
@@ -109,7 +116,7 @@ int main()
         if (first_repeat == 0)
         {
           // draw, if an error or end of file is reached, break
-          int loop_val = lasershow_loop(publisher, options, ildaReader, start);
+          int loop_val = lasershow_loop(publisher, options, ildaReader);
           if (loop_val == 2)
             break;
           else if (loop_val == 1)

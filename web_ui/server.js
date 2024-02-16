@@ -70,36 +70,37 @@ function onRequest(req, res) {
     if (req.url == "/fileupload") {
       var form = new formidable.IncomingForm();
       form.parse(req, function (err, fields, files) {
+        console.log(files);
         if (
-          files.filetoupload.originalFilename != "" &&
+          files.filetoupload[0].originalFilename != "" &&
           !(
-            files.filetoupload.originalFilename.substring(
-              files.filetoupload.originalFilename.indexOf(".")
+            files.filetoupload[0].originalFilename.substring(
+              files.filetoupload[0].originalFilename.indexOf(".")
             ) != ".svg" &&
-            files.filetoupload.originalFilename.substring(
-              files.filetoupload.originalFilename.indexOf(".")
+            files.filetoupload[0].originalFilename.substring(
+              files.filetoupload[0].originalFilename.indexOf(".")
             ) != ".ild"
           )
         ) {
-          var oldpath = files.filetoupload.filepath;
+          var oldpath = files.filetoupload[0].filepath;
 
           if (
-            files.filetoupload.originalFilename.substring(
-              files.filetoupload.originalFilename.indexOf(".")
+            files.filetoupload[0].originalFilename.substring(
+              files.filetoupload[0].originalFilename.indexOf(".")
             ) == ".svg"
           )
             var newpath = path.join(
               __dirname,
-              "../svg/" + files.filetoupload.originalFilename
+              "../svg/" + files.filetoupload[0].originalFilename
             );
           else if (
-            files.filetoupload.originalFilename.substring(
-              files.filetoupload.originalFilename.indexOf(".")
+            files.filetoupload[0].originalFilename.substring(
+              files.filetoupload[0].originalFilename.indexOf(".")
             ) == ".ild"
           )
             var newpath = path.join(
               __dirname,
-              "../ild/" + files.filetoupload.originalFilename
+              "../ild/" + files.filetoupload[0].originalFilename
             );
 
           fs.rename(oldpath, newpath, function (err) {
@@ -123,16 +124,16 @@ function onRequest(req, res) {
                   path.join(
                     __dirname,
                     "/ild/" +
-                      files.filetoupload.originalFilename.substring(
+                      files.filetoupload[0].originalFilename.substring(
                         0,
-                        files.filetoupload.originalFilename.indexOf(".")
+                        files.filetoupload[0].originalFilename.indexOf(".")
                       )
                   ) +
                   ".ild\n"
               );
               if (
-                files.filetoupload.originalFilename.substring(
-                  files.filetoupload.originalFilename.indexOf(".")
+                files.filetoupload[0].originalFilename.substring(
+                  files.filetoupload[0].originalFilename.indexOf(".")
                 ) == ".svg"
               ) {
                 exec(
@@ -144,9 +145,9 @@ function onRequest(req, res) {
                     path.join(
                       __dirname,
                       "../ild/" +
-                        files.filetoupload.originalFilename.substring(
+                        files.filetoupload[0].originalFilename.substring(
                           0,
-                          files.filetoupload.originalFilename.indexOf(".")
+                          files.filetoupload[0].originalFilename.indexOf(".")
                         )
                     ) +
                     ".ild",
@@ -168,9 +169,9 @@ function onRequest(req, res) {
                       path.join(
                         __dirname,
                         "/ild/" +
-                          files.filetoupload.originalFilename.substring(
+                          files.filetoupload[0].originalFilename.substring(
                             0,
-                            files.filetoupload.originalFilename.indexOf(".")
+                            files.filetoupload[0].originalFilename.indexOf(".")
                           )
                       ) +
                       ".ild" +
@@ -200,9 +201,7 @@ function onRequest(req, res) {
           console.log(
             "PROJECT " + path.join(__dirname, "../ild/" + fields.filename)
           );
-          send_command(
-            "PROJECT " + path.join(__dirname, "../ild/" + fields.filename)
-          );
+          lasershow_sender.send("PROJECT " + path.join(__dirname, "../ild/" + fields.filename));
         } else {
           res.end(
             '<h2 style="color: red; font-family: monospace;"><u>INPUT IS EMPTY</u></h2>'

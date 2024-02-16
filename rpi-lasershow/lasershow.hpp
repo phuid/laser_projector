@@ -23,6 +23,6 @@ void lasershow_start(zmq::socket_t &publisher, IldaReader &ildaReader, options_s
 
 void calculate_points(zmq::socket_t &publisher, options_struct options, IldaReader &ildaReader);
 
-bool lasershow_init(zmq::socket_t &publisher, options_struct options, IldaReader &ildaReader, std::chrono::time_point<std::chrono::system_clock> &start);
+bool lasershow_init(zmq::socket_t &publisher, options_struct &options, IldaReader &ildaReader);
 
-int lasershow_loop(zmq::socket_t &publisher, options_struct options, IldaReader &ildaReader, std::chrono::time_point<std::chrono::system_clock> &start);
+int lasershow_loop(zmq::socket_t &publisher, options_struct options, IldaReader &ildaReader);

@@ -109,8 +109,8 @@ int Command::execute(std::string string, zmq::socket_t &publisher, options_struc
         options_struct tmp_options;
         if (this->args[1] == "point_delay")
         {
-          options.pointDelay = tmp_options.pointDelay;
-          publish_message(publisher, "INFO: OPTION point_delay " + options.pointDelay);
+          options.point_delay = tmp_options.point_delay;
+          publish_message(publisher, "INFO: OPTION point_delay " + options.point_delay);
         }
         else if (this->args[1] == "repeat")
         {
@@ -119,8 +119,8 @@ int Command::execute(std::string string, zmq::socket_t &publisher, options_struc
         }
         else if (this->args[1] == "target_frame_time")
         {
-          options.targetFrameTime = tmp_options.targetFrameTime;
-          publish_message(publisher, "INFO: OPTION target_frame_time " + std::to_string(options.targetFrameTime));
+          options.target_frame_time = tmp_options.target_frame_time;
+          publish_message(publisher, "INFO: OPTION target_frame_time " + std::to_string(options.target_frame_time));
         }
         else if (this->args[1] == "trapezoid_horizontal")
         {
@@ -196,9 +196,13 @@ int Command::execute(std::string string, zmq::socket_t &publisher, options_struc
       }
       else if (this->args[0] == "read")
       {
-        if (this->args[1] == "point_delay")
+        
+        if (this->args[1] == "current_frame") {
+          publish_message(publisher, "INFO: OPTION current_frame " + std::to_string(ildaReader.current_frame_index));
+        }
+        else if (this->args[1] == "point_delay")
         {
-          publish_message(publisher, "INFO: OPTION point_delay " + std::to_string(options.pointDelay));
+          publish_message(publisher, "INFO: OPTION point_delay " + std::to_string(options.point_delay));
         }
         else if (this->args[1] == "repeat")
         {
@@ -206,7 +210,7 @@ int Command::execute(std::string string, zmq::socket_t &publisher, options_struc
         }
         else if (this->args[1] == "target_frame_time")
         {
-          publish_message(publisher, "INFO: OPTION target_frame_time " + std::to_string(options.targetFrameTime));
+          publish_message(publisher, "INFO: OPTION target_frame_time " + std::to_string(options.target_frame_time));
         }
         else if (this->args[1] == "trapezoid_horizontal")
         {
@@ -260,8 +264,12 @@ int Command::execute(std::string string, zmq::socket_t &publisher, options_struc
         {
           publish_message(publisher, "INFO: OPTION laser_blue_br_offset " + std::to_string(options.laser_blue_br_offset));
         }
-        else if (this->args[1] == "current_frame") {
-          publish_message(publisher, "INFO: OPTION current_frame " + std::to_string(IldaReader.current_frame_index));
+        else if (this->args[1] == "time_accurate_framing")
+        {
+          publish_message(publisher, "INFO: OPTION time_accurate_framing " + std::to_string(options.time_accurate_framing));
+        }
+        else if (this->args[1] == "battery_voltage") {
+          publish_message(publisher, "INFO: OPTION battery_voltage " + std::to_string((bat_raw() * (5.f / 256.f)) + 7.0));
         }
         else
         {
@@ -276,8 +284,8 @@ int Command::execute(std::string string, zmq::socket_t &publisher, options_struc
         {
           if (this->args[1] == "point_delay")
           {
-            options.pointDelay = stoi(this->args[2]);
-            publish_message(publisher, "INFO: OPTION point_delay " + std::to_string(options.pointDelay));
+            options.point_delay = stoi(this->args[2]);
+            publish_message(publisher, "INFO: OPTION point_delay " + std::to_string(options.point_delay));
           }
           else if (this->args[1] == "repeat")
           {
@@ -286,8 +294,8 @@ int Command::execute(std::string string, zmq::socket_t &publisher, options_struc
           }
           else if (this->args[1] == "target_frame_time")
           {
-            options.targetFrameTime = stoul(this->args[2]);
-            publish_message(publisher, "INFO: OPTION target_frame_time " + std::to_string(options.targetFrameTime));
+            options.target_frame_time = stoul(this->args[2]);
+            publish_message(publisher, "INFO: OPTION target_frame_time " + std::to_string(options.target_frame_time));
           }
           else if (this->args[1] == "trapezoid_horizontal")
           {
@@ -303,25 +311,25 @@ int Command::execute(std::string string, zmq::socket_t &publisher, options_struc
           }
           else if (this->args[1] == "scale_x")
           {
-            options.scale_up = stoi(this->args[2]);
+            options.scale_x = stof(this->args[2]);
             publish_message(publisher, "INFO: OPTION scale_x " + std::to_string(options.scale_x));
             to_return = 3;
           }
           else if (this->args[1] == "scale_y")
           {
-            options.scale_up_proportionally = stoi(this->args[2]);
+            options.scale_y = stof(this->args[2]);
             publish_message(publisher, "INFO: OPTION scale_y " + std::to_string(options.scale_y));
             to_return = 3;
           }
           else if (this->args[1] == "move_x")
           {
-            options.move_up = stoi(this->args[2]);
+            options.move_x = stof(this->args[2]);
             publish_message(publisher, "INFO: OPTION move_x " + std::to_string(options.move_x));
             to_return = 3;
           }
           else if (this->args[1] == "move_y")
           {
-            options.move_up_proportionally = stoi(this->args[2]);
+            options.move_y = stof(this->args[2]);
             publish_message(publisher, "INFO: OPTION move_y " + std::to_string(options.move_y));
             to_return = 3;
           }
@@ -368,15 +376,15 @@ int Command::execute(std::string string, zmq::socket_t &publisher, options_struc
             to_return = 3;
           }
           else if (this->args[1] == "current_frame") {
-            ildaReader.current_frame_index = stou(this->args[2]); //maybe stoul
-            options.start = std::chrono::system_clock::now() - std::chrono::milliseconds(ildaReader.current_frame_index * options.targetFrameTime);
-            publish_message(publisher, "INFO: OPTION current_frame " + std::to_string(IldaReader.current_frame_index));
+            ildaReader.current_frame_index = stoul(this->args[2]);
+            options.start = std::chrono::system_clock::now() - std::chrono::milliseconds(ildaReader.current_frame_index * options.target_frame_time);
+            publish_message(publisher, "INFO: OPTION current_frame " + std::to_string(ildaReader.current_frame_index));
             to_return = 0;
           }
           else if (this->args[1] == "current_projection_time") {
-            options.start = std::chrono::system_clock::now() - std::chrono::milliseconds(stou(this->args[2]));
-            IldaReader.current_frame_index = (std::chrono::system_clock::now() - options.start) / std::chrono::milliseconds(options.targetFrameTime);
-            publish_message(publisher, "INFO: OPTION current_frame " + std::to_string(IldaReader.current_frame_index));
+            options.start = std::chrono::system_clock::now() - std::chrono::milliseconds(stoul(this->args[2]));
+            ildaReader.current_frame_index = (std::chrono::system_clock::now() - options.start) / std::chrono::milliseconds(options.target_frame_time);
+            publish_message(publisher, "INFO: OPTION current_frame " + std::to_string(ildaReader.current_frame_index));
             to_return = 0;
           }
           else

@@ -108,3 +108,8 @@ lasershow exec can write to the socket at any time
       - max: size of projected file
 - `DISPLAY: <text>`: client shall display text to the user and hide it when a new command comes or when user sees it
 - `ALERT: <text>`: client shall display text to the user and only hide it and process following commands after user sees the alert
+
+
+#### what install changes
+
+hostapd service to load ../
