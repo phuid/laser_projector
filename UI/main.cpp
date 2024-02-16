@@ -29,6 +29,11 @@ void send_option_command(zmq::socket_t &command_sender, zmq::socket_t &wifiman_s
     parent.nest_option_active = 0;
 }
 
+void shutdown(zmq::socket_t &command_sender, zmq::socket_t &wifiman_sender, menu_option &parent)
+{
+    system("poweroff");
+}
+
 void read_options(zmq::socket_t &command_sender, zmq::socket_t &wifiman_sender, menu_option &parent)
 {
     for (auto &&option : parent.nested_menu_options[parent.nest_selected].nested_menu_options)
@@ -539,8 +544,22 @@ int main()
                 },
                 .has_function = 1,
                 .function = wifiman_send,
+            },
+            {
+                .name = "SOFT SHUTDOWN",
+                .command_name = "SHUTDOWN",
+                .style = TEXT,
+                .has_function = 1,
+                .function = send_option_command
+            },
+            {
+                .name = "HARD SHUTDOWN",
+                .style = TEXT,
+                .has_function = 1,
+                .function = shutdown
+            },
             }
-            }};
+            };
 
     float &brightness_val = root.nested_menu_options[6].nested_menu_options[0].value.num;
     std::vector<menu_option> &wifiman_options_vector = root.nested_menu_options[7].nested_menu_options;
