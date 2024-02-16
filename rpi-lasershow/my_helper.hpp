@@ -23,6 +23,7 @@ struct options_struct
   bool time_accurate_framing = 1;
   bool always_project_full_frames = 1;
 
+  bool scale = 1;
   float scale_x = 1;
   float scale_y = 1;
 
@@ -99,9 +100,10 @@ struct options_struct
             << "#bools" << std::endl \
             << "time_accurate_framing=" << std::to_string(time_accurate_framing) << std::endl \
             << "always_project_full_frames=" << std::to_string(always_project_full_frames) << std::endl \
-            << "#float (any, limited at runtime by the projection dimensions)" << std::endl \
+            << "#float (0 -- 1)" << std::endl \
             << "scale_x=" << std::to_string(scale_x) << std::endl \
             << "scale_y=" << std::to_string(scale_y) << std::endl \
+            << "#float (0 -- scale_*)" << std::endl \
             << "move_x=" << std::to_string(move_x) << std::endl \
             << "move_y=" << std::to_string(move_y) << std::endl \
             << "#float (-1 -- +1)" << std::endl \
