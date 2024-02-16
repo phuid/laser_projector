@@ -203,6 +203,7 @@ void Command::execute(std::string string, zmq::socket_t &subscriber, menu_option
                                 if (option.command_name == this->args[1])
                                 {
                                     option.value.num = stof(this->args[2]);
+                                    nest.redraw = 1;
                                 }
                             }
                         }
