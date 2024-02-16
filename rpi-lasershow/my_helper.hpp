@@ -18,7 +18,7 @@ void publish_message(std::string message_string);
 struct options_struct
 {
   bool repeat = 1;
-  int point_delay = 0;
+  int point_delay = 10;
   uint16_t target_frame_time = 33;
   bool time_accurate_framing = 1;
   bool always_project_full_frames = 1;

@@ -58,6 +58,7 @@ void project(zmq::socket_t &command_sender, zmq::socket_t &wifiman_sender, menu_
     std::cout << "PROJECT " << path << std::endl;
 #endif
     send_command(command_sender, "PROJECT " + path);
+    std::cout << "project parent: " << parent.name <<std::endl;
     parent.nest_option_active = 0;
     parent.redraw = 1;
 }
