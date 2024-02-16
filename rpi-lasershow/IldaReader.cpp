@@ -201,9 +201,8 @@ bool IldaReader::read_sections_from_file(zmq::socket_t &publisher)
                 if (point.y > 32768)
                     point.y = point.y - 65536;
 
-                // Map ILDA values to DAC value range and store the data to vector
-                point.x = map(point.x, -32768, +32767, 0, 4095);
-                point.y = map(point.y, -32768, +32767, 0, 4095);
+                point.x = point.x + 32768;
+                point.y = point.y + 32768;
 
                 section.points.push_back(point);
             }

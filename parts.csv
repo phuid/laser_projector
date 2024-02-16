@@ -33,11 +33,11 @@ R6, 10kR,, R_1812_4532Metric_Pad1.30x3.40mm_HandSolder,-245.227,-53.594,180, bot
 R11, 10kR,, R_1812_4532Metric_Pad1.30x3.40mm_HandSolder,-234.6706,-64.6176,180, bottom
 R12, 10kR,, R_1812_4532Metric_Pad1.30x3.40mm_HandSolder,-245.34,-65.5574,180, bottom
 R14, 2k2,https://www.gme.cz/v/1496462/yageo-r1206-2k2-025w-1-smd-rezistor, R_1812_4532Metric_Pad1.30x3.40mm_HandSolder,-263.906,-57.8866,0, bottom
-Xgain1, 10kR,bought (may be burned), Potentiometer_Alps_RK09K_Single_Vertical,227.4504,-57.2362,0, top
+Xgain1, 10kR,bought, Potentiometer_Alps_RK09K_Single_Vertical,227.4504,-57.2362,0, top
 Xoffset1, 10kR,, Potentiometer_Alps_RK09K_Single_Vertical,227.5266,-67.7264,0, top
 Ygain1, 10kR,, Potentiometer_Alps_RK09K_Single_Vertical,227.4504,-36.078,0, top
 Yoffset1, 10kR,, Potentiometer_Alps_RK09K_Single_Vertical,227.4758,-46.5428,0, top
-bat_probe1, Conn_01x01_Male,bought (robotarna lol), PinHeader_1x01_P2.54mm_Horizontal,-242.3414,-32.639,90, bottom
+bat_probe1, Conn_01x01_Male,bought, PinHeader_1x01_P2.54mm_Horizontal,-242.3414,-32.639,90, bottom
 encoder1, Conn_01x04_Male,, PinHeader_1x04_P2.54mm_Horizontal,-231.4508,-73.7266,-90, bottom
 galPWR1, Conn_01x03_Male,, PinHeader_1x03_P2.54mm_Horizontal,-263.3472,-73.533,-90, bottom
 galX1, Conn_01x03_Male,, PinHeader_1x03_P2.54mm_Horizontal,-243.982,-73.6284,-90, bottom
