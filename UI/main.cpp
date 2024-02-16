@@ -194,11 +194,17 @@ void Command::execute(std::string string, zmq::socket_t &subscriber, menu_option
             {
                 if (this->args.size() >= 3)
                 {
-                    for (auto &&option : root.nested_menu_options[5].nested_menu_options)
-                    {
-                        if (option.command_name == this->args[2])
-                        {
-                            option.value.num = stof(this->args[3]);
+                    for (auto &&nest : root.nested_menu_options) {
+                        if (nest.name == "options"){
+                            std::cout << "aushfdu yuuuuuuuuuuuuuuoptioterp" << std::endl;
+                            for (auto &&option : nest.nested_menu_options)
+                            {
+                                std::cout << "ARG: \"" << args[1] << "\"" << ", name: \"" << option.command_name << "\"" << std::endl;
+                                if (option.command_name == this->args[1])
+                                {
+                                    option.value.num = stof(this->args[2]);
+                                }
+                            }
                         }
                     }
                 }
