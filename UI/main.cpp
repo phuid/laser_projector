@@ -196,7 +196,6 @@ void Command::execute(std::string string, zmq::socket_t &subscriber, menu_option
                 {
                     for (auto &&nest : root.nested_menu_options) {
                         if (nest.name == "options"){
-                            std::cout << "aushfdu yuuuuuuuuuuuuuuoptioterp" << std::endl;
                             for (auto &&option : nest.nested_menu_options)
                             {
                                 std::cout << "ARG: \"" << args[1] << "\"" << ", name: \"" << option.command_name << "\"" << std::endl;
@@ -569,7 +568,18 @@ int main()
             };
 
     float &brightness_val = root.nested_menu_options[6].nested_menu_options[0].value.num;
-    std::vector<menu_option> &wifiman_options_vector = root.nested_menu_options[7].nested_menu_options;
+    std::vector<menu_option> &wifiman_options_vector = [](menu_option &root) -> std::vector<menu_option>&
+    {
+        for (auto &&nest : root.nested_menu_options) {
+            if (nest.name == "wifi options") {
+                return nest.nested_menu_options;
+            }
+        }
+        std::cerr << "Error: no wifi options menu found" << std::endl;
+        exit(1);
+    } (root);
+
+    
 
     bool first_redraw = 1;
     while (true)
@@ -605,6 +615,7 @@ int main()
 
         menu_interact(lcd, command_sender, wifiman_sender, root, first_redraw);
         first_redraw = 0;
+        usleep(1000);
     }
 
     lcd_backlight_off(lcd);
