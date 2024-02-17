@@ -113,3 +113,11 @@ lasershow exec can write to the socket at any time
 #### what install changes
 
 hostapd service to load ../
+
+### instalation commands
+
+```bash
+git clone https://github.com/phuid/laser_projector.git
+cd laser_projector
+bash install.sh
+```
