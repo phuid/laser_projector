@@ -169,8 +169,8 @@ void Command::execute(std::string string, zmq::socket_t &subscriber, menu_option
             {
                 if (this->args.size() >= 2)
                 {
-                    root.nested_menu_options[4].name = ((stoi(this->args[1])) ? "PAUSE ||" : "PAUSE >");
-                    root.nested_menu_options[4].redraw = 1;
+                    root.nested_menu_options[5].name = ((stoi(this->args[1])) ? "PAUSE ||" : "PAUSE >");
+                    root.nested_menu_options[5].redraw = 1;
                 }
             }
             else if (this->args[0] == "PROJECT")
@@ -187,7 +187,7 @@ void Command::execute(std::string string, zmq::socket_t &subscriber, menu_option
                     root.nested_menu_options[0].name = filename_noextension + "%";
                     root.nested_menu_options[0].redraw = 1;
 
-                    root.nested_menu_options[4].name = "PAUSE >";
+                    root.nested_menu_options[5].name = "PAUSE >";
                 }
             }
             else if (this->args[0] == "OPTION")
@@ -219,7 +219,7 @@ void Command::execute(std::string string, zmq::socket_t &subscriber, menu_option
                 }
             }
             else if (this->args[0] == "STOP") {
-                    root.nested_menu_options[4].name = "PAUSE";
+                root.nested_menu_options[5].name = "PAUSE";
             }
             root.nested_menu_options[2].name = "I:";
             for (auto &&i : this->args)
@@ -380,6 +380,11 @@ int main()
             },
             {.name = "-no out received-",
              .style = TEXT},
+            {
+                .name = "battery voltage",
+                .style = VALUE,
+                .value = {0, 0, 100, 0}
+            },
             {.name = "STOP",
              .command_name = "STOP",
              .style = TEXT,
@@ -561,11 +566,6 @@ int main()
                 .function = wifiman_send,
             },
             {
-                .name = "battery voltage",
-                .style = VALUE,
-                .value = {0, 0, 100, 0}
-            },
-            {
                 .name = "SOFT SHUTDOWN",
                 .command_name = "SHUTDOWN",
                 .style = TEXT,
@@ -581,7 +581,20 @@ int main()
             }
             };
 
-    float &brightness_val = root.nested_menu_options[6].nested_menu_options[0].value.num;
+    float &brightness_val = [](menu_option &root) -> float&
+    {
+        for (auto &&nest : root.nested_menu_options) {
+            if (nest.name == "options") {
+                for (auto &&option : nest.nested_menu_options) {
+                    if (option.command_name == "screen_brightness") {
+                        return option.value.num;
+                    }
+                }
+            }
+        }
+        std::cerr << "Error: no screen birghtness option found" << std::endl;
+        exit(1);
+    } (root);
     std::vector<menu_option> &wifiman_options_vector = [](menu_option &root) -> std::vector<menu_option>&
     {
         for (auto &&nest : root.nested_menu_options) {
@@ -598,7 +611,7 @@ int main()
     send_command(command_sender, "OPTION read battery_voltage");
 
     bool first_redraw = 1;
-
+    std::cout << "bef" << std::endl;
     while (true)
     {
         // interact with user via OLED LCD and a rotary encoder
