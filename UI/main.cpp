@@ -194,11 +194,20 @@ void Command::execute(std::string string, zmq::socket_t &subscriber, menu_option
             {
                 if (this->args.size() >= 3)
                 {
+                    if (this->args[1] == "battery_voltage") {
+                        for (auto &&option : root.nested_menu_options) {
+                            if (option.name == "battery voltage") {
+                                option.value.num = stof(this->args[2]);
+                                root.redraw = 1;
+                            }
+                        }
+                    }
+
                     for (auto &&nest : root.nested_menu_options) {
                         if (nest.name == "options"){
                             for (auto &&option : nest.nested_menu_options)
                             {
-                                std::cout << "ARG: \"" << args[1] << "\"" << ", name: \"" << option.command_name << "\"" << std::endl;
+                                // std::cout << "ARG: \"" << args[1] << "\"" << ", name: \"" << option.command_name << "\"" << std::endl;
                                 if (option.command_name == this->args[1])
                                 {
                                     option.value.num = stof(this->args[2]);
@@ -552,6 +561,11 @@ int main()
                 .function = wifiman_send,
             },
             {
+                .name = "battery voltage",
+                .style = VALUE,
+                .value = {0, 0, 100, 0}
+            },
+            {
                 .name = "SOFT SHUTDOWN",
                 .command_name = "SHUTDOWN",
                 .style = TEXT,
@@ -580,8 +594,11 @@ int main()
     } (root);
 
     
+    size_t last_bat_read = millis();
+    send_command(command_sender, "OPTION read battery_voltage");
 
     bool first_redraw = 1;
+
     while (true)
     {
         // interact with user via OLED LCD and a rotary encoder
@@ -615,6 +632,11 @@ int main()
 
         menu_interact(lcd, command_sender, wifiman_sender, root, first_redraw);
         first_redraw = 0;
+
+        if (millis() > last_bat_read + 10000) {
+            last_bat_read = millis();
+            send_command(command_sender, "OPTION read battery_voltage");
+        }
         usleep(1000);
     }
 
