@@ -130,7 +130,7 @@ int main()
       if (options.paused == 1) // stopped
         break;
     }
-    lasershow_cleanup(0);
-    publish_message(publisher, "INFO: lasershow cleanup");
+    // lasershow_cleanup(0);
+    // publish_message(publisher, "INFO: lasershow cleanup done");
   }
 }

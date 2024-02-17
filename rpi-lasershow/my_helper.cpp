@@ -14,6 +14,7 @@ void publish_message(std::string message_string)
 
   zmq::socket_t publisher(ctx, zmq::socket_type::pub);
   publisher.connect("tcp://*:5556");
+  std::cout << "message_string: \"" << message_string << "\"" << std::endl;
   
   publisher.send(zmq::message_t(message_string.c_str(), message_string.length()), zmq::send_flags::none);
 }
