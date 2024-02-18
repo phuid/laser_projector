@@ -261,6 +261,10 @@
         <td><output id="hostname"></td>
       </tr>
     </table>
+
+    <div id="showdraw" onclick="toggledisplay(document.getElementById('draw'))">
+      <svg id="drawsvg" enable-background="new 0 0 1200 1200" height="1200" viewBox="0 0 1200 1200" width="1200" xmlns="http://www.w3.org/2000/svg"><path d="m1157.602.013c-46.711 2.677-736.479 591.498-793.123 798.838l130.736 136.944c373.684-311.596 493.7-641.574 704.785-935.146l-42.383-.649zm-834.335 840.549c-236.177 86.856-88.12 258.711-323.267 342.79 266.294 59.953 384.296-49.748 454.003-205.421l-130.736-137.383z"/></svg>
+    </div>
   </div>
   <div id="queue">hellyea</div>
   <div id="nowplaying" class="flex-container">
@@ -303,8 +307,6 @@
       <div id="current_frame-max">0</div>
     </div>
 
-
-
     <form id="projectionform" action="project" method="post" enctype="multipart/form-data">
       <div id="stopbtn" onclick="socket.emit('LASERSHOWdata', 'STOP');">
         <svg id="stopsvg" height="512" viewBox="0 0 512 512" width="512" xmlns="http://www.w3.org/2000/svg">
@@ -327,6 +329,10 @@
         </svg>
       </div>
     </form>
+  </div>
+  <div id="draw">
+      
+  </div>
 
 </body>
 

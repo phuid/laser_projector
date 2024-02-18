@@ -67,6 +67,29 @@ input[type="submit"] {
   border-radius: 2rem;
 }
 
+#draw {
+  background-color: black;
+  border: 1px solid var(--text-2);
+  display: none;
+}
+
+#showdraw, #drawsvg {
+  width: 3rem;
+  height: 3rem;
+  position: absolute;
+  right: 5%;
+  bottom: 5%;
+  fill: var(--text-button);
+}
+#showdraw {
+  background-color: var(--foreground-2);
+  padding: 1rem;
+  border-radius: 1rem;
+}
+#drawsvg {
+  margin: 0.8rem;
+}
+
 .terminal-container {
   font-family: Inconsolata, monospace;
     border: 1px solid var(--text-2);
@@ -145,6 +168,15 @@ select {
 
   .landscape-invisible {
     display: none;
+  }
+
+  #draw {
+    position: absolute;
+    left: 50%;
+    top: 10vh;
+    width: 50%;
+    height: 77.8vh;
+    z-index: 22;
   }
   
   #ssh-terminal-container {
