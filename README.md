@@ -1,61 +1,91 @@
 # RaspberryPi laser projector
 
-## install
-TODO: add sources to install script
-[zeromq install](https://github.com/MonsieurV/ZeroMQ-RPi)
+[RaspberryPi laser projector](#raspberrypi-laser-projector)
+- [RaspberryPi laser projector](#raspberrypi-laser-projector)
+  - [how to install](#how-to-install)
+  - [hw](#hw)
+    - [galvos](#galvos)
+      - [DAC - mcp4822](#dac---mcp4822)
+      - [amps - TL082](#amps---tl082)
+    - [laser](#laser)
+    - [OLED + encoder](#oled--encoder)
+  - [sw](#sw)
+    - [lasershow](#lasershow)
+    - [UI](#ui)
+    - [web\_ui](#web_ui)
+    - [discord\_bot](#discord_bot)
+    - [wifi\_manager](#wifi_manager)
+    - [communication](#communication)
+      - [lasershow \<- socket](#lasershow---socket)
+        - [basic commands:](#basic-commands)
+        - [responses:](#responses)
+
+## how to install
+
+```bash
+git clone https://github.com/phuid/laser_projector.git
+cd laser_projector
+bash install.sh
+```
+
+## hw
+
+### galvos
+take -10 to +10V differential signal between to lines (base and inverted)
+
+#### DAC - mcp4822
+DAC controlled by the RPi creates an analog signal between 0 and 5V
+
+#### amps - TL082
+TL082 from texas instruments, each channel has one chip, each chip has two op amps.
+One opamp inverts and modifies the signal based on the potenciometers (getting the inverted ILDA signal),
+Second opamp inverts it again for the base ILDA signal
+
+### laser
+rgb laser module from https://www.laserlands.net/diode-laser-module/rgb-combined-white-laser-module/11010003.html
+requires 8.5-12V power
+takes 35kHz TTL / PWM on 3 pins
+
+### OLED + encoder
 
 
+## sw
 
-## how it works
-
-### hw
-
-#### galvos
-
-##### mcp4822
-
-##### amps
-
-#### laser
-
-##### 3ch-DAC / TTL
-
-#### OLED + encoder
-
-
-### sw
-
-#### lasershow
+### lasershow
 - takes socket commands
 - min: project ild file on exec()
 
-#### UI
+### UI
 - file select from dir
   - future: fs tree
 - start and stop lasershow file projection
 - wifi_manager comm
 
-#### web_ui
+### web_ui
 - ssh console
 - file select to project
 - stop projection button
 
-#### discord_bot
+### discord_bot
 idk whatever there is time for
 
-#### wifi_manager
-- takes socket commands
-- AP / wifi / wifi_off
+### wifi_manager
+takes following socket commands
+- `read`
+- `write <stealth|wifi|hotspot>`
+  - stealth -- wifi off
+  - wifi -- connect to nearby known networks
+  - hotspot -- create new network, raspberry pi becomes the access point
 
-#### communication
-##### lasershow <- socket
+### communication
+#### lasershow <- socket
 
-lasershow executable takes commands **from all UI processes** through an **IPC socket**
+lasershow executable takes commands **from all UI processes** through a **TCP socket**
 command format
 `COMMAND` + ` ` + `ARG1` + ` ` + `ARG2` + ` ` + ` ` + `ARG4`
 -> parse with a simple while loop lol no need for fancy functions
 
-###### basic commands:
+##### basic commands:
 any process can send a command into the socket and all processes will read responses from lasershow executable
 - `PROJECT` args: `<filename>`
   - `<filename>` must have extension `.ild`<!-- or `.lpc`(laserprojector_custom) --> otherwise error `INVALID_ARG`
@@ -77,7 +107,7 @@ any process can send a command into the socket and all processes will read respo
     - `trapeziod_vertical`
   - `value` only read when using `write` parameter
 
-###### responses:
+##### responses:
 lasershow exec can write to the socket at any time
 - `ERROR: <e> <details>`:
   - `e`: any of the following; returned if received command couldn't be parsed correctly
@@ -108,16 +138,3 @@ lasershow exec can write to the socket at any time
       - max: size of projected file
 - `DISPLAY: <text>`: client shall display text to the user and hide it when a new command comes or when user sees it
 - `ALERT: <text>`: client shall display text to the user and only hide it and process following commands after user sees the alert
-
-
-#### what install changes
-
-hostapd service to load ../
-
-### instalation commands
-
-```bash
-git clone https://github.com/phuid/laser_projector.git
-cd laser_projector
-bash install.sh
-```
