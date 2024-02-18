@@ -1,22 +1,32 @@
 #include <wiringPi.h>
 #include "encoder.hpp"
+#include <iostream>
 
 static bool encoder_btn_pressed = 0;
 
-void handle_enc_btn_interrupts()
+static uint16_t last_interrupt = 0;
+void handle_enc_btn_falling()
 {
-	static uint16_t last_interrupt = 0;
 	uint16_t interrupt_time = millis();
-	if (interrupt_time - last_interrupt > 50 && !digitalRead(encoder_button_pin))
+
+	if (interrupt_time - last_interrupt > 200)
 	{
+		// std::cout << "-------------------------------------------------";
 		encoder_btn_pressed = 1;
 	}
+	// std::cout << "interrupt:" << interrupt_time << "last:" << last_interrupt;
+	// std::cout << std::endl;
 	last_interrupt = interrupt_time;
+}
+
+void handle_enc_btn_rising()
+{
+	last_interrupt = millis();
 }
 
 static int16_t encoder_pos = 0;
 
-void handle_enc_interrupts() // TODO: rewrite, register less interrupts
+void handle_enc_interrupts()
 {
 	static bool encoder_pins_last_state[2] = {0, 0};
 	bool state[2] = {(bool)digitalRead(encoder_pins[0]), (bool)digitalRead(encoder_pins[1])};
@@ -27,7 +37,7 @@ void handle_enc_interrupts() // TODO: rewrite, register less interrupts
 	bool A_falling = !state[0] && encoder_pins_last_state[0];
 	bool B_falling = !state[1] && encoder_pins_last_state[1];
 
-	if (A_rising  || B_rising || A_falling  || B_falling) // dont need high precision, my encoder has feelable steps and 4 interrupts in each
+	if (A_rising || B_rising || A_falling  || B_falling)
 	{
 
 		bool dir = 0;

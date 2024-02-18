@@ -79,13 +79,13 @@ int main()
       continue;
     }
 
-    bool first_repeat = 1;
-    while (options.repeat || first_repeat)
+    bool first_repeat_or_break = 1;
+    while (options.repeat || first_repeat_or_break)
     {
-      first_repeat = 0;
+      first_repeat_or_break = 0;
       lasershow_start(publisher, ildaReader, options);
 
-      while (first_repeat == 0) // also used just as a break flag (if 1 break)
+      while (first_repeat_or_break == 0) // also used just as a break flag (if 1 break)
       {
         // maybe receive messages here, then youd need atleast the ildareader(filename) here in main..
         // - no,, just exit the loop lol
@@ -94,17 +94,22 @@ int main()
         {
           int exec_val = command.execute(received.to_string(), publisher, options, ildaReader);
           std::cout << "exec_val: " << exec_val << std::endl;
-          if (exec_val == 1)
+          if (exec_val == 1) // stop
           {
-            options.repeat = 0; // dont start projecting again
-            first_repeat = 1;
+            first_repeat_or_break = 1; // to get out of loop
             break;
           }
           else if (exec_val == 2) // projecting again
           {
             pass_next_command_read = 1; // load a new file and start projecting again
-            options.repeat = 0;
-            first_repeat = 1;
+            if (lasershow_init(publisher, options, ildaReader) != 0)
+              {
+                std::cout << "failed to init lasershow" << std::endl;
+                publish_message(publisher, "ERROR: failed to init lasershow");
+                first_repeat_or_break = 1; // to get out of loop
+                break;
+              }
+            first_repeat_or_break = 1;
             break;
           }
           else if (exec_val == 3)
@@ -113,7 +118,7 @@ int main()
           }
           command_receiver.recv(received, zmq::recv_flags::dontwait);
         }
-        if (first_repeat == 0)
+        if (first_repeat_or_break == 0)
         {
           // draw, if an error or end of file is reached, break
           int loop_val = lasershow_loop(publisher, options, ildaReader);
@@ -130,7 +135,7 @@ int main()
       if (options.paused == 1) // stopped
         break;
     }
-    lasershow_cleanup(0);
-    publish_message(publisher, "INFO: lasershow cleanup");
+    // lasershow_cleanup(0);
+    // publish_message(publisher, "INFO: lasershow cleanup done");
   }
 }

@@ -99,6 +99,7 @@ int Command::execute(std::string string, zmq::socket_t &publisher, options_struc
   case PAUSE:
     options.paused = !options.paused;
     publish_message(publisher, "INFO: PAUSE " + (options.paused ? std::string("1") : std::string("0")));
+    options.start = std::chrono::system_clock::now() - std::chrono::milliseconds(options.target_frame_time * ildaReader.current_frame_index);
     return 0;
     break;
   case OPTION:

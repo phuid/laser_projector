@@ -258,8 +258,7 @@ select {
   #lastpatharea {
     font-size: 2rem;
     position: absolute;
-    left: 0;
-    width: 80%;
+    width: 60%;
     top: 0;
     right: 20%;
     height: 10vh;
@@ -267,7 +266,7 @@ select {
     z-index: 1;
   }
 
-  #projectsvg {
+  #projectsvg, projectdiv {
     position: absolute;
     right: 0;
     top: 0;
@@ -275,6 +274,24 @@ select {
     width: 20%;
     z-index: 2;
   }
+
+  #stopsvg, #stopbtn {
+    border-radius: 2rem;
+    background-color: var(--foreground-1);
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 10vh;
+    width: 20%;
+    z-index: 2;
+  }
+  #stopsvg {
+    width: 100%;
+  }
+  #stopbtn {
+    width: 20%;
+  }
+}
 
   #nowplaying {
     position: absolute;
@@ -442,7 +459,7 @@ select {
   #lastpatharea {
     font-size: 2rem;
     position: absolute;
-    left: 0;
+    left: 10%;
     width: 80%;
     bottom: 0;
     right: 20%;
@@ -451,7 +468,7 @@ select {
     z-index: 1;
   }
 
-  #projectsvg {
+  #projectsvg, projectdiv {
     position: absolute;
     right: 0;
     bottom: 0;

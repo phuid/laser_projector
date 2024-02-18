@@ -37,7 +37,7 @@ void lasershow_cleanup(int sig)
     adcdac.close_dac();
     gpioTerminate();
     printf("lasershow cleanup done.\n\r");
-    publish_message("INFO: lasershow cleanup done.");
+    // publish_message("INFO: lasershow cleanup done.");
     if (sig != 0)
     {
         printf("stopped on interrupt\n\r");
@@ -269,6 +269,9 @@ bool lasershow_init(zmq::socket_t &publisher, options_struct &options, IldaReade
         return 1;
     }
 
+
+    printf("reading \"%s\"\n\r", options.project_filename);
+    publish_message(publisher, "INFO: reading \"" + options.project_filename + "\"");
     if (ildaReader.readFile(publisher, options.project_filename) == 0 && ildaReader.sections_from_file.size() != 0)
     {
         printf("succesful file read\n\r");
@@ -300,6 +303,8 @@ bool lasershow_init(zmq::socket_t &publisher, options_struct &options, IldaReade
 
 uint16_t get_frame_by_time(zmq::socket_t &publisher, const options_struct &options)
 {
+    std::cout << "time:" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - options.start).count() << std::endl;
+    std::cout << "start:" << options.start.time_since_epoch().count() / 1000000 << std::endl;
     uint16_t frame_index = 0;
     uint16_t frame_time = options.target_frame_time;
     if (frame_time < 1)
@@ -320,6 +325,11 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options, IldaReader 
     if (!options.paused)
     {
         ildaReader.current_frame_index = get_frame_by_time(publisher, options);
+    }
+    else {
+        options.start = std::chrono::system_clock::now() - std::chrono::milliseconds(options.target_frame_time * ildaReader.current_frame_index);
+        std::cout << "time:" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - options.start).count() << std::endl;
+        std::cout << "start:" << options.start.time_since_epoch().count() / 1000000 << std::endl;
     }
     if (ildaReader.current_frame_index < ildaReader.projection_sections.size())
     {
@@ -343,6 +353,7 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options, IldaReader 
             // check the time and move on to the next frame
             if (!options.always_project_full_frames && options.target_frame_time * (ildaReader.current_frame_index + 1) < std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - options.start).count())
             {
+                std::cout << "scam!!!!!!!!!!!!" << std::endl;
                 options.start = std::chrono::system_clock::now();
                 for (size_t i = 0; i < 3; i++)
                 {
@@ -352,11 +363,6 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options, IldaReader 
                 break;
             }
         }
-        if (options.paused) {
-            options.start = std::chrono::system_clock::now() - std::chrono::milliseconds(options.target_frame_time * ildaReader.current_frame_index);
-            std::cout << "time:" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - options.start).count() << std::endl;
-        }
-
         return 0;
     }
     else
