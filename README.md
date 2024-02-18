@@ -1,7 +1,7 @@
-# RaspberryPi laser projector
+# Raspberry Pi laser projector
 
-[RaspberryPi laser projector](#raspberrypi-laser-projector)
-- [RaspberryPi laser projector](#raspberrypi-laser-projector)
+[Raspberry Pi laser projector](#raspberrypi-laser-projector)
+- [Raspberry Pi laser projector](#raspberry-pi-laser-projector)
   - [how to install](#how-to-install)
   - [hw](#hw)
     - [galvos](#galvos)
