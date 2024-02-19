@@ -41,15 +41,16 @@ input[type="number"] {
   color: var(--text-button);
 }
 
-input[type='range'] {
+input[type="range"] {
+  appearance: none;
   -webkit-appearance: none;
   background-color: var(--background-1);
 }
 
-input[type='range']::-webkit-slider-runnable-track {
+input[type="range"]::-webkit-slider-runnable-track {
   -webkit-appearance: none;
-height: 0.3rem;
-color: var(--foreground-1);
+  height: 0.3rem;
+  color: var(--foreground-1);
 }
 
 /* input[type='range']::-webkit-slider-thumb {
@@ -58,21 +59,21 @@ color: var(--foreground-1);
 } */
 
 input[type="range"]::-moz-range-progress {
-background-color: var(--foreground-1);
-height: 0.3rem;
+  background-color: var(--foreground-1);
+  height: 0.3rem;
 }
-input[type="range"]::-moz-range-track {  
-height: 0.3rem;
-background-color: var(--background-1);
+input[type="range"]::-moz-range-track {
+  height: 0.3rem;
+  background-color: var(--background-1);
 }
 /* IE*/
 input[type="range"]::-ms-fill-lower {
-height: 0.3rem;
-background-color: var(--foreground-1); 
+  height: 0.3rem;
+  background-color: var(--foreground-1);
 }
-input[type="range"]::-ms-fill-upper {  
-height: 0.3rem;
-background-color: var(--background-1);
+input[type="range"]::-ms-fill-upper {
+  height: 0.3rem;
+  background-color: var(--background-1);
 }
 
 input[type="file"]::-webkit-file-upload-button {
@@ -98,7 +99,9 @@ input[type="submit"] {
   display: none;
 }
 
-#uploadsvg, #projectsvg {
+#uploadsvg,
+#projectsvg {
+  margin: 0 0.3rem;
   background-color: var(--foreground-1);
   color: var(--text-button);
   border: none;
@@ -111,7 +114,8 @@ input[type="submit"] {
   display: none;
 }
 
-#showdraw, #drawsvg {
+#showdraw,
+#drawsvg {
   width: 3rem;
   height: 3rem;
   position: absolute;
@@ -130,9 +134,9 @@ input[type="submit"] {
 
 .terminal-container {
   font-family: Inconsolata, monospace;
-    border: 1px solid var(--text-2);
-    background-color: var(--background-2);
-    overflow: hidden;
+  border: 1px solid var(--text-2);
+  background-color: var(--background-2);
+  overflow: hidden;
 }
 
 .width100 {
@@ -142,7 +146,7 @@ input[type="submit"] {
 }
 
 .flex-container {
-  display:flex;
+  display: flex;
 }
 
 #queue {
@@ -177,7 +181,8 @@ select {
   overflow: scroll;
 }
 
-#settings > table, tbody {
+#settings > table,
+tbody {
   width: 90%;
   table-layout: fixed;
 }
@@ -216,7 +221,7 @@ select {
     height: 77.8vh;
     z-index: 22;
   }
-  
+
   #ssh-terminal-container {
     position: absolute;
     left: 0;
@@ -224,7 +229,7 @@ select {
     width: 50%;
     bottom: 0;
   }
-  
+
   #lasershow-terminal-container {
     position: absolute;
     left: 50%;
@@ -232,7 +237,7 @@ select {
     width: 50%;
     height: 50%;
   }
-  
+
   #wifiman-terminal-container {
     position: absolute;
     left: 50%;
@@ -240,7 +245,7 @@ select {
     width: 50%;
     bottom: 0%;
   }
-  
+
   #fileupload {
     top: 0;
     left: 0;
@@ -248,6 +253,7 @@ select {
     bottom: 90vh;
     position: absolute;
     padding: 0;
+    padding-left: 0.6rem;
     margin: 0;
     background: var(--text-2);
     z-index: 11;
@@ -300,7 +306,10 @@ select {
     z-index: 2;
   }
 
-  #repeatsvg, #shufflesvg, #settingssvg, #queuesvg {
+  #repeatsvg,
+  #shufflesvg,
+  #settingssvg,
+  #queuesvg {
     fill: var(--foreground-1);
     height: 70%;
     width: 70%;
@@ -337,32 +346,33 @@ select {
     z-index: 1;
   }
 
-  #projectsvg, projectdiv {
+  #projectsvg,
+  projectdiv {
     position: absolute;
     right: 0;
     top: 0;
     height: 10vh;
-    width: 20%;
+    width: calc(20% - 0.6rem);
     z-index: 2;
   }
 
-  #stopsvg, #stopbtn {
+  #stopsvg,
+  #stopbtn {
+    margin: 0 0.3rem;
     border-radius: 1rem;
     background-color: var(--foreground-1);
     position: absolute;
     left: 0;
     top: 0;
     height: 10vh;
-    width: 20%;
     z-index: 2;
   }
   #stopsvg {
     width: 100%;
   }
   #stopbtn {
-    width: 20%;
+    width: calc(20% - 1.2rem);
   }
-}
 
   #nowplaying {
     position: absolute;
@@ -374,7 +384,8 @@ select {
     justify-content: space-evenly;
   }
 
-  #nowplaying > div, #progress > div {
+  #nowplaying > div,
+  #progress > div {
     height: 4vh;
     width: 4vh;
     margin: 1%;
@@ -382,7 +393,7 @@ select {
     /* height: 80%; */
     padding: calc(4vh - 1rem);
   }
-  
+
   #queue {
     position: absolute;
     left: 0;
@@ -455,7 +466,7 @@ select {
     text-align: center;
     padding: calc(5vh - 0.5rem) 0;
   }
-  
+
   #queue {
     position: absolute;
     left: 0;
@@ -481,7 +492,7 @@ select {
     position: absolute;
     padding: 0;
     margin: 0;
-    background: linear-gradient(var(--text-2), rgba(0,0,0,0));
+    background: linear-gradient(var(--text-2), rgba(0, 0, 0, 0));
     z-index: 11;
   }
 
@@ -490,7 +501,11 @@ select {
     width: 80%;
     border-style: solid;
     border-width: 3px;
-    border-image: linear-gradient(to right, var(--text-button), var(--text-2) 30%);
+    border-image: linear-gradient(
+      to right,
+      var(--text-button),
+      var(--text-2) 30%
+    );
     border-image-slice: 1 fill;
     border-radius: 5vh;
     background-color: var(--background-2);
@@ -539,7 +554,8 @@ select {
     z-index: 1;
   }
 
-  #projectsvg, projectdiv {
+  #projectsvg,
+  projectdiv {
     position: absolute;
     right: 0;
     bottom: 0;
