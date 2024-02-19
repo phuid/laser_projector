@@ -179,6 +179,7 @@ select {
 
 #settings {
   overflow: scroll;
+  border: 1px solid var(--text-2);
 }
 
 #settings > table,
