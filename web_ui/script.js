@@ -161,14 +161,14 @@ socket.on("LASERSHOWmsg", function (data) {
           document.getElementById("play").classlist.add("saturate");
         }
         else if (words[1] == "PAUSE" && words.length > 2) {
-          console.log(words[2])
-          if (words[2] == "0") {
+          console.log("\"" + words[2] + "\"");
+          if (words[2].trim() == "0") {
             document.getElementById("play").innerHTML = ">";
-            document.getElementById("play").classlist.add("saturate");
+            document.getElementById("play").classList.add("saturate");
           }
           else {
             document.getElementById("play").innerHTML = "||";
-            document.getElementById("play").classlist.remove("saturate");
+            document.getElementById("play").classList.remove("saturate");
           }
         }
       }
@@ -191,7 +191,7 @@ socket.on("WIFIMANmsg", function (data) {
 });
 
 socket.on("alert", (alert) => {
-  alert(alert);
+  alert(JSON.stringify(alert));
 });
 
 function setMyVal(el) {
@@ -227,7 +227,7 @@ $("#fileupload").submit(function (e) {
     contentType: false, //this is requireded please see answers above
     processData: false, //this is requireded please see answers above
     success: function (data) {
-      alert(data);
+      alert(JSON.stringify(data));
     },
     error: function () {
       alert("HTTP request ERROR\n");
@@ -247,7 +247,7 @@ $("#projectionform").submit(function (e) {
       terminals.ssh.write("\n" + data);
     },
     error: function (data) {
-      alert("ERROR\n" + data);
+      alert("ERROR\n" + JSON.stringify(data));
     },
   });
 });
@@ -263,7 +263,7 @@ $("#projectsvg").on("click", () => {
       terminals.ssh.write("\n" + data);
     },
     error: function (data) {
-      alert("ERROR\n" + data);
+      alert("ERROR\n" + JSON.stringify(data));
     },
   });
 });
@@ -281,7 +281,7 @@ $("#uploadsvg").on("click", () => {
       terminals.ssh.write("\n" + data);
     },
     error: function (data) {
-      alert("ERROR\n" + data);
+      alert("ERROR\n" + JSON.stringify(data));
     },
   });
 });
