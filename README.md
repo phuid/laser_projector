@@ -60,7 +60,9 @@ takes 35kHz TTL / PWM on 3 pins, these pins are connected directly to the raspbe
 pin connections between the laser module and RPi
 |LASER|RPi|
 |---|---|
-|||
+|red|GPIO22|
+|green|GPIO27|
+|blue|GPIO17|
 
 ### OLED + encoder
 
