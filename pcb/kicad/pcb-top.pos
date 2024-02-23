@@ -1,0 +1,24 @@
+### Footprint positions - created on Fri Jan 26 19:06:12 2024 ###
+### Printed by KiCad version 7.0.10
+## Unit = mm, Angle = deg.
+## Side : top
+# Ref     Val         Package                                           PosX       PosY       Rot  Side
+C1        1u          C_Disc_D5.0mm_W2.5mm_P5.00mm                  258.5720   -54.3668   90.0000  top
+C2        10u         CP_Radial_D5.0mm_P2.00mm                      254.4419   -67.0814    0.0000  top
+C3        10u         CP_Radial_D5.0mm_P2.00mm                      253.7561   -60.0710    0.0000  top
+D1        D_Schottky  D_SMC_Handsoldering                           267.6398   -51.6636    0.0000  top
+L2        20u         L_Sumida_CR75                                 267.5782   -66.7004    0.0000  top
+R2        R           R_1812_4532Metric_Pad1.30x3.40mm_HandSolder   253.9492   -52.5018   90.0000  top
+R3        R           R_1812_4532Metric_Pad1.30x3.40mm_HandSolder   252.2982   -40.8686   90.0000  top
+R13       39k         R_1812_4532Metric_Pad1.30x3.40mm_HandSolder   263.9314   -57.8612  180.0000  top
+U1        MCP4822     DIP-8_W7.62mm                                 248.3258   -44.9734  180.0000  top
+U2        TL082       DIP-8_W7.62mm                                 249.1386   -61.5696  -90.0000  top
+U3        TL082       DIP-8_W7.62mm                                 249.1032   -49.6416  -90.0000  top
+U4        LM358       DIP-8_W7.62mm                                 256.1690   -37.1194    0.0000  top
+U5        ADC0831     DIP-8_W7.62mm                                 266.5476   -37.2210    0.0000  top
+U6        AOZ1282CI   SOT-23-6                                      270.0500   -59.3598  -90.0000  top
+Xgain1    10kR        Potentiometer_Alps_RK09K_Single_Vertical      227.4504   -57.2362    0.0000  top
+Xoffset1  10kR        Potentiometer_Alps_RK09K_Single_Vertical      227.5266   -67.7264    0.0000  top
+Ygain1    10kR        Potentiometer_Alps_RK09K_Single_Vertical      227.4504   -36.0780    0.0000  top
+Yoffset1  10kR        Potentiometer_Alps_RK09K_Single_Vertical      227.4758   -46.5428    0.0000  top
+## End
