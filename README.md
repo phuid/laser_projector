@@ -74,6 +74,7 @@ LCD connections:
 |SCK|GPIO3|
 |SDA|GPIO2|
 |backlight|GPIO18|
+
 encoder connections:
 |encoder|RPi|
 |---|---|
@@ -84,10 +85,13 @@ encoder connections:
 |button1|GPIO13|
 
 ## sw
+2 backend programs (lasershow *(c++)* + wifi_manager *(node.js)*) and 3 frontend programs (UI *(c++)* + web_ui *(node.js)* + discord_bot *(node.js)*)
+each backend has its pub/sub sockets
+lasershow publishes to `tcp://localhost:5556` and receives commands from `tcp://localhost:5556`.
+wifi_manager publishes to `tcp://localhost:5558` and receives commands from `tcp://localhost:5559`.
 
 ### lasershow
-- takes socket commands
-- min: project ild file on exec()
+- backend program that listens for socket commands 
 
 ### UI
 - file select from dir
@@ -114,7 +118,7 @@ takes following socket commands
 ### communication
 #### lasershow <- socket
 
-lasershow executable takes commands **from all UI processes** through a **TCP socket**
+lasershow executable takes commands **from all UI processes** through a **ZeroMQ TCP socket**
 command format
 `COMMAND` + ` ` + `ARG1` + ` ` + `ARG2` + ` ` + ` ` + `ARG4`
 -> parse with a simple while loop lol no need for fancy functions
