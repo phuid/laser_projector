@@ -86,37 +86,32 @@ encoder connections:
 
 ## sw
 2 backend programs (lasershow *(c++)* + wifi_manager *(node.js)*) and 3 frontend programs (UI *(c++)* + web_ui *(node.js)* + discord_bot *(node.js)*)
-each backend has its pub/sub sockets
-lasershow publishes to `tcp://localhost:5556` and receives commands from `tcp://localhost:5556`.
-wifi_manager publishes to `tcp://localhost:5558` and receives commands from `tcp://localhost:5559`.
-
-### lasershow
-- backend program that listens for socket commands 
-
-### UI
-- file select from dir
-  - future: fs tree
-- start and stop lasershow file projection
-- wifi_manager comm
-
-### web_ui
-- ssh console
-- file select to project
-- stop projection button
-
-### discord_bot
-idk whatever there is time for
-
-### wifi_manager
-takes following socket commands
-- `read`
-- `write <stealth|wifi|hotspot>`
-  - stealth -- wifi off
-  - wifi -- connect to nearby known networks
-  - hotspot -- create new network, raspberry pi becomes the access point
 
 ### communication
-#### lasershow <- socket
+each backend has its pub/sub sockets
+lasershow publishes to `tcp://localhost:5556` and receives commands from `tcp://localhost:5556`
+wifi_manager publishes to `tcp://localhost:5558` and receives commands from `tcp://localhost:5559`
+
+### lasershow
+- backend program that takes care of the actual projecting through controlling the galvos and the laser module
+
+### UI
+- allows control of backend programs through the built-in LCD and encoder
+
+### web_ui
+- allows control of backend programs through a web interface available on the local network
+
+### discord_bot
+- allows control of backend programs through a discord bot
+
+### wifi_manager
+- allows switching between three modes of wifi:
+  - wifi off (`stealth`)
+  - wifi on (`wifi`) -- RPi wifi on and trying to connect to known nearby networks
+  - access point (`hotspot`) -- RPi wifi on transmitting its own wifi which other devices can connect to
+
+### comms format
+#### lasershow comms
 
 lasershow executable takes commands **from all UI processes** through a **ZeroMQ TCP socket**
 command format
@@ -130,7 +125,7 @@ any process can send a command into the socket and all processes will read respo
 - `STOP` (no args)
 - `PAUSE` (no args)
 - `GAME` args: `<game_name>`
-  - `game_name` is any of the following ``//TODO: game names
+  - `game_name` is any of the following ``//TODO: game names (not yes implemented)
 - `PRESS` (no args), only handled if game is running
 - `RELEASE` (no args), only handled if game is running
 - `OPTION` args: `<mode>` `<option_name>` `<value>`
@@ -176,3 +171,16 @@ lasershow exec can write to the socket at any time
       - max: size of projected file
 - `DISPLAY: <text>`: client shall display text to the user and hide it when a new command comes or when user sees it
 - `ALERT: <text>`: client shall display text to the user and only hide it and process following commands after user sees the alert
+
+#### wifi_manager comms
+takes following commands
+- `read`: prints out following parameters:
+  - `wifi_setting: <stealth|wifi|hotspot>`
+  - `wifi_ssid: <SSID>`: SSID as returned by `iwgetid --raw` or `iw dev` in case hotspot is active
+  - `mode_raw: <MODE_RAW>`: MODE_RAW (0-7) as returned by `iwgetid --mode --raw`
+  - `mode: <MODE>`: MODE based on MODE_RAW; possible outputs: `Auto|Ad-Hoc|Managed|Master|Repeater|Secondary|Monitor|Unknown/bug`
+
+- `write <stealth|wifi|hotspot>`
+  - `stealth`: wifi off
+  - `wifi`: connect to nearby known networks
+  - `hotspot`: create new network, raspberry pi becomes the access point
