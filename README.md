@@ -1,26 +1,28 @@
-# Raspberry Pi laser projector
+# Raspberry Pi RGB laser projector
+A vector laser projector with an easy to understand UI on local network, on an integrated display and on discord.
 
 ## table of contents
+- [thesis](#thesis)
+- [how to install](#how-to-install)
+- [hw](#hw)
+  - [galvos](#galvos)
+    - [DAC - mcp4822](#dac---mcp4822)
+    - [amps - TL082](#amps---tl082)
+  - [laser](#laser)
+  - [OLED + encoder](#oled--encoder)
+- [sw](#sw)
+  - [lasershow](#lasershow)
+  - [UI](#ui)
+  - [web\_ui](#web_ui)
+  - [discord\_bot](#discord_bot)
+  - [wifi\_manager](#wifi_manager)
+  - [communication](#communication)
+    - [lasershow \<- socket](#lasershow---socket)
+      - [basic commands:](#basic-commands)
+      - [responses:](#responses)
 
-- [Raspberry Pi laser projector](#raspberry-pi-laser-projector)
-  - [table of contents](#table-of-contents)
-  - [how to install](#how-to-install)
-  - [hw](#hw)
-    - [galvos](#galvos)
-      - [DAC - mcp4822](#dac---mcp4822)
-      - [amps - TL082](#amps---tl082)
-    - [laser](#laser)
-    - [OLED + encoder](#oled--encoder)
-  - [sw](#sw)
-    - [lasershow](#lasershow)
-    - [UI](#ui)
-    - [web\_ui](#web_ui)
-    - [discord\_bot](#discord_bot)
-    - [wifi\_manager](#wifi_manager)
-    - [communication](#communication)
-      - [lasershow \<- socket](#lasershow---socket)
-        - [basic commands:](#basic-commands)
-        - [responses:](#responses)
+## thesis
+I wrote a whole thesisi in [czech](https://en.wikipedia.org/wiki/Czech_Republic) language about this project. It is available in [this repository](https://github.com/phuid/laser_projector-thesis) [(direct link to the pdf file)](https://github.com/phuid/laser_projector-thesis/blob/master/text.pdf).
 
 ## how to install
 
@@ -30,13 +32,20 @@ cd laser_projector
 bash install.sh
 ```
 
+## supported projection file formats
+The projector can read and project **.ild** and (much more popular) **.svg** file formats.
+**.ild** files can be generated using specialised software like [laserworld showeditor](https://www.showeditor.com/en).
+**.svg** files from any editor are internally converted to **.ild** using [this svg2ild.py script](https://github.com/marcan/openlase/blob/master/tools/svg2ild.py) from [gh/marcan/openlase](https://github.com/marcan/openlase)
+
 ## hw
 
 ### galvos
-take -10 to +10V differential signal between to lines (base and inverted)
+take -10 to +10V differential signal between to lines (base and inverted),
+The DAC + opamps circuit which generates this signal is nicely described in [this article](https://www.instructables.com/Arduino-Laser-Show-With-Real-Galvos/).
+My implemetation of it in kicad files can be found in [pcb/kicad].
 
 #### DAC - mcp4822
-DAC controlled by the RPi creates an analog signal between 0 and 5V
+DAC controlled by the RPi creates an analog signal between 0 and 5V.
 
 #### amps - TL082
 TL082 from texas instruments, each channel has one chip, each chip has two op amps.
@@ -46,7 +55,12 @@ Second opamp inverts it again for the base ILDA signal
 ### laser
 rgb laser module from https://www.laserlands.net/diode-laser-module/rgb-combined-white-laser-module/11010003.html
 requires 8.5-12V power
-takes 35kHz TTL / PWM on 3 pins
+takes 35kHz TTL / PWM on 3 pins, these pins are connected directly to the raspberry pi
+
+pin connections between the laser module and RPi
+|LASER|RPi|
+|---|---|
+|||
 
 ### OLED + encoder
 
