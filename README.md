@@ -31,7 +31,7 @@ UI includes:
       - [wifi\_manager comms](#wifi_manager-comms)
 
 ## thesis
-I wrote a whole thesisi in [czech](https://en.wikipedia.org/wiki/Czech_Republic) language about this project. It is available in [this repository](https://github.com/phuid/laser_projector-thesis) [(direct link to the pdf file)](https://github.com/phuid/laser_projector-thesis/blob/master/text.pdf).
+I wrote a whole thesis in [czech](https://en.wikipedia.org/wiki/Czech_Republic) language about this project. It is available in [this repository](https://github.com/phuid/laser_projector-thesis) [(direct link to the pdf file)](https://github.com/phuid/laser_projector-thesis/blob/master/text.pdf).
 
 ## how to install
 
