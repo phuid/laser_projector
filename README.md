@@ -1,25 +1,34 @@
 # Raspberry Pi RGB laser projector
-A vector laser projector with an easy to understand UI on local network, on an integrated display and on discord.
+A vector laser projector with an easy to understand UI.\
+UI includes:
+- integrated display control with a rotary encoder,
+- web server on the local network
+- discord bot accesible when the RPi is online
 
 ## table of contents
-- [thesis](#thesis)
-- [how to install](#how-to-install)
-- [hw](#hw)
-  - [galvos](#galvos)
-    - [DAC - mcp4822](#dac---mcp4822)
-    - [amps - TL082](#amps---tl082)
-  - [laser](#laser)
-  - [OLED + encoder](#oled--encoder)
-- [sw](#sw)
-  - [lasershow](#lasershow)
-  - [UI](#ui)
-  - [web\_ui](#web_ui)
-  - [discord\_bot](#discord_bot)
-  - [wifi\_manager](#wifi_manager)
-  - [communication](#communication)
-    - [lasershow \<- socket](#lasershow---socket)
-      - [basic commands:](#basic-commands)
-      - [responses:](#responses)
+- [Raspberry Pi RGB laser projector](#raspberry-pi-rgb-laser-projector)
+  - [table of contents](#table-of-contents)
+  - [thesis](#thesis)
+  - [how to install](#how-to-install)
+  - [supported projection file formats](#supported-projection-file-formats)
+  - [hw](#hw)
+    - [galvos](#galvos)
+      - [DAC - mcp4822](#dac---mcp4822)
+      - [amps - TL082](#amps---tl082)
+    - [laser](#laser)
+    - [LCD + encoder](#lcd--encoder)
+  - [sw](#sw)
+    - [communication](#communication)
+    - [lasershow](#lasershow)
+    - [UI](#ui)
+    - [web\_ui](#web_ui)
+    - [discord\_bot](#discord_bot)
+    - [wifi\_manager](#wifi_manager)
+    - [comms format](#comms-format)
+      - [lasershow comms](#lasershow-comms)
+        - [basic commands:](#basic-commands)
+        - [responses:](#responses)
+      - [wifi\_manager comms](#wifi_manager-comms)
 
 ## thesis
 I wrote a whole thesisi in [czech](https://en.wikipedia.org/wiki/Czech_Republic) language about this project. It is available in [this repository](https://github.com/phuid/laser_projector-thesis) [(direct link to the pdf file)](https://github.com/phuid/laser_projector-thesis/blob/master/text.pdf).
@@ -31,6 +40,7 @@ git clone https://github.com/phuid/laser_projector.git
 cd laser_projector
 bash install.sh
 ```
+this script installs all the dependencies of my programs and sets up the RaspberryPi to start all the programs on boot using [pm2](https://pm2.keymetrics.io/).
 
 ## supported projection file formats
 The projector can read and project **.ild** and (much more popular) **.svg** file formats.
@@ -38,11 +48,12 @@ The projector can read and project **.ild** and (much more popular) **.svg** fil
 **.svg** files from any editor are internally converted to **.ild** using [this svg2ild.py script](https://github.com/marcan/openlase/blob/master/tools/svg2ild.py) from [gh/marcan/openlase](https://github.com/marcan/openlase)
 
 ## hw
+My plans include battery power, usually galvos come with a power supply and powering the laser isn't that hard using a step-up. My module takes around 0.45A @ 9V. Make sure you dont brick your pi by taking its power. Raspberry Pis often don't take it well when an undervoltage occurs on their 5V line and they certainly aren't made to power anything more than an LED from their 3.3V PS.
 
 ### galvos
 take -10 to +10V differential signal between to lines (base and inverted),
 The DAC + opamps circuit which generates this signal is nicely described in [this article](https://www.instructables.com/Arduino-Laser-Show-With-Real-Galvos/).
-My implemetation of it in kicad files can be found in [pcb/kicad].
+My implemetation of it in kicad files can be found in [pcb/kicad](pcb/kicad).
 
 #### DAC - mcp4822
 DAC controlled by the RPi creates an analog signal between 0 and 5V.
