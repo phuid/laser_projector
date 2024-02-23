@@ -64,8 +64,24 @@ pin connections between the laser module and RPi
 |green|GPIO27|
 |blue|GPIO17|
 
-### OLED + encoder
-
+### LCD + encoder
+Any 20x4 LCD with an I2C backpack + any rotary encoder with a button 
+LCD connections:
+|LCD|RPi|
+|---|---|
+|Vcc|5V|
+|GND|GND|
+|SCK|GPIO3|
+|SDA|GPIO2|
+|backlight|GPIO18|
+encoder connections:
+|encoder|RPi|
+|---|---|
+|A|GPIO5|
+|common|GND|
+|B|GPIO6|
+|button1|GND|
+|button1|GPIO13|
 
 ## sw
 
