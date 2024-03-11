@@ -1,0 +1,24 @@
+{
+  "FormatData": {
+    "NUMBER_OF_HEADER_BYTES": 32,
+    "HEADER": {
+      "ILDA_STRING_BYTES": [0, 3],
+      "ILDA_STRING": ["I", "L", "D", "A"],
+      "FORMAT_CODE_BYTE": 7,
+      "NUMBER_OF_RECORDS_BYTES": [24, 25],
+      "FRAME_NUMBER_BYTES": [26, 27],
+      "TOTAL_FRAMES_BYTES": [28, 29],
+      "PROJECTOR_NUMBER_BYTE": 30
+    },
+    "NUMBER_OF_REAL_2D_BYTES": 8,
+    "REAL_2D": {
+      "FORMAT_CODE": 5,
+      "X_COORD_BYTES": [0, 1],
+      "Y_COORD_BYTES": [2, 3],
+      "STATUS_BYTE": 4,
+      "RED_BYTE": 5,
+      "GREEN_BYTE": 6,
+      "BLUE_BYTE": 7
+    }
+  }
+}

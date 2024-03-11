@@ -137,13 +137,14 @@ socket.on("LASERSHOWmsg", function (data) {
       if (words.length > 1) {
         if (words[1] == "OPTION" && words.length > 3) {
           if (words[2] == "time_accurate_framing") {
-            document.getElementById("time_accurate_framing").checked = Number(words[3]);
-          }
-          else {
-          document.getElementById(words[2]).value = Number(words[3]);
-          document.getElementById(words[2] + "-output").innerHTML = Number(
-            words[3]
-          );
+            document.getElementById("time_accurate_framing").checked = Number(
+              words[3]
+            );
+          } else {
+            document.getElementById(words[2]).value = Number(words[3]);
+            document.getElementById(words[2] + "-output").innerHTML = Number(
+              words[3]
+            );
           }
         } else if (words[1] == "FRAME" && words.length > 4) {
           document.getElementById("current_frame").value = Number(words[2]);
@@ -156,17 +157,16 @@ socket.on("LASERSHOWmsg", function (data) {
           );
         } else if (words[1] == "PROJECT" && words.length > 2) {
           split_dirs = words[2].split("/");
-          document.getElementById("current_filename").innerHTML = split_dirs[split_dirs.length - 1];
+          document.getElementById("current_filename").innerHTML =
+            split_dirs[split_dirs.length - 1];
           document.getElementById("play").innerHTML = ">";
           document.getElementById("play").classlist.add("saturate");
-        }
-        else if (words[1] == "PAUSE" && words.length > 2) {
-          console.log("\"" + words[2] + "\"");
+        } else if (words[1] == "PAUSE" && words.length > 2) {
+          console.log('"' + words[2] + '"');
           if (words[2].trim() == "0") {
             document.getElementById("play").innerHTML = ">";
             document.getElementById("play").classList.add("saturate");
-          }
-          else {
+          } else {
             document.getElementById("play").innerHTML = "||";
             document.getElementById("play").classList.remove("saturate");
           }
@@ -316,3 +316,37 @@ addEventListener("resize", (event) => {
 });
 
 // swiper.updateSlides()
+
+async function uploadDrawFile() {
+  
+  let points = [];
+
+  let HEAD_LEN = 32;
+  let POINT_LEN = 8;
+  var array = new Uint8Array(HEAD_LEN + points.length * POINT_LEN);
+
+  //write head
+
+  for (let i = 0; i < points.length; i++) {
+    array[i * POINT_LEN + HEAD_LEN + 1] = points[i].x & 0xf0 >> 8; //fixme? (not sure if this is correct)
+    array[i * POINT_LEN + HEAD_LEN + 1 + 1] = points[i].x & 0x0f;
+    
+    array[i * POINT_LEN + HEAD_LEN + 1 + 2] = points[i].y & 0xf0 >> 8; //fixme again
+    array[i * POINT_LEN + HEAD_LEN + 1 + 3] = points[i].y & 0x0f;
+
+    array[i * POINT_LEN + HEAD_LEN + 1 + 4] = points[i].status;
+
+    array[i * POINT_LEN + HEAD_LEN + 1 + 5] = points[i].r;
+    array[i * POINT_LEN + HEAD_LEN + 1 + 6] = points[i].g;
+    array[i * POINT_LEN + HEAD_LEN + 1 + 7] = points[i].b;
+  }
+  var blob = new Blob([array]);
+
+  let formData = new FormData();
+  formData.append("file", blob);
+  await fetch("/upload-draw-file", {
+    method: "POST",
+    body: formData,
+  });
+  alert("The file has been uploaded successfully.");
+}
