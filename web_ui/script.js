@@ -29,7 +29,7 @@ class terminal {
 }
 
 if (screen.availHeight > screen.availWidth) {
-  var swiper = new Swiper(".swiper", {
+  let swiper = new Swiper(".swiper", {
     grabCursor: false,
     effect: "coverflow",
     spaceBetween: 30,
@@ -57,7 +57,7 @@ if (screen.availHeight > screen.availWidth) {
   ];
   classes_to_remove_in_landscape.forEach((classname) => {
     for (
-      var i = 0;
+      let i = 0;
       i < document.getElementsByClassName(classname).length;
       i++
     ) {
@@ -67,13 +67,13 @@ if (screen.availHeight > screen.availWidth) {
   });
 }
 
-var terminals = {
+let terminals = {
   ssh: new terminal("ssh-terminal-container"),
   lasershow: new terminal("lasershow-terminal-container"),
   wifiman: new terminal("wifiman-terminal-container"),
 };
 
-var socket = io(); //.connect();
+let socket = io(); //.connect();
 socket.on("connect", function () {
   Object.entries(terminals).forEach(([key, terminal]) => {
     terminal.term.write("\r\n*** WebSocket connection estabilished ***\r\n");
@@ -219,7 +219,7 @@ function readWMSettings() {
 $("#fileupload").submit(function (e) {
   console.log("upload");
   e.preventDefault(); // prevent actual form submit
-  var postData = new FormData(this);
+  let postData = new FormData(this);
   $.ajax({
     type: "POST",
     url: "/fileupload",
@@ -236,7 +236,7 @@ $("#fileupload").submit(function (e) {
 });
 $("#projectionform").submit(function (e) {
   e.preventDefault(); // prevent actual form submit
-  var postData = new FormData(this);
+  let postData = new FormData(this);
   $.ajax({
     type: "POST",
     url: "/project",
@@ -252,7 +252,7 @@ $("#projectionform").submit(function (e) {
   });
 });
 $("#projectsvg").on("click", () => {
-  var postData = new FormData(document.getElementById("projectionform"));
+  let postData = new FormData(document.getElementById("projectionform"));
   $.ajax({
     type: "POST",
     url: "/project",
@@ -270,7 +270,7 @@ $("#projectsvg").on("click", () => {
 
 $("#uploadsvg").on("click", () => {
   console.log("upload");
-  var postData = new FormData(document.getElementById("fileupload"));
+  let postData = new FormData(document.getElementById("fileupload"));
   $.ajax({
     type: "POST",
     url: "/fileupload",
@@ -318,20 +318,72 @@ addEventListener("resize", (event) => {
 // swiper.updateSlides()
 
 async function uploadDrawFile() {
-  
   let points = [];
 
   let HEAD_LEN = 32;
-  let POINT_LEN = 8;
-  var array = new Uint8Array(HEAD_LEN + points.length * POINT_LEN);
+  let POINT_LEN = 8; //format 5 - 2D Coordinates with True Color
+  let array = new Uint8Array(HEAD_LEN + (points.length * POINT_LEN));
 
   //write head
 
+  //write "ILDA" to the first 4 bytes
+  array[0] = "I".charCodeAt(0);
+  array[1] = "L".charCodeAt(0);
+  array[2] = "D".charCodeAt(0);
+  array[3] = "A".charCodeAt(0);
+
+  //write reserved 0 to the next 3 bytes
+  array[4] = 0;
+  array[5] = 0;
+  array[6] = 0;
+
+  //write format code to the next byte
+  array[7] = 5;
+
+  //write "lasP-tmp" to the next 8 bytes
+  array[8] = "l".charCodeAt(0);
+  array[9] = "a".charCodeAt(0);
+  array[10] = "s".charCodeAt(0);
+  array[11] = "P".charCodeAt(0);
+  array[12] = "-".charCodeAt(0);
+  array[13] = "t".charCodeAt(0);
+  array[14] = "m".charCodeAt(0);
+  array[15] = "p".charCodeAt(0);
+
+  //write "gh/phuid" to the next 8 bytes
+  array[16] = "g".charCodeAt(0);
+  array[17] = "h".charCodeAt(0);
+  array[18] = "/".charCodeAt(0);
+  array[19] = "p".charCodeAt(0);
+  array[20] = "h".charCodeAt(0);
+  array[21] = "u".charCodeAt(0);
+  array[22] = "i".charCodeAt(0);
+  array[23] = "d".charCodeAt(0);
+
+  //write number of points to the next 2 bytes
+  array[24] = points.length & (0xf0 >> 8); //fixme? (not sure if this is correct)
+  array[25] = points.length & 0x0f;
+
+  //write frame number to the next 2 bytes
+  array[26] = 0;
+  array[27] = 0;
+
+  //write total number of frames to the next 2 bytes
+  array[28] = 1;
+  array[29] = 1;
+
+  //write projector number to the next byte
+  array[30] = 0;
+
+  //write reserved 0 to the next byte
+  array[31] = 0;
+
+  //write points
   for (let i = 0; i < points.length; i++) {
-    array[i * POINT_LEN + HEAD_LEN + 1] = points[i].x & 0xf0 >> 8; //fixme? (not sure if this is correct)
+    array[i * POINT_LEN + HEAD_LEN + 1] = points[i].x & (0xf0 >> 8); //fixme? (not sure if this is correct)
     array[i * POINT_LEN + HEAD_LEN + 1 + 1] = points[i].x & 0x0f;
-    
-    array[i * POINT_LEN + HEAD_LEN + 1 + 2] = points[i].y & 0xf0 >> 8; //fixme again
+
+    array[i * POINT_LEN + HEAD_LEN + 1 + 2] = points[i].y & (0xf0 >> 8); //fixme again
     array[i * POINT_LEN + HEAD_LEN + 1 + 3] = points[i].y & 0x0f;
 
     array[i * POINT_LEN + HEAD_LEN + 1 + 4] = points[i].status;
@@ -340,9 +392,10 @@ async function uploadDrawFile() {
     array[i * POINT_LEN + HEAD_LEN + 1 + 6] = points[i].g;
     array[i * POINT_LEN + HEAD_LEN + 1 + 7] = points[i].b;
   }
-  var blob = new Blob([array]);
+  let blob = new Blob([array]);
 
   let formData = new FormData();
+  fd.append("fname", "laserProjector-draw-tmp.ild");
   formData.append("file", blob);
   await fetch("/upload-draw-file", {
     method: "POST",
@@ -350,3 +403,6 @@ async function uploadDrawFile() {
   });
   alert("The file has been uploaded successfully.");
 }
+
+
+drawcanvas = document.getElementById("drawCanvas");
