@@ -28,8 +28,12 @@ var xtermBasePath = path.join(require.resolve("xterm"), "..");
 staticFiles["/xterm.css"] = fs.readFileSync(
   path.join(xtermBasePath, "../css/xterm.css")
 );
-staticFiles["/xterm.js"] = fs.readFileSync(path.join(xtermBasePath, "xterm.js"));
-staticFiles["/xterm.js.map"] = fs.readFileSync(path.join(xtermBasePath, "xterm.js.map"));
+staticFiles["/xterm.js"] = fs.readFileSync(
+  path.join(xtermBasePath, "xterm.js")
+);
+staticFiles["/xterm.js.map"] = fs.readFileSync(
+  path.join(xtermBasePath, "xterm.js.map")
+);
 xtermBasePath = path.join(require.resolve("xterm-addon-fit"), "..");
 staticFiles["/xterm-addon-fit.js"] = fs.readFileSync(
   path.join(xtermBasePath, "xterm-addon-fit.js")
@@ -43,9 +47,15 @@ staticFiles["/lib/jquery-3.5.1.min.js"] = fs.readFileSync(
 );
 
 var swiperBasePath = path.join(require.resolve("swiper"), "..");
-staticFiles["/swiper-bundle.min.js"] = fs.readFileSync(path.join(swiperBasePath, "swiper-bundle.min.js"));
-staticFiles["/swiper-bundle.min.js.map"] = fs.readFileSync(path.join(swiperBasePath, "swiper-bundle.min.js.map"));
-staticFiles["/swiper-bundle.min.css"] = fs.readFileSync(path.join(swiperBasePath, "swiper-bundle.min.css"));
+staticFiles["/swiper-bundle.min.js"] = fs.readFileSync(
+  path.join(swiperBasePath, "swiper-bundle.min.js")
+);
+staticFiles["/swiper-bundle.min.js.map"] = fs.readFileSync(
+  path.join(swiperBasePath, "swiper-bundle.min.js.map")
+);
+staticFiles["/swiper-bundle.min.css"] = fs.readFileSync(
+  path.join(swiperBasePath, "swiper-bundle.min.css")
+);
 
 staticFiles["/"] = fs.readFileSync("index.html");
 staticFiles["/style.css"] = fs.readFileSync("style.css");
@@ -201,7 +211,9 @@ function onRequest(req, res) {
           console.log(
             "PROJECT " + path.join(__dirname, "../ild/" + fields.filename)
           );
-          lasershow_sender.send("PROJECT " + path.join(__dirname, "../ild/" + fields.filename));
+          lasershow_sender.send(
+            "PROJECT " + path.join(__dirname, "../ild/" + fields.filename)
+          );
         } else {
           res.end(
             '<h2 style="color: red; font-family: monospace;"><u>INPUT IS EMPTY</u></h2>'
@@ -227,6 +239,130 @@ function onRequest(req, res) {
       res.write(JSON.stringify(sorted));
 
       res.end();
+    } else if (req.url == "/upload-draw-file") {
+      var form = new formidable.IncomingForm();
+      form.parse(req, function (err, fields, files) {
+        console.log(files);
+        if (
+          files.filetoupload[0].originalFilename != "" &&
+          !(
+            files.filetoupload[0].originalFilename.substring(
+              files.filetoupload[0].originalFilename.indexOf(".")
+            ) != ".svg" &&
+            files.filetoupload[0].originalFilename.substring(
+              files.filetoupload[0].originalFilename.indexOf(".")
+            ) != ".ild"
+          )
+        ) {
+          var oldpath = files.filetoupload[0].filepath;
+
+          if (
+            files.filetoupload[0].originalFilename.substring(
+              files.filetoupload[0].originalFilename.indexOf(".")
+            ) == ".svg"
+          )
+            var newpath = path.join(
+              __dirname,
+              "../svg/" + files.filetoupload[0].originalFilename
+            );
+          else if (
+            files.filetoupload[0].originalFilename.substring(
+              files.filetoupload[0].originalFilename.indexOf(".")
+            ) == ".ild"
+          )
+            var newpath = path.join(
+              __dirname,
+              "../ild/" + files.filetoupload[0].originalFilename
+            );
+
+          fs.rename(oldpath, newpath, function (err) {
+            if (err) {
+              console.error(err);
+              res.writeHead(200, { "Content-Type": "text" });
+              res.write("ERROR:\nerror while renaming file\n");
+              res.end(
+                "MAKE SURE TO SELECT A FILE BEFORE UPLOADING AN EMPTY FORM"
+              );
+            } else {
+              res.writeHead(200, { "Content-Type": "text" });
+              res.write(
+                "SUCCESS:\nFile uploaded and moved to " +
+                  newpath +
+                  "\npython3 " +
+                  path.join(__dirname, "/svg2ild.py") +
+                  " " +
+                  newpath +
+                  " " +
+                  path.join(
+                    __dirname,
+                    "/ild/" +
+                      files.filetoupload[0].originalFilename.substring(
+                        0,
+                        files.filetoupload[0].originalFilename.indexOf(".")
+                      )
+                  ) +
+                  ".ild\n"
+              );
+              if (
+                files.filetoupload[0].originalFilename.substring(
+                  files.filetoupload[0].originalFilename.indexOf(".")
+                ) == ".svg"
+              ) {
+                exec(
+                  "python3 " +
+                    path.join(__dirname, "../svg2ild.py") +
+                    " " +
+                    newpath +
+                    " " +
+                    path.join(
+                      __dirname,
+                      "../ild/" +
+                        files.filetoupload[0].originalFilename.substring(
+                          0,
+                          files.filetoupload[0].originalFilename.indexOf(".")
+                        )
+                    ) +
+                    ".ild",
+                  (error, stdout, stderr) => {
+                    if (error) {
+                      res.write(`error:\n${error.message}\n`);
+                      console.log(`error:\n${error.message}\n`);
+                    }
+                    if (stderr) {
+                      res.write(`stderr:\n${stderr}\n`);
+                      console.log(`stderr:\n${stderr}\n`);
+                    }
+                    res.write(`stdout:\n${stdout}\n`);
+                    console.log(`${stdout}`);
+                  }
+                ).on("close", () => {
+                  res.end(
+                    'new path: "' +
+                      path.join(
+                        __dirname,
+                        "/ild/" +
+                          files.filetoupload[0].originalFilename.substring(
+                            0,
+                            files.filetoupload[0].originalFilename.indexOf(".")
+                          )
+                      ) +
+                      ".ild" +
+                      '"'
+                  );
+                });
+              } else {
+                res.end(
+                  "you uploaded .ild file, so the conversion is not needed"
+                );
+              }
+            }
+          });
+        } else {
+          res.writeHead(200, { "Content-Type": "text" });
+          res.write("ERROR:\n");
+          res.end("MAKE SURE TO SELECT FILE ENDING WITH .ild / .svg");
+        }
+      });
     }
   } else if (req.method == "GET" && req.url == "/loadoptions") {
     option_names.forEach((option_name) => {
@@ -272,18 +408,18 @@ io.on("connection", function (socket) {
         "\r\n*** SSH CONNECTION ERROR: " + err.message + " ***\r\n"
       ); //solution Error:0308010C:digital envelope routines::unsupported https://github.com/facebook/create-react-app/issues/11708#issuecomment-1267989131
     });
-    conn.connect({
-      host: config.sshHost,
-      username: config.sshUsername,
-      privateKey: fs.readFileSync(config.sshKeyPath),
-    });
+  conn.connect({
+    host: config.sshHost,
+    username: config.sshUsername,
+    privateKey: fs.readFileSync(config.sshKeyPath),
+  });
 
-    socket.on("LASERSHOWdata", function (data) {
-      lasershow_sender.send(data.toString());
-    });
-    socket.on("WIFIMANdata", function (data) {
-      wifiman_sender.send(data.toString());
-    });
+  socket.on("LASERSHOWdata", function (data) {
+    lasershow_sender.send(data.toString());
+  });
+  socket.on("WIFIMANdata", function (data) {
+    wifiman_sender.send(data.toString());
+  });
 });
 
 lasershow_receiver.on("message", (msg) => {

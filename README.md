@@ -1,26 +1,37 @@
-# Raspberry Pi laser projector
+# Raspberry Pi RGB laser projector
+A vector laser projector with an easy to understand UI.\
+UI includes:
+- integrated display control with a rotary encoder,
+- web server on the local network
+- discord bot accesible when the RPi is online
 
 ## table of contents
-
-- [Raspberry Pi laser projector](#raspberry-pi-laser-projector)
+- [Raspberry Pi RGB laser projector](#raspberry-pi-rgb-laser-projector)
   - [table of contents](#table-of-contents)
+  - [thesis](#thesis)
   - [how to install](#how-to-install)
+  - [supported projection file formats](#supported-projection-file-formats)
   - [hw](#hw)
     - [galvos](#galvos)
       - [DAC - mcp4822](#dac---mcp4822)
       - [amps - TL082](#amps---tl082)
     - [laser](#laser)
-    - [OLED + encoder](#oled--encoder)
+    - [LCD + encoder](#lcd--encoder)
   - [sw](#sw)
+    - [communication](#communication)
     - [lasershow](#lasershow)
     - [UI](#ui)
     - [web\_ui](#web_ui)
     - [discord\_bot](#discord_bot)
     - [wifi\_manager](#wifi_manager)
-    - [communication](#communication)
-      - [lasershow \<- socket](#lasershow---socket)
+    - [comms format](#comms-format)
+      - [lasershow comms](#lasershow-comms)
         - [basic commands:](#basic-commands)
         - [responses:](#responses)
+      - [wifi\_manager comms](#wifi_manager-comms)
+
+## thesis
+I wrote a whole thesis in [czech](https://en.wikipedia.org/wiki/Czech_Republic) language about this project. It is available in [this repository](https://github.com/phuid/laser_projector-thesis) [(direct link to the pdf file)](https://github.com/phuid/laser_projector-thesis/blob/master/text.pdf).
 
 ## how to install
 
@@ -29,14 +40,23 @@ git clone https://github.com/phuid/laser_projector.git
 cd laser_projector
 bash install.sh
 ```
+this script installs all the dependencies of my programs and sets up the RaspberryPi to start all the programs on boot using [pm2](https://pm2.keymetrics.io/).
+
+## supported projection file formats
+The projector can read and project **.ild** and (much more popular) **.svg** file formats.
+**.ild** files can be generated using specialised software like [laserworld showeditor](https://www.showeditor.com/en).
+**.svg** files from any editor are internally converted to **.ild** using [this svg2ild.py script](https://github.com/marcan/openlase/blob/master/tools/svg2ild.py) from [gh/marcan/openlase](https://github.com/marcan/openlase)
 
 ## hw
+My plans include battery power, usually galvos come with a power supply and powering the laser isn't that hard using a step-up. My module takes around 0.45A @ 9V. Make sure you dont brick your pi by taking its power. Raspberry Pis often don't take it well when an undervoltage occurs on their 5V line and they certainly aren't made to power anything more than an LED from their 3.3V PS.
 
 ### galvos
-take -10 to +10V differential signal between to lines (base and inverted)
+take -10 to +10V differential signal between to lines (base and inverted),
+The DAC + opamps circuit which generates this signal is nicely described in [this article](https://www.instructables.com/Arduino-Laser-Show-With-Real-Galvos/).
+My implemetation of it in kicad files can be found in [pcb/kicad](pcb/kicad).
 
 #### DAC - mcp4822
-DAC controlled by the RPi creates an analog signal between 0 and 5V
+DAC controlled by the RPi creates an analog signal between 0 and 5V.
 
 #### amps - TL082
 TL082 from texas instruments, each channel has one chip, each chip has two op amps.
@@ -46,43 +66,65 @@ Second opamp inverts it again for the base ILDA signal
 ### laser
 rgb laser module from https://www.laserlands.net/diode-laser-module/rgb-combined-white-laser-module/11010003.html
 requires 8.5-12V power
-takes 35kHz TTL / PWM on 3 pins
+takes 35kHz TTL / PWM on 3 pins, these pins are connected directly to the raspberry pi
 
-### OLED + encoder
+pin connections between the laser module and RPi
+|LASER|RPi|
+|---|---|
+|red|GPIO22|
+|green|GPIO27|
+|blue|GPIO17|
 
+### LCD + encoder
+Any 20x4 LCD with an I2C backpack + any rotary encoder with a button 
+LCD connections:
+|LCD|RPi|
+|---|---|
+|Vcc|5V|
+|GND|GND|
+|SCK|GPIO3|
+|SDA|GPIO2|
+|backlight|GPIO18|
+
+encoder connections:
+|encoder|RPi|
+|---|---|
+|A|GPIO5|
+|common|GND|
+|B|GPIO6|
+|button1|GND|
+|button1|GPIO13|
 
 ## sw
-
-### lasershow
-- takes socket commands
-- min: project ild file on exec()
-
-### UI
-- file select from dir
-  - future: fs tree
-- start and stop lasershow file projection
-- wifi_manager comm
-
-### web_ui
-- ssh console
-- file select to project
-- stop projection button
-
-### discord_bot
-idk whatever there is time for
-
-### wifi_manager
-takes following socket commands
-- `read`
-- `write <stealth|wifi|hotspot>`
-  - stealth -- wifi off
-  - wifi -- connect to nearby known networks
-  - hotspot -- create new network, raspberry pi becomes the access point
+2 backend programs (lasershow *(c++)* + wifi_manager *(node.js)*) and 3 frontend programs (UI *(c++)* + web_ui *(node.js)* + discord_bot *(node.js)*)
 
 ### communication
-#### lasershow <- socket
+each backend has its pub/sub sockets
+lasershow publishes to `tcp://localhost:5556` and receives commands from `tcp://localhost:5556`
+wifi_manager publishes to `tcp://localhost:5558` and receives commands from `tcp://localhost:5559`
 
-lasershow executable takes commands **from all UI processes** through a **TCP socket**
+### lasershow
+- backend program that takes care of the actual projecting through controlling the galvos and the laser module
+
+### UI
+- allows control of backend programs through the built-in LCD and encoder
+
+### web_ui
+- allows control of backend programs through a web interface available on the local network
+
+### discord_bot
+- allows control of backend programs through a discord bot
+
+### wifi_manager
+- allows switching between three modes of wifi:
+  - wifi off (`stealth`)
+  - wifi on (`wifi`) -- RPi wifi on and trying to connect to known nearby networks
+  - access point (`hotspot`) -- RPi wifi on transmitting its own wifi which other devices can connect to
+
+### comms format
+#### lasershow comms
+
+lasershow executable takes commands **from all UI processes** through a **ZeroMQ TCP socket**
 command format
 `COMMAND` + ` ` + `ARG1` + ` ` + `ARG2` + ` ` + ` ` + `ARG4`
 -> parse with a simple while loop lol no need for fancy functions
@@ -94,7 +136,7 @@ any process can send a command into the socket and all processes will read respo
 - `STOP` (no args)
 - `PAUSE` (no args)
 - `GAME` args: `<game_name>`
-  - `game_name` is any of the following ``//TODO: game names
+  - `game_name` is any of the following ``//TODO: game names (not yes implemented)
 - `PRESS` (no args), only handled if game is running
 - `RELEASE` (no args), only handled if game is running
 - `OPTION` args: `<mode>` `<option_name>` `<value>`
@@ -140,3 +182,16 @@ lasershow exec can write to the socket at any time
       - max: size of projected file
 - `DISPLAY: <text>`: client shall display text to the user and hide it when a new command comes or when user sees it
 - `ALERT: <text>`: client shall display text to the user and only hide it and process following commands after user sees the alert
+
+#### wifi_manager comms
+takes following commands
+- `read`: prints out following parameters:
+  - `wifi_setting: <stealth|wifi|hotspot>`
+  - `wifi_ssid: <SSID>`: SSID as returned by `iwgetid --raw` or `iw dev` in case hotspot is active
+  - `mode_raw: <MODE_RAW>`: MODE_RAW (0-7) as returned by `iwgetid --mode --raw`
+  - `mode: <MODE>`: MODE based on MODE_RAW; possible outputs: `Auto|Ad-Hoc|Managed|Master|Repeater|Secondary|Monitor|Unknown/bug`
+
+- `write <stealth|wifi|hotspot>`
+  - `stealth`: wifi off
+  - `wifi`: connect to nearby known networks
+  - `hotspot`: create new network, raspberry pi becomes the access point

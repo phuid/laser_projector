@@ -1,0 +1,33 @@
+### Footprint positions - created on Fri Jan 26 19:06:12 2024 ###
+### Printed by KiCad version 7.0.10
+## Unit = mm, Angle = deg.
+## Side : bottom
+# Ref       Val               Package                                           PosX       PosY       Rot  Side
++15supply1  Conn_01x02_Male   PinHeader_1x02_P2.54mm_Horizontal            -271.3736   -81.3816    0.0000  bottom
+D2          D                 D_SMC_Handsoldering                          -267.6398   -51.6636    0.0000  bottom
+J1          Raspberry_Pi_2_3  PinSocket_2x20_P2.54mm_Vertical              -276.8600   -25.4000  180.0000  bottom
+L1          20u               L_Sumida_CR75                                -265.4446   -66.7004  180.0000  bottom
+LCD1        Conn_01x05_Male   PinHeader_1x05_P2.54mm_Horizontal            -238.3790   -32.5882   90.0000  bottom
+R1          1kR               R_1812_4532Metric_Pad1.30x3.40mm_HandSolder  -235.1024   -38.2270    0.0000  bottom
+R4          47kR              R_1812_4532Metric_Pad1.30x3.40mm_HandSolder  -235.0516   -43.3578  180.0000  bottom
+R5          10kR              R_1812_4532Metric_Pad1.30x3.40mm_HandSolder  -234.9754   -49.4538  180.0000  bottom
+R6          10kR              R_1812_4532Metric_Pad1.30x3.40mm_HandSolder  -245.2270   -53.5940  180.0000  bottom
+R7          1kR               R_1812_4532Metric_Pad1.30x3.40mm_HandSolder  -234.7468   -58.5216    0.0000  bottom
+R8          R                 R_1812_4532Metric_Pad1.30x3.40mm_HandSolder  -259.7912   -42.4688   90.0000  bottom
+R9          47kR              R_1812_4532Metric_Pad1.30x3.40mm_HandSolder  -234.6706   -69.6214  180.0000  bottom
+R10         R                 R_1812_4532Metric_Pad1.30x3.40mm_HandSolder  -252.3236   -40.8178   90.0000  bottom
+R11         10kR              R_1812_4532Metric_Pad1.30x3.40mm_HandSolder  -234.6706   -64.6176  180.0000  bottom
+R12         10kR              R_1812_4532Metric_Pad1.30x3.40mm_HandSolder  -245.3400   -65.5574  180.0000  bottom
+R14         2k2               R_1812_4532Metric_Pad1.30x3.40mm_HandSolder  -263.9060   -57.8866    0.0000  bottom
+R15         47k               R_1812_4532Metric_Pad1.30x3.40mm_HandSolder  -253.8476   -50.0126   90.0000  bottom
+bat_probe1  Conn_01x01_Male   PinHeader_1x01_P2.54mm_Horizontal            -242.3414   -32.6390   90.0000  bottom
+encoder1    Conn_01x04_Male   PinHeader_1x04_P2.54mm_Horizontal            -231.4508   -73.7266  -90.0000  bottom
+galPWR1     Conn_01x03_Male   PinHeader_1x03_P2.54mm_Horizontal            -263.3472   -73.5330  -90.0000  bottom
+galX1       Conn_01x03_Male   PinHeader_1x03_P2.54mm_Horizontal            -243.9820   -73.6284  -90.0000  bottom
+galY1       Conn_01x03_Male   PinHeader_1x03_P2.54mm_Horizontal            -253.4158   -73.6092  -90.0000  bottom
+laser_B1    Conn_01x02_Male   PinHeader_1x02_P2.54mm_Horizontal            -272.8264   -32.6706   90.0000  bottom
+laser_G1    Conn_01x02_Male   PinHeader_1x02_P2.54mm_Horizontal            -265.2064   -32.6452   90.0000  bottom
+laser_R1    Conn_01x02_Male   PinHeader_1x02_P2.54mm_Horizontal            -257.6626   -32.6706   90.0000  bottom
+pwrSW1      Conn_01x03_Male   PinHeader_1x03_P2.54mm_Horizontal            -251.5362   -32.6390   90.0000  bottom
+pwrSW_PU1   47k               R_1812_4532Metric_Pad1.30x3.40mm_HandSolder  -270.7132   -41.2344  -90.0000  bottom
+## End
