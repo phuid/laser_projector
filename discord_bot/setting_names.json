@@ -1,0 +1,22 @@
+{
+  "setting_names": [
+    { "name" :"repeat", "value" : "repeat"},
+    { "name" :"point delay", "value" : "point_delay"},
+    { "name" :"target frame time", "value" : "target_frame_time"},
+    { "name" :"time accurate framing", "value" : "time_accurate_framing"},
+    { "name" :"always project full frames", "value" : "always_project_full_frames"},
+    { "name" :"scale x", "value" : "scale_x"},
+    { "name" :"scale y", "value" : "scale_y"},
+    { "name" :"move x", "value" : "move_x"},
+    { "name" :"move y", "value" : "move_y"},
+    { "name" :"trapezoid horizontal", "value" : "trapezoid_horizontal"},
+    { "name" :"trapezoid vertical", "value" : "trapezoid_vertical"},
+    { "name" :"laser brightness", "value" : "laser_brightness"},
+    { "name" :"laser red brightness", "value" : "laser_red_brightness"},
+    { "name" :"laser green brightness", "value" : "laser_green_brightness"},
+    { "name" :"laser blue brightness", "value" : "laser_blue_brightness"},
+    { "name" :"laser red br offset", "value" : "laser_red_br_offset"},
+    { "name" :"laser green br offset", "value" : "laser_green_br_offset"},
+    { "name" :"laser blue br offset", "value" : "laser_blue_br_offset"}
+  ]
+}

@@ -1,0 +1,30 @@
+const { SlashCommandBuilder } = require("discord.js");
+const { setting_names } = require("../../setting_names.json");
+
+module.exports = {
+  data: new SlashCommandBuilder()
+    .setName("project")
+    .setDescription("")
+    .addStringOption((option) => {
+      mychoices = []
+      option
+        .setName("setting_name")
+        .setDescription("name of the modified or read setting")
+        .setRequired(true);
+      for (var setting of setting_names) {
+        option.addChoices({name: setting.name, value: setting.value});
+      }
+      return option;
+    })
+    .addNumberOption(option => option.setName("value").setDescription("the value to be asigned to the setting")),
+
+  async execute(interaction) {
+    const setting_name = interaction.options.getString('setting_name');
+		const value = interaction.options.getNumber('value');
+
+    console.log(setting_name);
+    console.log(value);
+
+    await interaction.reply("Pong!");
+  },
+};
