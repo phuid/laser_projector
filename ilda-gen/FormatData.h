@@ -21,7 +21,7 @@ namespace FormatData
         constexpr pair TOTAL_FRAMES_BYTES = {28, 29};
         constexpr int16_t PROJECTOR_NUMBER_BYTE = 30;
     };
-    constexpr uint8_t NUMBER_OF_RECORD_BYTES[6] = {8, 6, 3, 0, 10, 8};
+    constexpr uint8_t NUMBER_OF_RECORD_BYTES[6] = {8, 6, 3, 0, 10, 8}; // per format
     constexpr uint8_t BLANKING_MASK = 0b01000000;
     namespace indexed_3d
     {
