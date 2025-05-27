@@ -339,8 +339,8 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options, IldaReader 
         {
             // std::cout << "points[" << current_point_index << "]: x:" << current_point.x << ", y:" << current_point.y << ", R:" << static_cast<int>(current_point.red) << ", G:" << static_cast<int>(current_point.green) << ", B:" << static_cast<int>(current_point.blue) << std::endl;
             // Move galvos to x,y position.
-            adcdac.set_dac_raw(DAC_RAW_MAX - current_point.y, 1);
-            adcdac.set_dac_raw(current_point.x, 2);
+            adcdac.set_dac_raw(DAC_RAW_MAX - current_point.y, 2);
+            adcdac.set_dac_raw(current_point.x, 1);
 
             for (uint8_t i = 0; i < 3; i++)
             {
