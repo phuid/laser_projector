@@ -1,15 +1,12 @@
+const {deployCommands} = require("./deploy-commands.js")
+deployCommands();
+
 // Require the necessary discord.js classes
 const fs = require("node:fs");
 const path = require("node:path");
 const { Client, Collection, Events, GatewayIntentBits } = require("discord.js");
 
-var zmq = require("zeromq"),
-  lasershow_sender = zmq.socket("pub"),
-  lasershow_receiver = zmq.socket("sub");
-
-lasershow_sender.connect("tcp://localhost:5557");
-lasershow_receiver.connect("tcp://localhost:5556");
-lasershow_receiver.subscribe("");
+const zmq = require("./zmq_helper.js")
 
 const config = require("../config.json").discord;
 
@@ -41,42 +38,58 @@ for (const folder of commandFolders) {
 }
 
 client.on(Events.InteractionCreate, async (interaction) => {
-  if (!interaction.isChatInputCommand()) {
-    console.log(interaction);
-    return;
-  }
+  if (interaction.isChatInputCommand()) {
+    const command = interaction.client.commands.get(interaction.commandName);
 
-
-  const command = interaction.client.commands.get(interaction.commandName);
-
-  if (!command) {
-    console.error(`No command matching ${interaction.commandName} was found.`);
-    console.log(interaction);
-    return;
-  }
-
-  if (interaction.channelId != config.channelId) {
-    interaction.reply(`all commands must be sent in <#${config.channelId}>`);
-    console.log(`all commands must be sent in <#${config.channelId}>`);
-    console.log(interaction);
-    return;
-  }
-
-  try {
-    await command.execute(interaction);
-  } catch (error) {
-    console.error(error);
-    if (interaction.replied || interaction.deferred) {
-      await interaction.followUp({
-        content: "There was an error while executing this command!",
-        ephemeral: true,
-      });
-    } else {
-      await interaction.reply({
-        content: "There was an error while executing this command!",
-        ephemeral: true,
-      });
+    if (!command) {
+      console.error(
+        `No command matching ${interaction.commandName} was found.`
+      );
+      console.log(interaction);
+      return;
     }
+
+    if (interaction.channelId != config.channelId) {
+      interaction.reply(`all commands must be sent in <#${config.channelId}>`);
+      console.log(`all commands must be sent in <#${config.channelId}>`);
+      console.log(interaction);
+      return;
+    }
+
+    try {
+      await command.execute(interaction);
+    } catch (error) {
+      console.error(error);
+      if (interaction.replied || interaction.deferred) {
+        await interaction.followUp({
+          content: "There was an error while executing this command!",
+          ephemeral: true,
+        });
+      } else {
+        await interaction.reply({
+          content: "There was an error while executing this command!",
+          ephemeral: true,
+        });
+      }
+    }
+  } else if (interaction.isStringSelectMenu()) {
+    if (interaction.customId == 'project_selection') {
+      // const channel = await client.channels.fetch(config.channelId);
+      let out = ""
+      interaction.values.forEach((filename) => {
+        zmq.lasershow_send("PROJECT " + filename); //TODO: add to queue instead
+        out += "*lasershow* **<<** `PROJECT " + filename + "`\n";
+        // channel.send({ content: `<@${interacion.user.id}> selected file ${filename} for projection`, reply: { messageReference: `${interaction.message.id}` } });
+      });
+      interaction.reply(`<@${interaction.user.id}> selected file(s) \`${interaction.values}\` for projection\n` + out);
+    }
+    else {
+      console.log("unknown selection customId: " + interaction.customId);
+    }
+  }
+  else {
+    console.log("unexpected interaction:");
+    console.log(interaction);
   }
 });
 
@@ -97,7 +110,7 @@ client.once(Events.ClientReady, async (readyClient) => {
 
   const channel = await client.channels.fetch(config.channelId);
 
-  lasershow_receiver.on("message", (msg) => {
+  zmq.lasershow_receiver.on("message", (msg) => {
     channel.send("*lasershow* **>>** `" + msg.toString() + "`");
   });
 });
