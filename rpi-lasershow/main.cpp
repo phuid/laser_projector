@@ -15,6 +15,16 @@
 
 int main()
 {
+  constexpr uint8_t LASER_PINS[3] = {22, 27, 17};
+
+  for (size_t i = 0; i < 3; i++)
+  {
+    gpioSetMode(LASER_PINS[i], PI_OUTPUT);
+    gpioSetPullUpDown(LASER_PINS[i], PI_PUD_DOWN);
+    gpioSetPWMfrequency(LASER_PINS[i], 100000);
+    gpioWrite(LASER_PINS[i], 0);
+  }
+
   // Setup ipc communication
   zmq::context_t ctx(1);
 
@@ -61,6 +71,12 @@ int main()
       // options.project_filename = "";
       command_receiver.recv(received, zmq::recv_flags::none); // blocking
       int exec_val = command.execute(received.to_string(), publisher, options, ildaReader);
+      if (exec_val == 1) {
+        for (size_t i = 0; i < 3; i++)
+        {
+          gpioWrite(LASER_PINS[i], 0);
+        }
+      }
       if (exec_val != 2) 
       {
         continue;
@@ -97,6 +113,10 @@ int main()
           if (exec_val == 1) // stop
           {
             first_repeat_or_break = 1; // to get out of loop
+            for (size_t i = 0; i < 3; i++)
+            {
+              gpioWrite(LASER_PINS[i], 0);
+            }
             break;
           }
           else if (exec_val == 2) // projecting again

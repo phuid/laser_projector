@@ -26,3 +26,5 @@ Robutek-rewrite-2022
 **/CMakeCache.txt
 
 config.json
+
+ilda-gen/main

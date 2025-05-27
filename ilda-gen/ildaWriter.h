@@ -2,6 +2,9 @@
 #include "FormatData.h"
 #include <math.h>
 
+#define ILDA_MIN -32768
+#define ILDA_MAX 32767
+
 enum section_format
 {
     ILDA_3D_INDEXED = 0,
@@ -11,7 +14,7 @@ enum section_format
     ILDA_2D_REAL = 5,
 };
 
-struct color {
+struct RGBColor {
   uint8_t r; // Red component (0-255)
   uint8_t g; // Green component (0-255)
   uint8_t b; // Blue component (0-255)
@@ -22,7 +25,7 @@ struct point {
     int16_t y;
     int16_t z;
 
-    color color;
+    RGBColor color;
 
     bool last_point; // Indicates if this is the last point in a frame.
     bool laser_on;
@@ -37,7 +40,7 @@ struct section {
     std::vector<point> points;
 };
 
-color hsv2rgb(float H, float S, float V) {
+RGBColor hsv2rgb(float H, float S, float V) {
 	float r, g, b;
 	
 	float h = H / 360;
@@ -59,10 +62,14 @@ color hsv2rgb(float H, float S, float V) {
 		case 5: r = v, g = p, b = q; break;
 	}
 	
-	color color;
+	RGBColor color;
 	color.r = r * 255;
 	color.g = g * 255;
 	color.b = b * 255;
 	
 	return color;
+}
+
+int16_t little_endian_to_big_endian(int16_t value) {
+  return (value >> 8) | (value << 8);
 }

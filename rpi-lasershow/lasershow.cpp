@@ -368,6 +368,10 @@ int lasershow_loop(zmq::socket_t &publisher, options_struct options, IldaReader 
     else
     {
         std::cout << "end of projection" << std::endl;
+        for (size_t i = 0; i < 3; i++)
+        {
+            gpioWrite(LASER_PINS[i], 0);
+        }
         return 2;
     }
 }

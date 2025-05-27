@@ -13,42 +13,45 @@ int main()
   {
     float progress = (float)i / 60.0f;
 
-    section sec;
-    sec.frame_number = i;
+    std::cout << "f:" << (int)i << ", p:" << progress << ", MIN:" << little_endian_to_big_endian(ILDA_MIN * progress)
+ << ", MAX:" << little_endian_to_big_endian(ILDA_MAX * progress) << std::endl;
 
-    sec.points.push_back({(int16_t)(INT16_MIN * progress),
-                          (int16_t)(INT16_MIN * progress),
+    section sec;
+    sec.frame_number = little_endian_to_big_endian(i);
+
+    sec.points.push_back({little_endian_to_big_endian(ILDA_MIN * progress),
+                          little_endian_to_big_endian(ILDA_MIN * progress),
                           0,
                           hsv2rgb((progress * 360.0f), 100.0f, 100.0f),
                           false,
                           true});
-    sec.points.push_back({(int16_t)(INT16_MAX * progress),
-                          (int16_t)(INT16_MIN * progress),
+    sec.points.push_back({little_endian_to_big_endian(ILDA_MAX * progress),
+                          little_endian_to_big_endian(ILDA_MIN * progress),
+                          0,
+                          hsv2rgb((progress * 360.0f), 100.0f, 100.0f),
+                          false,
+                          false});
+    sec.points.push_back({little_endian_to_big_endian(ILDA_MAX * progress),
+                          little_endian_to_big_endian(ILDA_MAX * progress),
                           0,
                           hsv2rgb((progress * 360.0f), 100.0f, 100.0f),
                           false,
                           true});
-    sec.points.push_back({(int16_t)(INT16_MAX * progress),
-                          (int16_t)(INT16_MAX * progress),
-                          0,
-                          hsv2rgb((progress * 360.0f), 100.0f, 100.0f),
-                          false,
-                          true});
-    sec.points.push_back({(int16_t)(INT16_MIN * progress),
-                          (int16_t)(INT16_MAX * progress),
+    sec.points.push_back({little_endian_to_big_endian(ILDA_MIN * progress),
+                          little_endian_to_big_endian(ILDA_MAX * progress),
                           0,
                           hsv2rgb((progress * 360.0f), 100.0f, 100.0f),
                           true,
                           true});
 
-    sec.number_of_records = sec.points.size();
+    sec.number_of_records = little_endian_to_big_endian(sec.points.size());
 
     sections.push_back(sec);
   }
 
-  uint16_t total_frames = sections.size();
+  uint16_t total_frames = little_endian_to_big_endian(sections.size());
 
-  std::ofstream file("generated.ilda", std::ios::binary);
+  std::ofstream file("../ild/generated.ild", std::ios::binary);
   if (!file.is_open())
   {
     std::cerr << "Failed to open file for writing." << std::endl;
@@ -71,7 +74,7 @@ int main()
            &total_frames, sizeof(total_frames));
     header[FormatData::header::PROJECTOR_NUMBER_BYTE] = section.projector_number;
     file.write(header, FormatData::NUMBER_OF_HEADER_BYTES);
-
+    
     for (auto &&point : section.points)
     {
       char record[FormatData::NUMBER_OF_RECORD_BYTES[ILDA_2D_REAL]];
@@ -89,5 +92,8 @@ int main()
       file.write(record, FormatData::NUMBER_OF_RECORD_BYTES[ILDA_2D_REAL]);
     }
   }
+  memset(header + 4, 0, FormatData::NUMBER_OF_HEADER_BYTES - 4);
+  file.write(header, FormatData::NUMBER_OF_HEADER_BYTES);
+  
   file.close();
 }
