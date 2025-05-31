@@ -16,7 +16,7 @@ enum section_format
     ILDA_2D_REAL = 5,
 };
 
-struct point {
+struct Point {
     int16_t x;
     int16_t y;
     int16_t z;
@@ -33,7 +33,7 @@ struct section {
     uint16_t frame_number;
     uint8_t projector_number;
 
-    std::vector<point> points;
+    std::vector<Point> points;
 
     bool read_header(char buf[FormatData::NUMBER_OF_HEADER_BYTES]);
 };

@@ -114,7 +114,7 @@ bool IldaReader::read_sections_from_file(zmq::socket_t &publisher)
         // read records
         for (size_t i = 0; i < section.number_of_records; i++)
         {
-            point point;
+            Point point;
 
             if (static_cast<size_t>(this->file.tellg()) + FormatData::NUMBER_OF_RECORD_BYTES[section.format] > file_size)
             {
