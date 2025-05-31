@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "ildaWriter.h"
+#include "font/asteroids_font.h"
 
 class Distance
 {
@@ -45,8 +46,12 @@ RGBColor blendRGBcolors(RGBColor from, RGBColor to, float progress)
 /// @return
 RGBColor blendHSVcolors(HSVColor from, HSVColor to, float progress)
 {
+  if (from.h > to.h)
+  {
+    from.h += 360; // ensure that the hue is always increasing
+  }
   return hsv2rgb(
-      from.h * (1 - progress) + to.h * progress,
+      (int)(from.h * (1 - progress) + to.h * progress) % 360,
       from.s * (1 - progress) + to.s * progress,
       from.v * (1 - progress) + to.v * progress);
 };
@@ -134,49 +139,153 @@ genLine(T from, T to, uint8_t total_points, line_point_positioning_enum point_po
   return line;
 }
 
+std::vector<Point> genLetter(char c, Point top_left, Point bottom_right, RGBColor color)
+{
+  // The source code is in github.com/vst/teensyv/asteroid_font.c and has been compressed to use very little memory in representing the font in memory.
+  // The drawing routine extracts the 4-bit X and Y offsets from the array and generates the moveto() or lineto() commands:
+
+  uint8_t c_pos = 255; // default to not found
+
+  for (uint8_t i = 0; i < FONT_NUM_OF_CHARACTERS; i++)
+  {
+    if (asteroids_font_chars[i] == c)
+    {
+      c_pos = i;
+      break;
+    }
+  }
+  if (c_pos == 255)
+  {
+    std::cerr << "Character '" << c << "' not found in asteroids font." << std::endl;
+    exit(1);
+  }
+
+  const uint8_t *const pts = asteroids_font[c_pos].points;
+  int next_moveto = 1;
+
+  std::vector<Point> points;
+  auto moveto = [&](int16_t x, int16_t y)
+  {
+    points.push_back(Point(x, y, 0, {0, 0, 0}, false));
+  };
+  auto lineto = [&](int16_t x, int16_t y)
+  {
+    points.push_back(Point(x, y, 0, color, true));
+  };
+
+  for (int i = 0; i < 8; i++)
+  {
+    uint8_t delta = pts[i];
+    if (delta == FONT_LAST)
+      break;
+    if (delta == FONT_UP)
+    {
+      next_moveto = 1;
+      continue;
+    }
+
+    unsigned dx = ((delta >> 4) & 0xF) * (bottom_right.x - top_left.x) / 8;
+    unsigned dy = ((delta >> 0) & 0xF) * (bottom_right.y - top_left.y) / 12;
+
+    if (next_moveto)
+      moveto(top_left.x + dx, top_left.y + dy);
+    else
+      lineto(top_left.x + dx, top_left.y + dy);
+
+    next_moveto = 0;
+  }
+
+  return points;
+}
+
 int main()
 {
   std::vector<section> sections;
 
-  constexpr int16_t frames = 150;
+  constexpr uint16_t frames = 600;
 
-  for (uint8_t i = 0; i < frames; i++)
+  for (uint16_t i = 0; i < frames; i++)
   {
-    float progress = (float)i / frames;
-
-    std::cout << "f:" << (int)i << ", p:" << progress << ", MIN:" << ILDA_MIN * progress
-              << ", MAX:" << ILDA_MAX * progress << std::endl;
-
     section sec;
     sec.frame_number = endian_switch(i);
 
-    std::vector<Point> line = genLine(HSVPoint(ILDA_MIN * progress,
-                                               ILDA_MIN * progress,
-                                               0,
-                                               {(0 + 4 * i) % 360, 100, 100},
-                                               true),
-                                      HSVPoint(ILDA_MAX * progress,
-                                               ILDA_MAX * progress,
-                                               0,
-                                               {(175 + 4 * i) % 360, 100, 100},
-                                               true),
-                                      20,
-                                      LINEAR);
-    sec.points.insert(sec.points.end(), line.begin(), line.end());
+    if (i < 15)
+    {
+      float progress = (float)i / 15;
 
-    line = genLine(Point(ILDA_MAX * progress,
-                         ILDA_MAX * progress,
-                         0,
-                         {0, 0, 0},
-                         false),
-                   Point(ILDA_MIN * progress,
-                         ILDA_MIN * progress,
-                         0,
-                         {0, 0, 0},
-                         false),
-                   5,
-                   LINEAR);
-    sec.points.insert(sec.points.end(), line.begin(), line.end());
+      // growing line at the beggining
+      std::vector<Point> line = genLine(HSVPoint(ILDA_MIN * progress,
+                                                 ILDA_MIN * progress,
+                                                 0,
+                                                 {(0 + 4 * i) % 360, 100, 100},
+                                                 true),
+                                        HSVPoint(ILDA_MAX * progress,
+                                                 ILDA_MAX * progress,
+                                                 0,
+                                                 {(180 + 4 * i) % 360, 100, 100},
+                                                 true),
+                                        20,
+                                        LINEAR);
+      sec.points.insert(sec.points.end(), line.begin(), line.end());
+
+      line = genLine(Point(ILDA_MAX * progress,
+                           ILDA_MAX * progress,
+                           0,
+                           {0, 0, 0},
+                           false),
+                     Point(ILDA_MIN * progress,
+                           ILDA_MIN * progress,
+                           0,
+                           {0, 0, 0},
+                           false),
+                     5,
+                     LINEAR);
+      sec.points.insert(sec.points.end(), line.begin(), line.end());
+    }
+    else if (i < 150)
+    {
+      // line cycling colors for the rest of the frames
+      std::vector<Point> line = genLine(HSVPoint(ILDA_MIN,
+                                                 ILDA_MIN,
+                                                 0,
+                                                 {(0 + i) % 360, 100, 100},
+                                                 true),
+                                        HSVPoint(ILDA_MAX,
+                                                 ILDA_MAX,
+                                                 0,
+                                                 {(180 + i) % 360, 100, 100},
+                                                 true),
+                                        20,
+                                        LINEAR);
+      sec.points.insert(sec.points.end(), line.begin(), line.end());
+
+      line = genLine(Point(ILDA_MAX,
+                           ILDA_MAX,
+                           0,
+                           {0, 0, 0},
+                           false),
+                     Point(ILDA_MIN,
+                           ILDA_MIN,
+                           0,
+                           {0, 0, 0},
+                           false),
+                     5,
+                     LINEAR);
+      sec.points.insert(sec.points.end(), line.begin(), line.end());
+    }
+    else if (i < 200)
+    {
+      // single blank point = delay
+      sec.points.push_back(Point(0, 0, 0, {0, 0, 0}, false));
+    }
+    else
+    {
+      // letters
+      sec.points = genLetter('A',
+                             Point(ILDA_MIN, ILDA_MIN, 0, {0, 0, 0}, false),
+                             Point(ILDA_MAX, ILDA_MAX, 0, {0, 0, 0}, false),
+                             hsv2rgb((i * 10) % 360, 100, 100));
+    }
 
     sec.points.back().last_point = 1;
     sec.number_of_records = endian_switch(sec.points.size());
