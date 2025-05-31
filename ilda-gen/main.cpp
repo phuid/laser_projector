@@ -79,7 +79,7 @@ int16_t blend_coordinate(int16_t from, int32_t distance, uint8_t point_num, uint
 
 template <typename T>
 std::vector<Point>
-genLine(T from, T to, uint8_t total_points, line_point_positioning_enum point_positioning)
+genLine(T from, T to, uint8_t total_points, line_point_positioning_enum point_positioning, bool omit_first_point = false)
 {
   if constexpr (!std::is_same<T, Point>::value && !std::is_same<T, HSVPoint>::value)
   {
@@ -87,18 +87,29 @@ genLine(T from, T to, uint8_t total_points, line_point_positioning_enum point_po
     exit(1);
   }
 
-  std::vector<Point> line;
-  if constexpr (std::is_same<T, Point>::value == true)
-    line.push_back(from);
-  else
-    line.push_back(Point(
-        from.x,
-        from.y,
-        from.z,
-        hsv2rgb(from.color),
-        from.laser_on));
+  if (!from.laser_on)
+  {
+    from.color = {0, 0, 0}; // if the laser is off, set the color to black
+  }
+  if (!to.laser_on)
+  {
+    to.color = {0, 0, 0}; // if the laser is off, set the color to black
+  }
 
-  // std::cout << "from: [" << from.x << ", " << from.y << ", " << from.z << "], rgb:" << (int)from.color.r << "," << (int)from.color.g << "," << (int)from.color.b << "," << "laseron:" << from.laser_on << std::endl;
+  std::vector<Point> line;
+  if (!omit_first_point)
+  {
+    if constexpr (std::is_same<T, Point>::value == true)
+      line.push_back(from);
+    else
+      line.push_back(Point(
+          from.x,
+          from.y,
+          from.z,
+          hsv2rgb(from.color),
+          from.laser_on));
+    // std::cout << "from: [" << from.x << ", " << from.y << ", " << from.z << "], rgb:" << (int)from.color.r << "," << (int)from.color.g << "," << (int)from.color.b << "," << "laseron:" << from.laser_on << std::endl;
+  }
 
   Distance distance(from, to);
   std::cout << "distance: " << distance.x << ", " << distance.y << ", " << distance.z << std::endl;
@@ -139,7 +150,7 @@ genLine(T from, T to, uint8_t total_points, line_point_positioning_enum point_po
   return line;
 }
 
-std::vector<Point> genLetter(char c, Point top_left, Point bottom_right, RGBColor color)
+std::vector<Point> genLetter(char c, Point top_left, Point bottom_right, RGBColor color, Point last_point)
 {
   // The source code is in github.com/vst/teensyv/asteroid_font.c and has been compressed to use very little memory in representing the font in memory.
   // The drawing routine extracts the 4-bit X and Y offsets from the array and generates the moveto() or lineto() commands:
@@ -162,15 +173,37 @@ std::vector<Point> genLetter(char c, Point top_left, Point bottom_right, RGBColo
 
   const uint8_t *const pts = asteroids_font[c_pos].points;
   int next_moveto = 1;
+  bool last_moveto = false;
 
   std::vector<Point> points;
+
   auto moveto = [&](int16_t x, int16_t y)
   {
-    points.push_back(Point(x, y, 0, {0, 0, 0}, false));
+    std::cout << "--moveto: " << x << ", " << y << std::endl;
+    Point tmp = Point(x, y, 0, color, false);
+    last_point.laser_on = false; // moveto does not turn on the laser
+    std::vector<Point> line = genLine(last_point,
+                                      tmp,
+                                      2,
+                                      LINEAR,
+                                      false);
+    points.insert(points.end(), line.begin(), line.end());
+    last_point = tmp;
+    last_moveto = true;
   };
   auto lineto = [&](int16_t x, int16_t y)
   {
-    points.push_back(Point(x, y, 0, color, true));
+    std::cout << "--lineto: " << x << ", " << y << std::endl;
+    Point tmp = Point(x, y, 0, color, true);
+    last_point.laser_on = true; // lineto turns on the laser
+    std::vector<Point> line = genLine(last_point,
+                                      tmp,
+                                      2,
+                                      LINEAR,
+                                      !last_moveto);
+    points.insert(points.end(), line.begin(), line.end());
+    last_point = tmp;
+    last_moveto = false;
   };
 
   for (int i = 0; i < 8; i++)
@@ -204,7 +237,7 @@ int main()
 
   constexpr uint16_t frames = 600;
 
-  for (uint16_t i = 0; i < frames; i++)
+  for (uint16_t i = 500; i < frames; i++)
   {
     section sec;
     sec.frame_number = endian_switch(i);
@@ -281,10 +314,30 @@ int main()
     else
     {
       // letters
-      sec.points = genLetter('A',
-                             Point(ILDA_MIN, ILDA_MIN, 0, {0, 0, 0}, false),
-                             Point(ILDA_MAX, ILDA_MAX, 0, {0, 0, 0}, false),
-                             hsv2rgb((i * 10) % 360, 100, 100));
+
+      auto last_point = [&]()
+      {
+        if (sec.points.empty())
+          return Point(0, 0, 0, {0, 0, 0}, false);
+        return Point(sec.points.back());
+      };
+
+      sec.points = {Point(0, 0, 0, {0, 0, 0}, false)}; // start with a blank point
+      std::vector<Point> letter = genLetter('A',
+                                            Point(ILDA_MIN, ILDA_MIN, 0, {0, 0, 0}, false),
+                                            Point(0, 0, 0, {0, 0, 0}, false),
+                                            hsv2rgb((i * 10) % 360, 100, 100),
+                                            last_point());
+      sec.points.insert(sec.points.end(), letter.begin(), letter.end());
+      if (i > 550)
+      {
+        letter = genLetter('B',
+                           Point(0, 0, 0, {0, 0, 0}, false),
+                           Point(ILDA_MAX, ILDA_MAX, 0, {0, 0, 0}, false),
+                           hsv2rgb((i * 10) % 360, 100, 100),
+                           last_point());
+        sec.points.insert(sec.points.end(), letter.begin(), letter.end());
+      }
     }
 
     sec.points.back().last_point = 1;
