@@ -2,6 +2,7 @@
 #include <vector>
 #include <fstream>
 #include <string.h>
+#include <math.h>
 
 #include "ildaWriter.h"
 #include "font/asteroids_font.h"
@@ -70,7 +71,7 @@ int16_t blend_coordinate(int16_t from, int32_t distance, uint8_t point_num, uint
   {
   case LINEAR:
     // evenly spaced points
-    std::cout << "dis:" << (float)(point_num * distance / (float)total_points) << std::endl;
+    // std::cout << "dis:" << (float)(point_num * distance / (float)total_points) << std::endl;
     return from + (point_num * distance / (float)total_points);
   default:
     return from; // fallback, should not happen
@@ -112,11 +113,11 @@ genLine(T from, T to, uint8_t total_points, line_point_positioning_enum point_po
   }
 
   Distance distance(from, to);
-  std::cout << "distance: " << distance.x << ", " << distance.y << ", " << distance.z << std::endl;
+  // std::cout << "distance: " << distance.x << ", " << distance.y << ", " << distance.z << std::endl;
 
   for (uint8_t i = 1; i < total_points; i++)
   {
-    std::cout << "blend:" << blend_coordinate(from.x, distance.x, i, total_points, point_positioning) << std::endl;
+    // std::cout << "blend:" << blend_coordinate(from.x, distance.x, i, total_points, point_positioning) << std::endl;
 
     RGBColor blended_color;
     if constexpr (std::is_same<T, Point>::value == true)
@@ -150,6 +151,57 @@ genLine(T from, T to, uint8_t total_points, line_point_positioning_enum point_po
   return line;
 }
 
+std::vector<Point> genSineWave(HSVPoint top_left, HSVPoint bottom_right, uint8_t total_points, float x_multi = 2 * 3.14, float phase = 0)
+{
+  int32_t height = bottom_right.y - top_left.y;
+  int32_t width = bottom_right.x - top_left.x;
+
+  std::vector<Point> points;
+
+  for (uint8_t i = 0; i < total_points; i++)
+  {
+    float progress = (float)i / (total_points - 1);
+    int16_t x = top_left.x + progress * width;
+    int16_t y = top_left.y + height / 2 + height / 2 * sin(progress * x_multi + phase);
+
+    points.push_back(Point(x,
+                           y,
+                           top_left.z,
+                           hsv2rgb(top_left.color.h, top_left.color.s, top_left.color.v),
+                           true));
+  }
+  return points;
+}
+
+std::vector<Point> genRectangle(Point top_left, Point bottom_right, RGBColor color)
+{
+  std::vector<Point> points;
+  std::vector<Point> line;
+
+  line = genLine(Point(top_left.x, top_left.y, 0, color, true),
+                 Point(top_left.x, bottom_right.y, 0, color, true),
+                 4,
+                 LINEAR);
+  points.insert(points.end(), line.begin(), line.end());
+  line = genLine(Point(top_left.x, bottom_right.y, 0, color, true),
+                 Point(bottom_right.x, bottom_right.y, 0, color, true),
+                 4,
+                 LINEAR);
+  points.insert(points.end(), line.begin(), line.end());
+  line = genLine(Point(bottom_right.x, bottom_right.y, 0, color, true),
+                 Point(bottom_right.x, top_left.y, 0, color, true),
+                 4,
+                 LINEAR);
+  points.insert(points.end(), line.begin(), line.end());
+  line = genLine(Point(bottom_right.x, top_left.y, 0, color, true),
+                 Point(top_left.x, top_left.y, 0, color, true),
+                 4,
+                 LINEAR);
+  points.insert(points.end(), line.begin(), line.end());
+
+  return points;
+}
+
 std::vector<Point> genLetter(char c, Point top_left, Point bottom_right, RGBColor color, Point last_point)
 {
   // The source code is in github.com/vst/teensyv/asteroid_font.c and has been compressed to use very little memory in representing the font in memory.
@@ -179,7 +231,7 @@ std::vector<Point> genLetter(char c, Point top_left, Point bottom_right, RGBColo
 
   auto moveto = [&](int16_t x, int16_t y)
   {
-    std::cout << "--moveto: " << x << ", " << y << std::endl;
+    // std::cout << "--moveto: " << x << ", " << y << std::endl;
     Point tmp = Point(x, y, 0, color, false);
     last_point.laser_on = false; // moveto does not turn on the laser
     std::vector<Point> line = genLine(last_point,
@@ -193,7 +245,7 @@ std::vector<Point> genLetter(char c, Point top_left, Point bottom_right, RGBColo
   };
   auto lineto = [&](int16_t x, int16_t y)
   {
-    std::cout << "--lineto: " << x << ", " << y << std::endl;
+    //   std::cout << "--lineto: " << x << ", " << y << std::endl;
     Point tmp = Point(x, y, 0, color, true);
     last_point.laser_on = true; // lineto turns on the laser
     std::vector<Point> line = genLine(last_point,
@@ -231,119 +283,280 @@ std::vector<Point> genLetter(char c, Point top_left, Point bottom_right, RGBColo
   return points;
 }
 
+/// @brief
+/// @param text
+/// @param top_left
+/// @param bottom_right
+/// @param color
+/// @param space_width space width relative to the width of a character
+/// @param last_point
+/// @param skip_last_chars number of characters to not draw at the end of the text
+/// @return
+std::vector<Point> genText(std::string text, Point top_left, Point bottom_right, RGBColor color, float space_width, Point last_point, uint8_t skip_last_chars = 0)
+{
+  std::vector<Point> points;
+  std::cout << "skip_last_chars: " << (int)skip_last_chars << std::endl;
+  for (size_t i = 0; i < text.size(); i++)
+  {
+    if (text.size() - i - 1 < skip_last_chars)
+      continue; // skip the last characters
+
+    char c = text[i];
+    uint16_t text_width = bottom_right.x - top_left.x;
+    float total_segments = text.size() + (text.size() - 1) * space_width; // number of segments in the text, including spaces
+
+    Point top_left_c = top_left;
+    top_left_c.x += (i + i * space_width) * (text_width / total_segments);
+
+    Point bottom_right_c = bottom_right;
+    size_t back_i = text.size() - i - 1; // reverse index for the bottom right corner
+    bottom_right_c.x -= (back_i + back_i * space_width) * (text_width / total_segments);
+
+    auto letter = genLetter(c, top_left_c, bottom_right_c, color, last_point);
+    points.insert(points.end(), letter.begin(), letter.end());
+    if (!letter.empty())
+      last_point = letter.back();
+  }
+
+  if (points.empty())
+  {
+    std::cout << "empty text, returning last point" << std::endl;
+    points.push_back(last_point); // if no points were generated, return the last point
+  }
+
+  return points;
+}
+
+#define WRITE_SEC                                           \
+  sec.points.back().last_point = 1;                         \
+  sec.number_of_records = endian_switch(sec.points.size()); \
+                                                            \
+  sections.push_back(sec);
+
+#define INIT_SEC \
+  section sec;   \
+  sec.frame_number = endian_switch(i);
+
 int main()
 {
   std::vector<section> sections;
 
-  constexpr uint16_t frames = 600;
-
-  for (uint16_t i = 500; i < frames; i++)
+  for (uint16_t i = 150; i < 300; i++)
   {
-    section sec;
-    sec.frame_number = endian_switch(i);
+    std::cout << "Generating section " << i << std::endl;
 
+    INIT_SEC
+
+    auto last_point = [&](bool turn_off_laser = false)
+    {
+      if (sec.points.empty())
+        if (sections.empty() || sections.back().points.empty())
+          return Point(0, 0, 0, {0, 0, 0}, false);
+        else
+          return Point(sections.back().points.back());
+
+      Point p = Point(sec.points.back());
+      if (turn_off_laser)
+        p.laser_on = false;
+      return p;
+    };
+
+    auto letters_appear_skip = [&](uint8_t num_letters, uint16_t first_frame, uint16_t last_frame, uint16_t curr_frame)
+    {
+      if (curr_frame < first_frame)
+      {
+        return (uint8_t)num_letters;
+      }
+      if (curr_frame > last_frame)
+      {
+        return (uint8_t)0;
+      }
+      if (first_frame > last_frame)
+      {
+        std::cerr << "first_frame is greater than last_frame" << std::endl;
+        exit(1);
+      }
+
+      uint16_t num_frames = last_frame - first_frame;
+
+      float back_progress = (float)(last_frame - curr_frame) / num_frames;
+
+      // std::cout << "back_progress: " << back_progress << std::endl;
+
+      return (uint8_t)(back_progress * num_letters);
+    };
+
+    constexpr float START_PERIOD = 3.14 * 8; // period of the sine wave in radians
+
+    if (i == 0)
+    {
+      sec.points = {Point(ILDA_MIN, ILDA_MIN, ILDA_MIN, {0, 0, 0}, false),
+                    Point(ILDA_MAX, ILDA_MAX, ILDA_MAX, {0, 0, 0}, false)};
+    }
     if (i < 15)
     {
       float progress = (float)i / 15;
 
-      // growing line at the beggining
-      std::vector<Point> line = genLine(HSVPoint(ILDA_MIN * progress,
-                                                 ILDA_MIN * progress,
-                                                 0,
-                                                 {(0 + 4 * i) % 360, 100, 100},
-                                                 true),
-                                        HSVPoint(ILDA_MAX * progress,
-                                                 ILDA_MAX * progress,
-                                                 0,
-                                                 {(180 + 4 * i) % 360, 100, 100},
-                                                 true),
-                                        20,
-                                        LINEAR);
-      sec.points.insert(sec.points.end(), line.begin(), line.end());
+      sec.append(genSineWave(HSVPoint(ILDA_MIN * progress,
+                                      ILDA_MIN * progress,
+                                      0,
+                                      {(0 + 4 * i) % 360, 100, 100},
+                                      true),
+                             HSVPoint(ILDA_MAX * progress,
+                                      ILDA_MAX * progress,
+                                      0,
+                                      {(180 + 4 * i) % 360, 100, 100},
+                                      true),
+                             40,
+                             START_PERIOD,
+                             (float)i / 4));
 
-      line = genLine(Point(ILDA_MAX * progress,
-                           ILDA_MAX * progress,
-                           0,
-                           {0, 0, 0},
-                           false),
-                     Point(ILDA_MIN * progress,
-                           ILDA_MIN * progress,
-                           0,
-                           {0, 0, 0},
-                           false),
-                     5,
-                     LINEAR);
-      sec.points.insert(sec.points.end(), line.begin(), line.end());
+      sec.append(genLine(last_point(true),
+                         Point(ILDA_MIN * progress,
+                               0,
+                               0,
+                               {0, 0, 0},
+                               false),
+                         2,
+                         LINEAR,
+                         true));
+
+      // // growing line at the beggining
+      // std::vector<Point> line = genLine(HSVPoint(ILDA_MIN * progress,
+      //                                            ILDA_MIN * progress,
+      //                                            0,
+      //                                            {(0 + 4 * i) % 360, 100, 100},
+      //                                            true),
+      //                                   HSVPoint(ILDA_MAX * progress,
+      //                                            ILDA_MAX * progress,
+      //                                            0,
+      //                                            {(180 + 4 * i) % 360, 100, 100},
+      //                                            true),
+      //                                   20,
+      //                                   LINEAR);
+      // sec.points.insert(sec.points.end(), line.begin(), line.end());
+
+      // line = genLine(Point(ILDA_MAX * progress,
+      //                      ILDA_MAX * progress,
+      //                      0,
+      //                      {0, 0, 0},
+      //                      false),
+      //                Point(ILDA_MIN * progress,
+      //                      ILDA_MIN * progress,
+      //                      0,
+      //                      {0, 0, 0},
+      //                      false),
+      //                5,
+      //                LINEAR);
+      // sec.points.insert(sec.points.end(), line.begin(), line.end());
     }
     else if (i < 150)
     {
-      // line cycling colors for the rest of the frames
-      std::vector<Point> line = genLine(HSVPoint(ILDA_MIN,
-                                                 ILDA_MIN,
-                                                 0,
-                                                 {(0 + i) % 360, 100, 100},
-                                                 true),
-                                        HSVPoint(ILDA_MAX,
-                                                 ILDA_MAX,
-                                                 0,
-                                                 {(180 + i) % 360, 100, 100},
-                                                 true),
-                                        20,
-                                        LINEAR);
-      sec.points.insert(sec.points.end(), line.begin(), line.end());
+      sec.append(genSineWave(HSVPoint(ILDA_MIN,
+                                      ILDA_MIN,
+                                      0,
+                                      {(0 + 4 * i) % 360, 100, 100},
+                                      true),
+                             HSVPoint(ILDA_MAX,
+                                      ILDA_MAX,
+                                      0,
+                                      {(180 + 4 * i) % 360, 100, 100},
+                                      true),
+                             40,
+                             START_PERIOD,
+                             (float)i / 4));
 
-      line = genLine(Point(ILDA_MAX,
-                           ILDA_MAX,
-                           0,
-                           {0, 0, 0},
-                           false),
-                     Point(ILDA_MIN,
-                           ILDA_MIN,
-                           0,
-                           {0, 0, 0},
-                           false),
-                     5,
-                     LINEAR);
-      sec.points.insert(sec.points.end(), line.begin(), line.end());
+      sec.append(genLine(last_point(true),
+                         Point(ILDA_MIN,
+                               0,
+                               0,
+                               {0, 0, 0},
+                               false),
+                         2,
+                         LINEAR));
+
+      // // line cycling colors for the rest of the frames
+      // std::vector<Point> line = genLine(HSVPoint(ILDA_MIN,
+      //                                            ILDA_MIN,
+      //                                            0,
+      //                                            {(0 + i) % 360, 100, 100},
+      //                                            true),
+      //                                   HSVPoint(ILDA_MAX,
+      //                                            ILDA_MAX,
+      //                                            0,
+      //                                            {(180 + i) % 360, 100, 100},
+      //                                            true),
+      //                                   20,
+      //                                   LINEAR);
+      // sec.points.insert(sec.points.end(), line.begin(), line.end());
+
+      // line = genLine(Point(ILDA_MAX,
+      //                      ILDA_MAX,
+      //                      0,
+      //                      {0, 0, 0},
+      //                      false),
+      //                Point(ILDA_MIN,
+      //                      ILDA_MIN,
+      //                      0,
+      //                      {0, 0, 0},
+      //                      false),
+      //                5,
+      //                LINEAR);
+      // sec.points.insert(sec.points.end(), line.begin(), line.end());
     }
-    else if (i < 200)
+    else if (i < 300)
     {
-      // single blank point = delay
-      sec.points.push_back(Point(0, 0, 0, {0, 0, 0}, false));
+      uint16_t tunnel_frame = i - 150;
+      uint8_t rec_count = 4;
+      uint16_t rec_cycle_frames = 40;
+      sec.points.push_back(Point(ILDA_MIN, ILDA_MIN, 0, {0, 0, 0}, false));
+      for (size_t u = 0; u < rec_count; u++)
+      {
+        if ((rec_cycle_frames * u / rec_count) < tunnel_frame)
+        {
+          std::cout << "rec" << u << std::endl;
+          float rec_size = ((tunnel_frame + (rec_cycle_frames * u / rec_count)) % rec_cycle_frames) / (float)rec_cycle_frames;
+          sec.append(genRectangle(Point(ILDA_MIN * rec_size, ILDA_MIN * rec_size, 0, {0, 0, 0}, false),
+                                  Point(ILDA_MAX * rec_size, ILDA_MAX * rec_size, 0, {0, 0, 0}, false),
+                                  hsv2rgb((u * 100) % 360, 100, 100)));
+        }
+      }
+    }
+    else if (i < 400)
+    {
+      sec.append(genText("1956",
+                         Point(ILDA_MIN, ILDA_MIN / 4, 0, {0, 0, 0}, false),
+                         Point(ILDA_MAX, ILDA_MAX / 4, 0, {0, 0, 0}, false),
+                         hsv2rgb((i * 10) % 360, 100, 100),
+                         0.3,
+                         last_point(),
+                         letters_appear_skip(4, 300, 350, i)));
+      sec.append(last_point(true));
+      sec.append(genSineWave(HSVPoint(ILDA_MIN, ILDA_MIN, 0, {(i * 10) % 360, 255, 255}, true),
+                             HSVPoint(ILDA_MAX, ILDA_MIN / 10 * 9, 0, {(i * 10) % 360, 255, 255}, true), 20, 3.14 * 8, (float)i / 2));
+      sec.append(last_point(true));
+      sec.append(genSineWave(HSVPoint(ILDA_MIN, ILDA_MAX, 0, {(i * 10) % 360, 255, 255}, true),
+                             HSVPoint(ILDA_MAX, ILDA_MAX / 10 * 9, 0, {(i * 10) % 360, 255, 255}, true), 20, 3.14 * 8, (float)i / 2));
     }
     else
     {
-      // letters
+      sec.append(genText("PR.N.L.",
+                         Point(ILDA_MIN, ILDA_MIN / 4, 0, {0, 0, 0}, false),
+                         Point(ILDA_MAX, ILDA_MAX / 4, 0, {0, 0, 0}, false),
+                         hsv2rgb((i * 10) % 360, 100, 100),
+                         0.3,
+                         last_point(),
+                         /*(i < 300) ? letters_appear_skip(6, 200, 300, i) :*/ 0));
 
-      auto last_point = [&]()
-      {
-        if (sec.points.empty())
-          return Point(0, 0, 0, {0, 0, 0}, false);
-        return Point(sec.points.back());
-      };
-
-      sec.points = {Point(0, 0, 0, {0, 0, 0}, false)}; // start with a blank point
-      std::vector<Point> letter = genLetter('A',
-                                            Point(ILDA_MIN, ILDA_MIN, 0, {0, 0, 0}, false),
-                                            Point(0, 0, 0, {0, 0, 0}, false),
-                                            hsv2rgb((i * 10) % 360, 100, 100),
-                                            last_point());
-      sec.points.insert(sec.points.end(), letter.begin(), letter.end());
-      if (i > 550)
-      {
-        letter = genLetter('B',
-                           Point(0, 0, 0, {0, 0, 0}, false),
-                           Point(ILDA_MAX, ILDA_MAX, 0, {0, 0, 0}, false),
-                           hsv2rgb((i * 10) % 360, 100, 100),
-                           last_point());
-        sec.points.insert(sec.points.end(), letter.begin(), letter.end());
-      }
+      sec.append(last_point(true));
+      sec.append(genSineWave(HSVPoint(ILDA_MIN, ILDA_MIN, 0, {(i * 10) % 360, 255, 255}, true),
+                             HSVPoint(ILDA_MAX, ILDA_MIN / 10 * 9, 0, {(i * 10) % 360, 255, 255}, true), 20, 3.14 * 8, (float)i / 2));
+      sec.append(last_point(true));
+      sec.append(genSineWave(HSVPoint(ILDA_MIN, ILDA_MAX, 0, {(i * 10) % 360, 255, 255}, true),
+                             HSVPoint(ILDA_MAX, ILDA_MAX / 10 * 9, 0, {(i * 10) % 360, 255, 255}, true), 20, 3.14 * 8, (float)i / 2));
     }
 
-    sec.points.back().last_point = 1;
-    sec.number_of_records = endian_switch(sec.points.size());
-
-    sections.push_back(sec);
+    WRITE_SEC
   }
 
   uint16_t total_frames = endian_switch(sections.size());

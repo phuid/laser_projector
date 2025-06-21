@@ -68,6 +68,13 @@ struct section
 	uint8_t projector_number = 0;
 
 	std::vector<Point> points;
+
+	void append(std::vector<Point> line) {
+      this->points.insert(this->points.end(), line.begin(), line.end());
+	}
+	void append(Point point) {
+		this->points.push_back(point);
+	}
 };
 
 RGBColor hsv2rgb(float H, float S, float V)
