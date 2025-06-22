@@ -23,9 +23,9 @@ struct RGBColor
 
 struct HSVColor
 {
-	uint8_t h;
-	uint8_t s;
-	uint8_t v;
+	uint16_t h; // Hue component (0-360)
+	uint8_t s; // Saturation component (0-100)
+	uint8_t v; // Value component (0-100)
 };
 
 class Point

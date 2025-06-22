@@ -47,7 +47,7 @@ RGBColor blendRGBcolors(RGBColor from, RGBColor to, float progress)
 /// @return
 RGBColor blendHSVcolors(HSVColor from, HSVColor to, float progress)
 {
-  if (from.h > to.h)
+  if (to.h > from.h)
   {
     from.h += 360; // ensure that the hue is always increasing
   }
@@ -327,10 +327,13 @@ std::vector<Point> genText(std::string text, Point top_left, Point bottom_right,
   return points;
 }
 
-#define WRITE_SEC                                           \
-  sec.points.back().last_point = 1;                         \
-  sec.number_of_records = endian_switch(sec.points.size()); \
-                                                            \
+#define WRITE_SEC                                                         \
+  if (sec.points.empty())                                                 \
+  {                                                                       \
+    sec.points.push_back(Point(ILDA_MIN, ILDA_MIN, 0, {0, 0, 0}, false)); \
+  }                                                                       \
+  sec.points.back().last_point = 1;                                       \
+  sec.number_of_records = endian_switch(sec.points.size());               \
   sections.push_back(sec);
 
 #define INIT_SEC \
@@ -341,7 +344,7 @@ int main()
 {
   std::vector<section> sections;
 
-  for (uint16_t i = 150; i < 300; i++)
+  for (uint16_t i = 150; i < 400; i++)
   {
     std::cout << "Generating section " << i << std::endl;
 
@@ -504,23 +507,99 @@ int main()
       //                LINEAR);
       // sec.points.insert(sec.points.end(), line.begin(), line.end());
     }
-    else if (i < 300)
+    else if (i < 400) // 300
     {
+
       uint16_t tunnel_frame = i - 150;
       uint8_t rec_count = 4;
-      uint16_t rec_cycle_frames = 40;
-      sec.points.push_back(Point(ILDA_MIN, ILDA_MIN, 0, {0, 0, 0}, false));
-      for (size_t u = 0; u < rec_count; u++)
+      uint16_t rec_cycle_frames = 60;
+
+      float max_size = -1;
+      float min_size = -1;
+
+      for (size_t u = 1; u <= rec_count; u++)
       {
-        if ((rec_cycle_frames * u / rec_count) < tunnel_frame)
+        if ((tunnel_frame + (rec_cycle_frames * u / rec_count)) > rec_cycle_frames)
         {
-          std::cout << "rec" << u << std::endl;
           float rec_size = ((tunnel_frame + (rec_cycle_frames * u / rec_count)) % rec_cycle_frames) / (float)rec_cycle_frames;
+
+          if (max_size < 0)
+          {
+            max_size = rec_size;
+          }
+          else if (rec_size > max_size)
+          {
+            max_size = rec_size;
+          }
+
+          if (min_size < 0)
+          {
+            min_size = rec_size;
+          }
+          else if (rec_size < min_size)
+          {
+            min_size = rec_size;
+          }
+
+          std::cout << "rec:" << u << ", size:" << rec_size << std::endl;
+
           sec.append(genRectangle(Point(ILDA_MIN * rec_size, ILDA_MIN * rec_size, 0, {0, 0, 0}, false),
                                   Point(ILDA_MAX * rec_size, ILDA_MAX * rec_size, 0, {0, 0, 0}, false),
-                                  hsv2rgb((u * 100) % 360, 100, 100)));
+                                  hsv2rgb((int)((1 - rec_size) * 240) % 360, 100, 100)));
+          sec.append(last_point(true));
         }
       }
+
+      float center_distance = 0;
+      sec.append(Point(0, 0, 0, {0, 0, 0}, false));
+
+      sec.append(genLine(HSVPoint(ILDA_MIN * center_distance, ILDA_MIN * center_distance, 0, {(int)((1 - center_distance) * 240) % 360, 100, 100}, true),
+                         HSVPoint(ILDA_MIN * max_size, ILDA_MIN * max_size, 0, {(int)((1 - max_size) * 240) % 360, 100, 100}, true),
+                         10,
+                         LINEAR,
+                         true));
+      sec.append(last_point(true));
+      sec.append(genLine(last_point(true),
+                         Point(0, 0, 0, {0, 0, 0}, false),
+                         2,
+                         LINEAR,
+                         true));
+      sec.append(genLine(HSVPoint(ILDA_MAX * center_distance, ILDA_MIN * center_distance, 0, {(int)((1 - center_distance) * 240) % 360, 100, 100}, true),
+                         HSVPoint(ILDA_MAX * max_size, ILDA_MIN * max_size, 0, {(int)((1 - max_size) * 240) % 360, 100, 100}, true),
+                         10,
+                         LINEAR,
+                         true));
+
+      sec.append(last_point(true));
+      sec.append(genLine(last_point(true),
+                         Point(0, 0, 0, {0, 0, 0}, false),
+                         2,
+                         LINEAR,
+                         true));
+      sec.append(genLine(HSVPoint(ILDA_MAX * center_distance, ILDA_MAX * center_distance, 0, {(int)((1 - center_distance) * 240) % 360, 100, 100}, true),
+                         HSVPoint(ILDA_MAX * max_size, ILDA_MAX * max_size, 0, {(int)((1 - max_size) * 240) % 360, 100, 100}, true),
+                         10,
+                         LINEAR,
+                         true));
+
+      sec.append(last_point(true));
+      sec.append(genLine(last_point(true),
+                         Point(0, 0, 0, {0, 0, 0}, false),
+                         2,
+                         LINEAR,
+                         true));
+      sec.append(genLine(HSVPoint(ILDA_MIN * center_distance, ILDA_MAX * center_distance, 0, {(int)((1 - center_distance) * 240) % 360, 100, 100}, true),
+                         HSVPoint(ILDA_MIN * max_size, ILDA_MAX * max_size, 0, {(int)((1 - max_size) * 240) % 360, 100, 100}, true),
+                         10,
+                         LINEAR,
+                         true));
+
+      sec.append(last_point(true));
+      sec.append(genLine(last_point(true),
+                         Point(0, 0, 0, {0, 0, 0}, false),
+                         2,
+                         LINEAR,
+                         true));
     }
     else if (i < 400)
     {
