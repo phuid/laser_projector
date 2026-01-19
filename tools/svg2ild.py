@@ -1,4 +1,5 @@
-#from https://github.com/marcan/openlase/blob/master/tools/svg2ild.py
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Based on: https://github.com/marcan/openlase
 
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
@@ -549,7 +550,7 @@ class SVGPath(object):
 
     def parse(self, data):
         ds = re.split(
-            r"[ \r\n\t]*([-+]?\d+\.\d+[eE][+-]?\d+|[-+]?\d+\.\d+|[-+]?\.\d+[eE][+-]?\d+|[-+]?\.\d+|[-+]?\d+\.?[eE][+-]?\d+|[-+]?\d+\.?|[MmZzLlHhVvCcSsQqTtAa])[, \r\n\t]*", data)
+            r"[ \r\n\t]*([-+]?\d+\.\d+[eE][+-]?\d+|[-+]?\d+\.\d+|[-+]?\.\d+[eE][+-]?\d+|[-+]?\.\d+|[-+]?\d+\.?[eE][+-]?\d+|[-+]?\d+\.?)[, \r\n\t]*", data)
         tokens = ds[1::2]
         if any(ds[::2]) or not all(ds[1::2]):
             raise ValueError("Invalid SVG path expression: %r" % data)

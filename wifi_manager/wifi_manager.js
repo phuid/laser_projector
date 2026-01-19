@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Based on: https://github.com/sabhiram/raspberry-wifi-conf
+
 const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");

@@ -1,0 +1,14 @@
+This project contains code from multiple sources:
+
+- /tools/svg2ild.py: GNU GPL v2 or v3 (see LICENSES/GPL-2.0.txt and LICENSES/GPL-3.0.txt)
+  Author: [Hector Martin <marcan@github> <hector@marcansoft.com>](https://github.com/marcan)
+- /rpi-lasershow: MIT License (see LICENSES/MIT.txt)
+  Author: [Tomislav Teskac <tteskac@github>](https://github.com/tteskac)
+- /wifi-manager: MIT License (see LICENSES/MIT.txt)
+  Author: [Shaba Abhiram <sabhiram@github>](https://github.com/sabhiram)
+- /UI/soft_(lcd|i2c).(c|h): Unlicense (see LICENSES/Unlicense.txt)
+  Author: [ElectronicayCiencia <electronicayciencia@github>](https://github.com/electronicayciencia)
+
+All other parts of this software are licensed under the MIT License.
+Copyright (c) 2025 [<phuid@github>](https://github.com/phuid)
+
